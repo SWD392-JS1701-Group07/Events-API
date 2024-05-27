@@ -21,5 +21,40 @@ namespace Events.Data.Repositories
         {
             return await _context.Events.ToListAsync();
         }
+        public async Task Add(Event newEvent)
+        {
+            await _context.Events.AddAsync(newEvent);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+        public async Task UpdateStatus(Event eventToUpdate)
+        {
+            _context.Events.Update(eventToUpdate);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Event> GetEventById(int id)
+        {
+            return await _context.Events.FindAsync(id);
+        }
+
+        public async Task UpdateEvent(Event eventToUpdate)
+        {
+            _context.Events.Update(eventToUpdate);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteEvent(int id)
+        {
+            var eventToDelete = await _context.Events.FindAsync(id);
+            if (eventToDelete != null)
+            {
+                _context.Events.Remove(eventToDelete);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

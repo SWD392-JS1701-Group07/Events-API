@@ -10,5 +10,9 @@ namespace Events.Business.Interfaces
     public interface IEventService
     {
         Task<List<EventDTO>> GetAllEvents();
+        Task<EventDTO> CreateEvent(CreateEventDTO createEventDTO);
+        Task<EventDTO> GetEventById(int id);
+        Task UpdateEvent(EventDTO eventDTO);
+        Task<List<EventDTO>> GetEventsNeedingApproval();
     }
 }
