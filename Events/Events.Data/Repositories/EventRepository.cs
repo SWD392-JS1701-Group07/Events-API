@@ -30,12 +30,18 @@ namespace Events.Data.Repositories
         {
             await _context.SaveChangesAsync();
         }
-        public async Task UpdateStatus(Event eventToUpdate)
+        public async Task UpdateStatus(Event eventEntity)
         {
-            _context.Events.Update(eventToUpdate);
+            var local = _context.Set<Event>().Local.FirstOrDefault(entry => entry.Id.Equals(eventEntity.Id));
+            if (local != null)
+            {
+                // Detach the local instance if it exists.
+                _context.Entry(local).State = EntityState.Detached;
+            }
+
+            _context.Entry(eventEntity).Property(e => e.EventStatus).IsModified = true;
             await _context.SaveChangesAsync();
         }
-
         public async Task<Event> GetEventById(int id)
         {
             return await _context.Events.FindAsync(id);

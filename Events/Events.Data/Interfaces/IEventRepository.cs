@@ -14,7 +14,7 @@ namespace Events.Data.Interfaces
 
         Task Add(Event newEvent);
         Task SaveChangesAsync();
-        Task UpdateStatus(Event eventToUpdate);
+        Task UpdateStatus(Event eventEntity);
 
         Task<Event> GetEventById(int id);
 
