@@ -19,7 +19,9 @@ namespace Events.Business.Mapping
                 .ReverseMap();
 
             CreateMap<CreateEventDTO, Event>()
-               .ForMember(d => d.EventStatus, o => o.MapFrom(src => src.EventStatus));
+               .ForMember(d => d.EventStatus, o => o.MapFrom(src => src.EventStatus.ToString()));
+
+            CreateMap<Collaborator, CollaboratorDTO>().ReverseMap();
         }
 
     }

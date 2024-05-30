@@ -13,6 +13,14 @@ namespace Events.Data
             Planning,
             Pending,
             Ongoing,
+            Completed,
+            Rejected
+        }
+
+        public enum CollaboratorStatus
+        {
+            Registered,
+            Approved,
             Completed
         }
     }
