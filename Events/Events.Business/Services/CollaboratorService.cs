@@ -2,6 +2,7 @@
 using Events.Business.Interfaces;
 using Events.Data;
 using Events.Data.DTOs;
+using Events.Data.DTOs.Request;
 using Events.Data.Interfaces;
 using Events.Data.Models;
 using System;
