@@ -60,7 +60,7 @@ namespace Events.Data.Repositories
             {
                 _context.Events.Remove(eventToDelete);
                 await _context.SaveChangesAsync();
-            }
+            }   
         }
     }
 }

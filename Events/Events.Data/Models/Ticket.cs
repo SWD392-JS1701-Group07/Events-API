@@ -19,9 +19,9 @@ public partial class Ticket
 
     public int IsCheckIn { get; set; }
 
-    public int OrderDetailsId { get; set; }
+    public int OrdersId { get; set; }
 
     public virtual Event Event { get; set; } = null!;
 
-    public virtual OrderDetail OrderDetails { get; set; } = null!;
+    public virtual Order Orders { get; set; } = null!;
 }

@@ -1,4 +1,5 @@
 ﻿using Events.Data.DTOs;
+using Events.Data.DTOs.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;

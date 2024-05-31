@@ -4,11 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 using Events.Data.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using static Events.Data.Enums;
+using Events.Data.DTOs.Request;
+using Events.Data.Models;
 
 namespace Events.API.Controllers
 {
-    [Route("api/[controller]")]
+
     [ApiController]
+    [ApiVersion("2.0")]
+    [ApiExplorerSettings(GroupName = "v2")]
+    [Route("api/events")]
+    [ApiVersionNeutral]
     public class EventController : ControllerBase
     {
         private readonly IEventService _eventService;
@@ -18,6 +24,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "4")]
         public async Task<IActionResult> ViewAllEvents()
         {
             var events = await _eventService.GetAllEvents();
@@ -31,7 +38,7 @@ namespace Events.API.Controllers
             }
         }
         [HttpPost("created-events")]
-      //  [Authorize(Roles = "Event operator")]
+        [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateEvent([FromBody] CreateEventDTO createEventDTO)
@@ -48,7 +55,7 @@ namespace Events.API.Controllers
 
         // Only EventApprover role can approve the event
         [HttpPut("{id}/approve-events")]
-        //[Authorize(Roles = "Staff")]
+        [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateEventStatus(int id, [FromQuery] EventStatus newStatus)
@@ -63,7 +70,7 @@ namespace Events.API.Controllers
             return Ok(eventToUpdate);
         }
         [HttpGet("needing-approval")]
-        //[Authorize(Roles = "Staff")]
+        [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetEventsNeedingApproval([FromQuery] EventStatus? status)
         {
@@ -72,7 +79,7 @@ namespace Events.API.Controllers
             return Ok(events);
         }
         [HttpPut("{id}/update-details")]
-        //[Authorize(Roles = "Event operator")]
+        [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -95,7 +102,7 @@ namespace Events.API.Controllers
             return Ok(updateEventDTO);
         }
         [HttpDelete("{id}/delete-event")]
-        // [Authorize(Roles = "Event operator")]
+         [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteEvent(int id)
@@ -109,10 +116,5 @@ namespace Events.API.Controllers
             await _eventService.DeleteEvent(id);
             return Ok();
         }
-
-
-
-
-
     }
 }
