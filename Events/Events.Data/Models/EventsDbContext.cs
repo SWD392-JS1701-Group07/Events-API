@@ -29,8 +29,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
 
     public virtual DbSet<Order> Orders { get; set; }
 
-    public virtual DbSet<OrderDetail> OrderDetails { get; set; }
-
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Sponsor> Sponsors { get; set; }
@@ -100,6 +98,9 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
         {
             entity.ToTable("Event");
 
+            entity.Property(e => e.AvatarUrl)
+                .HasMaxLength(10)
+                .IsFixedLength();
             entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
@@ -124,16 +125,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Orders_Customers");
-        });
-
-        modelBuilder.Entity<OrderDetail>(entity =>
-        {
-            entity.Property(e => e.Id).ValueGeneratedNever();
-
-            entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails)
-                .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_OrderDetails_Orders");
         });
 
         modelBuilder.Entity<Role>(entity =>
@@ -194,10 +185,10 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Ticket_Event");
 
-            entity.HasOne(d => d.OrderDetails).WithMany(p => p.Tickets)
-                .HasForeignKey(d => d.OrderDetailsId)
+            entity.HasOne(d => d.Orders).WithMany(p => p.Tickets)
+                .HasForeignKey(d => d.OrdersId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Ticket_OrderDetails");
+                .HasConstraintName("FK_Ticket_Orders");
         });
 
         modelBuilder.Entity<Transaction>(entity =>

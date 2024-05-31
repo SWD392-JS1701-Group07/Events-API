@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Events.Data;
 using Events.Data.DTOs;
+using Events.Data.DTOs.Request;
 using Events.Data.Models;
 using System;
 using System.Collections.Generic;

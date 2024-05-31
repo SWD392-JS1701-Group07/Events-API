@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Events.Data.DTOs
+namespace Events.Data.DTOs.Request
 {
     public class CreateEventDTO
     {
