@@ -1,6 +1,6 @@
 ﻿using Events.Business.Interfaces;
 using Events.Data;
-using Events.Data.DTOs;
+using Events.Data.DTOs.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -8,8 +8,11 @@ using System.Threading.Tasks;
 
 namespace Events.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("2.0")]
+    [ApiExplorerSettings(GroupName = "v2")]
+    [Route("api/collaborators")]
+    [ApiVersionNeutral]
     public class CollaboratorController : ControllerBase
     {
         private readonly ICollaboratorService _collaboratorService;
@@ -20,7 +23,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles = "Staff,Event operator")]
+        [Authorize(Roles = "4, 5")]
         public async Task<IActionResult> GetAllCollaborators()
         {
             var collaborators = await _collaboratorService.GetAllCollaborators();
@@ -28,7 +31,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("{id}")]
-        //[Authorize(Roles = "Staff,Event operator")]
+        [Authorize(Roles = "4, 5")]
         public async Task<IActionResult> GetCollaboratorById(int id)
         {
             var collaborator = await _collaboratorService.GetCollaboratorById(id);
@@ -40,14 +43,14 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("search")]
-        //[Authorize(Roles = "Staff,Event operator")]
+        [Authorize(Roles = "4, 5")]
         public async Task<IActionResult> SearchCollaborators(int? accountId, int? eventId, Enums.CollaboratorStatus? collabStatus)
         {
             var collaborators = await _collaboratorService.SearchCollaborators(accountId, eventId, collabStatus);
             return Ok(collaborators);
         }
         [HttpPost("register")]
-       //[Authorize(Roles = "Visitor")]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> RegisterCollaborator([FromBody] CreateCollaboratorDTO createCollaboratorDto)
         {
             if (!ModelState.IsValid)
