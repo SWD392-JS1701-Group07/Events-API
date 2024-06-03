@@ -47,12 +47,19 @@ namespace Events.Data.Repositories
             return await _context.Events.FindAsync(id);
         }
 
-        public async Task UpdateEvent(Event eventToUpdate)
+        public async Task UpdateEvent(Event eventEntity)
         {
-            _context.Events.Update(eventToUpdate);
+            var local = _context.Set<Event>().Local.FirstOrDefault(entry => entry.Id.Equals(eventEntity.Id));
+            if (local != null)
+            {
+                // Detach the local instance if it exists
+                _context.Entry(local).State = EntityState.Detached;
+            }
+
+            // Update the entity
+            _context.Events.Update(eventEntity);
             await _context.SaveChangesAsync();
         }
-
         public async Task DeleteEvent(int id)
         {
             var eventToDelete = await _context.Events.FindAsync(id);
@@ -62,5 +69,17 @@ namespace Events.Data.Repositories
                 await _context.SaveChangesAsync();
             }   
         }
+        public async Task<IEnumerable<Event>> SearchEventsByNameAsync(string eventName)
+        {
+            return await _context.Events
+                                 .Where(e => EF.Functions.Like(e.Name, $"%{eventName}%"))
+                                 .ToListAsync();
+        }
+        public async Task<Event> GetEventByIdAsync(int eventId)
+        {
+            return await _context.Events
+                                 .FirstOrDefaultAsync(e => e.Id == eventId);
+        }
+
     }
 }

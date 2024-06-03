@@ -18,10 +18,11 @@ namespace Events.Data.Repositories
             _context = eventsDbContext;
         }
 
-        public async Task<List<Collaborator>> GetAllCollaborators()
+        public async Task<IEnumerable<Collaborator>> GetAllCollaboratorsAsync()
         {
-            return await _context.Set<Collaborator>().ToListAsync();
+            return await _context.Collaborators.Include(c => c.Event).ToListAsync();
         }
+
 
         public async Task<Collaborator> GetCollaboratorById(int id)
         {
@@ -30,7 +31,7 @@ namespace Events.Data.Repositories
 
         public async Task<IEnumerable<Collaborator>> SearchCollaborators(int? accountId, int? eventId, Enums.CollaboratorStatus? collabStatus)
         {
-            var query = _context.Collaborators.AsQueryable();
+            var query = _context.Collaborators.Include(c => c.Event).AsQueryable();
 
             if (accountId.HasValue)
             {
@@ -51,9 +52,19 @@ namespace Events.Data.Repositories
         }
         public async Task<Collaborator> AddAsync(Collaborator collaborator)
         {
-            await _context.Set<Collaborator>().AddAsync(collaborator);
+            await _context.Collaborators.AddAsync(collaborator);
             await _context.SaveChangesAsync();
             return collaborator;
+        }
+        public async Task<Collaborator> GetByIdAsync(int id)
+        {
+            return await _context.Collaborators.Include(c => c.Event).FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task UpdateAsync(Collaborator collaborator)
+        {
+            _context.Collaborators.Update(collaborator);
+            await _context.SaveChangesAsync();
         }
     }
 }

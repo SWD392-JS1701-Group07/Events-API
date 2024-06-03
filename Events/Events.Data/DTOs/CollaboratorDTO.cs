@@ -12,6 +12,7 @@ namespace Events.Data.DTOs
         public int IsCheckIn { get; set; }
         public int AccountId { get; set; }
         public int EventId { get; set; }
+        public string EventName { get; set; }
         public Enums.CollaboratorStatus CollabStatus { get; set; }
     }
 }

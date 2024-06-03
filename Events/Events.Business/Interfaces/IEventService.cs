@@ -15,8 +15,10 @@ namespace Events.Business.Interfaces
         Task<EventDTO> CreateEvent(CreateEventDTO createEventDTO);
         Task<EventDTO> GetEventById(int id);
         Task UpdateStatus(int id, EventStatus newStatus);
-        Task UpdateEventDetails(EventDTO updateEventDTO);
+        Task UpdateEventDetails(int id, CreateEventDTO updateEventDTO);
         Task<List<EventDTO>> GetEventsByStatus(EventStatus status);
         Task DeleteEvent(int id);
+        Task<IEnumerable<EventDTO>> SearchEventsByNameAsync(string eventName);
+        Task<string> GetEventNameByIdAsync(int eventId);
     }
 }

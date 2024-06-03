@@ -21,5 +21,8 @@ namespace Events.Data.Interfaces
         Task UpdateEvent(Event eventToUpdate);
 
         Task DeleteEvent(int id);
+        Task<IEnumerable<Event>> SearchEventsByNameAsync(string eventName);
+        Task<Event> GetEventByIdAsync(int eventId);
+
     }
 }

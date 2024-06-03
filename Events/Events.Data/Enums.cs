@@ -21,7 +21,8 @@ namespace Events.Data
         {
             Registered,
             Approved,
-            Completed
+            Completed,
+            Rejected
         }
     }
 }

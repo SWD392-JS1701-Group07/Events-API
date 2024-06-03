@@ -24,10 +24,18 @@ namespace Events.Business.Services
             _mapper = mapper;
         }
 
-        public async Task<List<CollaboratorDTO>> GetAllCollaborators()
+        public async Task<IEnumerable<CollaboratorDTO>> GetAllCollaborators()
         {
-            var collaborators = await _collaboratorRepository.GetAllCollaborators();
-            return _mapper.Map<List<CollaboratorDTO>>(collaborators);
+            var collaborators = await _collaboratorRepository.GetAllCollaboratorsAsync();
+            return collaborators.Select(c => new CollaboratorDTO
+            {
+                Id = c.Id,
+                IsCheckIn = c.IsCheckIn,
+                AccountId = c.AccountId,
+                EventId = c.EventId,
+                EventName = c.Event.Name,
+                CollabStatus = c.CollabStatus
+            }).ToList();
         }
 
         public async Task<CollaboratorDTO> GetCollaboratorById(int id)
@@ -36,10 +44,18 @@ namespace Events.Business.Services
             return _mapper.Map<CollaboratorDTO>(collaborator);
         }
 
-        public async Task<List<CollaboratorDTO>> SearchCollaborators(int? accountId, int? eventId, Enums.CollaboratorStatus? collabStatus)
+        public async Task<IEnumerable<CollaboratorDTO>> SearchCollaborators(int? accountId, int? eventId, Enums.CollaboratorStatus? collabStatus)
         {
             var collaborators = await _collaboratorRepository.SearchCollaborators(accountId, eventId, collabStatus);
-            return _mapper.Map<List<CollaboratorDTO>>(collaborators);
+            return collaborators.Select(c => new CollaboratorDTO
+            {
+                Id = c.Id,
+                IsCheckIn = c.IsCheckIn,
+                AccountId = c.AccountId,
+                EventId = c.EventId,
+                EventName = c.Event.Name, 
+                CollabStatus = c.CollabStatus
+            }).ToList();
         }
 
         public async Task<CollaboratorDTO> CreateCollaborator(CreateCollaboratorDTO createCollaboratorDto)
@@ -61,6 +77,69 @@ namespace Events.Business.Services
                 EventId = createdCollaborator.EventId,
                 CollabStatus = createdCollaborator.CollabStatus,
                 IsCheckIn = createdCollaborator.IsCheckIn
+            };
+        }
+        public async Task<CollaboratorDTO> ApproveCollaboratorAsync(int id)
+        {
+            var collaborator = await _collaboratorRepository.GetByIdAsync(id);
+            if (collaborator == null)
+            {
+                return null;
+            }
+
+            collaborator.CollabStatus = Enums.CollaboratorStatus.Approved;
+            await _collaboratorRepository.UpdateAsync(collaborator);
+
+            return new CollaboratorDTO
+            {
+                Id = collaborator.Id,
+                IsCheckIn = collaborator.IsCheckIn,
+                AccountId = collaborator.AccountId,
+                EventId = collaborator.EventId,
+                EventName = collaborator.Event.Name,
+                CollabStatus = collaborator.CollabStatus
+            };
+        }
+        public async Task<CollaboratorDTO> CancelCollaboratorAsync(int id)
+        {
+            var collaborator = await _collaboratorRepository.GetByIdAsync(id);
+            if (collaborator == null)
+            {
+                return null;
+            }
+
+            collaborator.CollabStatus = Enums.CollaboratorStatus.Completed;
+            await _collaboratorRepository.UpdateAsync(collaborator);
+
+            return new CollaboratorDTO
+            {
+                Id = collaborator.Id,
+                IsCheckIn = collaborator.IsCheckIn,
+                AccountId = collaborator.AccountId,
+                EventId = collaborator.EventId,
+                EventName = collaborator.Event.Name,
+                CollabStatus = collaborator.CollabStatus
+            };
+        }
+        public async Task<CollaboratorDTO> RejectCollaboratorAsync(int id)
+        {
+            var collaborator = await _collaboratorRepository.GetByIdAsync(id);
+            if (collaborator == null)
+            {
+                return null;
+            }
+
+            collaborator.CollabStatus = Enums.CollaboratorStatus.Rejected;
+            await _collaboratorRepository.UpdateAsync(collaborator);
+
+            return new CollaboratorDTO
+            {
+                Id = collaborator.Id,
+                IsCheckIn = collaborator.IsCheckIn,
+                AccountId = collaborator.AccountId,
+                EventId = collaborator.EventId,
+                EventName = collaborator.Event.Name,
+                CollabStatus = collaborator.CollabStatus
             };
         }
     }

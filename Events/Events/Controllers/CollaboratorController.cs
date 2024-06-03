@@ -23,7 +23,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "4, 5")]
+        //[Authorize(Roles = "4, 5")]
         public async Task<IActionResult> GetAllCollaborators()
         {
             var collaborators = await _collaboratorService.GetAllCollaborators();
@@ -31,7 +31,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "4, 5")]
+       // [Authorize(Roles = "4, 5")]
         public async Task<IActionResult> GetCollaboratorById(int id)
         {
             var collaborator = await _collaboratorService.GetCollaboratorById(id);
@@ -43,14 +43,30 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("search")]
-        [Authorize(Roles = "4, 5")]
-        public async Task<IActionResult> SearchCollaborators(int? accountId, int? eventId, Enums.CollaboratorStatus? collabStatus)
+       // [Authorize(Roles = "4, 5")]
+        public async Task<IActionResult> SearchCollaborators(int? accountId, int? eventId, string? collabStatus)
         {
-            var collaborators = await _collaboratorService.SearchCollaborators(accountId, eventId, collabStatus);
+            Enums.CollaboratorStatus? status = null;
+
+            if (!string.IsNullOrEmpty(collabStatus))
+            {
+                if (!Enum.TryParse<Enums.CollaboratorStatus>(collabStatus, true, out var parsedStatus))
+                {
+                    return BadRequest("Invalid collaborator status value.");
+                }
+                status = parsedStatus;
+            }
+
+            var collaborators = await _collaboratorService.SearchCollaborators(accountId, eventId, status);
             return Ok(collaborators);
         }
-        [HttpPost("register")]
-        [Authorize(Roles = "2")]
+        /// <summary>
+        /// register
+        /// </summary>
+        /// <param name="createCollaboratorDto"></param>
+        /// <returns></returns>
+        [HttpPost]
+        // [Authorize(Roles = "2")]
         public async Task<IActionResult> RegisterCollaborator([FromBody] CreateCollaboratorDTO createCollaboratorDto)
         {
             if (!ModelState.IsValid)
@@ -61,6 +77,42 @@ namespace Events.API.Controllers
             var collaborator = await _collaboratorService.CreateCollaborator(createCollaboratorDto);
 
             return CreatedAtAction(nameof(GetCollaboratorById), new { id = collaborator.Id }, collaborator);
+        }
+        [HttpPatch("{id}/approve")]
+        //[Authorize(Roles = "2")]
+        public async Task<IActionResult> ApproveCollaborator(int id)
+        {
+            var updatedCollaborator = await _collaboratorService.ApproveCollaboratorAsync(id);
+            if (updatedCollaborator == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedCollaborator);
+        }
+        [HttpPatch("{id}/cancel")]
+       // [Authorize(Roles = "2")]
+        public async Task<IActionResult> CancelCollaborator(int id)
+        {
+            var updatedCollaborator = await _collaboratorService.CancelCollaboratorAsync(id);
+            if (updatedCollaborator == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedCollaborator);
+        }
+        [HttpPatch("{id}/reject")]
+        //[Authorize(Roles = "2")]
+        public async Task<IActionResult> RejectCollaborator(int id)
+        {
+            var updatedCollaborator = await _collaboratorService.RejectCollaboratorAsync(id);
+            if (updatedCollaborator == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedCollaborator);
         }
     }
 }

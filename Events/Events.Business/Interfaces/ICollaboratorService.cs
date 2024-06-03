@@ -11,9 +11,12 @@ namespace Events.Business.Interfaces
 {
     public interface ICollaboratorService
     {
-        Task<List<CollaboratorDTO>> GetAllCollaborators();
+        Task<IEnumerable<CollaboratorDTO>> GetAllCollaborators();
         Task<CollaboratorDTO> GetCollaboratorById(int id);
-        Task<List<CollaboratorDTO>> SearchCollaborators(int? accountId, int? eventId, Enums.CollaboratorStatus? collabStatus);
+        Task<IEnumerable<CollaboratorDTO>> SearchCollaborators(int? accountId, int? eventId, Enums.CollaboratorStatus? collabStatus);
         Task<CollaboratorDTO> CreateCollaborator(CreateCollaboratorDTO createCollaboratorDto);
+        Task<CollaboratorDTO> ApproveCollaboratorAsync(int id);
+        Task<CollaboratorDTO> CancelCollaboratorAsync(int id);
+        Task<CollaboratorDTO> RejectCollaboratorAsync(int id);
     }
 }

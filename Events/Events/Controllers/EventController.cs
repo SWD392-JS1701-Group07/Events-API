@@ -24,7 +24,6 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "4")]
         public async Task<IActionResult> ViewAllEvents()
         {
             var events = await _eventService.GetAllEvents();
@@ -37,8 +36,8 @@ namespace Events.API.Controllers
                 return Ok(events);
             }
         }
-        [HttpPost("created-events")]
-        [Authorize(Roles = "5")]
+        [HttpPost]
+        //[Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateEvent([FromBody] CreateEventDTO createEventDTO)
@@ -53,12 +52,16 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateEvent), new { id = createdEvent.Id }, createdEvent);
         }
 
-        // Only EventApprover role can approve the event
-        [HttpPut("{id}/approve-events")]
+        /// <summary>
+        /// approve-events
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
         [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateEventStatus(int id, [FromQuery] EventStatus newStatus)
+        public async Task<IActionResult> UpdateEventStatus(int id)
         {
             var eventToUpdate = await _eventService.GetEventById(id);
             if (eventToUpdate == null)
@@ -66,15 +69,18 @@ namespace Events.API.Controllers
                 return NotFound();
             }
 
+            // Fix the status to "Ongoing"
+            var newStatus = EventStatus.Ongoing;
             await _eventService.UpdateStatus(id, newStatus);
             return Ok(eventToUpdate);
         }
+        ///
         [HttpGet("needing-approval")]
         [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetEventsNeedingApproval([FromQuery] EventStatus? status)
+        public async Task<IActionResult> GetEventsNeedingApproval()
         {
-            var eventStatus = status ?? EventStatus.Ongoing; 
+            var eventStatus = EventStatus.Planning;
             var events = await _eventService.GetEventsByStatus(eventStatus);
             return Ok(events);
         }
@@ -83,7 +89,7 @@ namespace Events.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateEventDetails(int id, [FromBody] EventDTO updateEventDTO)
+        public async Task<IActionResult> UpdateEventDetails(int id, [FromBody] CreateEventDTO updateEventDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -96,12 +102,23 @@ namespace Events.API.Controllers
                 return NotFound();
             }
 
-            updateEventDTO.Id = id;
-            await _eventService.UpdateEventDetails(updateEventDTO);
+            try
+            {
+                await _eventService.UpdateEventDetails(id, updateEventDTO);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
 
             return Ok(updateEventDTO);
         }
-        [HttpDelete("{id}/delete-event")]
+        /// <summary>
+        /// delete-event
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
          [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -116,5 +133,41 @@ namespace Events.API.Controllers
             await _eventService.DeleteEvent(id);
             return Ok();
         }
+        [HttpGet("search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SearchEventsByName([FromQuery] string eventName)
+        {
+            if (string.IsNullOrEmpty(eventName))
+            {
+                return BadRequest("Event name cannot be empty.");
+            }
+
+            var events = await _eventService.SearchEventsByNameAsync(eventName);
+
+            if (!events.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(events);
+        }
+        [HttpGet("{id}/name")]
+        //[Authorize(Roles = "4,5")] 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetEventNameById(int id)
+        {
+            try
+            {
+                var eventName = await _eventService.GetEventNameByIdAsync(id);
+                return Ok(new { EventName = eventName });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
     }
 }

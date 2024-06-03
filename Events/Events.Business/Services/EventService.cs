@@ -53,14 +53,19 @@ namespace Events.Business.Services
             }
         }
 
-        public async Task UpdateEventDetails(EventDTO updateEventDTO)
+        public async Task UpdateEventDetails(int id, CreateEventDTO updateEventDTO)
         {
-            var eventEntity = await _eventRepository.GetEventById(updateEventDTO.Id);
-            if (eventEntity != null)
+            var eventEntity = await _eventRepository.GetEventById(id);
+            if (eventEntity == null)
             {
-                _mapper.Map(updateEventDTO, eventEntity);
-                await _eventRepository.UpdateEvent(eventEntity);
+                throw new KeyNotFoundException("Event not found");
             }
+
+            // Use AutoMapper or similar tool to map properties from DTO to entity
+            _mapper.Map(updateEventDTO, eventEntity);
+            eventEntity.Id = id; // Ensure the ID is set correctly
+
+            await _eventRepository.UpdateEvent(eventEntity);
         }
 
         public async Task<List<EventDTO>> GetEventsByStatus(EventStatus status)
@@ -82,6 +87,20 @@ namespace Events.Business.Services
             {
                 await _eventRepository.DeleteEvent(id);
             }
+        }
+        public async Task<IEnumerable<EventDTO>> SearchEventsByNameAsync(string eventName)
+        {
+            var events = await _eventRepository.SearchEventsByNameAsync(eventName);
+            return _mapper.Map<IEnumerable<EventDTO>>(events);
+        }
+        public async Task<string> GetEventNameByIdAsync(int eventId)
+        {
+            var eventEntity = await _eventRepository.GetEventByIdAsync(eventId);
+            if (eventEntity == null)
+            {
+                throw new KeyNotFoundException("Event not found");
+            }
+            return eventEntity.Name;
         }
     }
 }
