@@ -137,8 +137,13 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger";
     });
 }
-
 app.UseHttpsRedirection();
+
+string imagePath = Path.Combine(builder.Environment.ContentRootPath, "Images");
+if(!Directory.Exists(imagePath))
+{
+    Directory.CreateDirectory(imagePath);
+}
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Images")),
@@ -153,3 +158,4 @@ app.MapControllers();
 app.UseCors();
 
 app.Run();
+

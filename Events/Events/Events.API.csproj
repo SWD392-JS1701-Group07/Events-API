@@ -28,8 +28,4 @@
     <ProjectReference Include="..\Events.Business\Events.Business.csproj" />
   </ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Images\" />
-	</ItemGroup>
-
 </Project>
