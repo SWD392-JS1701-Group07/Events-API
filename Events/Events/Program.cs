@@ -7,7 +7,9 @@ using Events.Data.Models;
 using Events.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -20,7 +22,8 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<IEventsDbContext, EventsDbContext>();
+builder.Services.AddDbContext<EventsDbContext>(
+    option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -111,6 +114,9 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddScoped<ICollaboratorRepository, CollaboratorRepository>();
 builder.Services.AddScoped<ICollaboratorService, CollaboratorService>();
+builder.Services.AddScoped<ISponsorRepository, SponsorRepository>();
+builder.Services.AddScoped<ISponsorService, SponsorService>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder =>
         policyBuilder.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
@@ -133,6 +139,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Images")),
+    RequestPath = "/Images"
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

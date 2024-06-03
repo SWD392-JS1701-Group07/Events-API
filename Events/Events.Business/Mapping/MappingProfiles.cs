@@ -23,7 +23,14 @@ namespace Events.Business.Mapping
                .ForMember(d => d.EventStatus, o => o.MapFrom(src => src.EventStatus.ToString()));
 
             CreateMap<Collaborator, CollaboratorDTO>().ReverseMap();
-        }
+			CreateMap<CreateSponsorDTO, Sponsor>()
+			    .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
+			CreateMap<UpdateSponsorDTO, Sponsor>()
+				.ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
+
+			CreateMap<SponsorDTO, Sponsor>().ReverseMap();
+                
+		}
 
     }
 }
