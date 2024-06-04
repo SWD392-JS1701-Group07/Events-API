@@ -8,10 +8,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Events.Data\Events.Data.csproj" />
+    <ProjectReference Include="..\Events.Utils\Events.Utils.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-	 <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="AutoMapper" Version="12.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
   </ItemGroup>

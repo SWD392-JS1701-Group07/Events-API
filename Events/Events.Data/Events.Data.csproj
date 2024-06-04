@@ -16,4 +16,8 @@
 	</PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Events.Models\Events.Models.csproj" />
+  </ItemGroup>
+
 </Project>

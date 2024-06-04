@@ -1,6 +1,6 @@
-﻿using Events.Business.Interfaces;
-using Events.Data;
-using Events.Data.DTOs.Request;
+﻿using Events.Business.Services.Interfaces;
+using Events.Models;
+using Events.Models.DTOs.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ namespace Events.API.Controllers
     [ApiExplorerSettings(GroupName = "v2")]
     [Route("api/collaborators")]
     [ApiVersionNeutral]
+
     public class CollaboratorController : ControllerBase
     {
         private readonly ICollaboratorService _collaboratorService;

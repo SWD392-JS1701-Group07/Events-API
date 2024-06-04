@@ -1,5 +1,5 @@
-﻿using Events.Data.Interfaces;
-using Events.Data.Models;
+﻿using Events.Models.Models;
+using Events.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Events.Data.Repositories
 {
-	public class SponsorRepository : ISponsorRepository
+    public class SponsorRepository : ISponsorRepository
 	{
 		private readonly EventsDbContext _context;
         public SponsorRepository(EventsDbContext context)
