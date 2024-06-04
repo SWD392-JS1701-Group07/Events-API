@@ -64,7 +64,7 @@ namespace Events.Business.Services
             {
                 AccountId = createCollaboratorDto.AccountId,
                 EventId = createCollaboratorDto.EventId,
-                CollabStatus = Enums.CollaboratorStatus.Registered,
+                CollabStatus = (int)Enums.CollaboratorStatus.Registered,
                 IsCheckIn = 0
             };
 
@@ -75,7 +75,7 @@ namespace Events.Business.Services
                 Id = createdCollaborator.Id,
                 AccountId = createdCollaborator.AccountId,
                 EventId = createdCollaborator.EventId,
-                CollabStatus = createdCollaborator.CollabStatus,
+                CollabStatus = (Enums.CollaboratorStatus)createdCollaborator.CollabStatus,
                 IsCheckIn = createdCollaborator.IsCheckIn
             };
         }

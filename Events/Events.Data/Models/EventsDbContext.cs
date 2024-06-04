@@ -4,11 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Events.Data.Models;
 
-public interface IEventsDbContext
-{
-
-}
-public partial class EventsDbContext : DbContext, IEventsDbContext
+public partial class EventsDbContext : DbContext
 {
     public EventsDbContext()
     {
@@ -43,7 +39,7 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=(local);uid=sa;pwd=12345;database=Events;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,8 +69,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_JoinEvent");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
-
             entity.HasOne(d => d.Account).WithMany(p => p.Collaborators)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -88,7 +82,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
 
         modelBuilder.Entity<Customer>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(50);
@@ -98,9 +91,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
         {
             entity.ToTable("Event");
 
-            entity.Property(e => e.AvatarUrl)
-                .HasMaxLength(10)
-                .IsFixedLength();
             entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
@@ -116,7 +106,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Notes).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
@@ -139,7 +128,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
         {
             entity.ToTable("Sponsor");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
@@ -166,7 +154,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
         {
             entity.ToTable("Subject");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Description).HasMaxLength(200);
             entity.Property(e => e.Name).HasMaxLength(50);
         });
@@ -175,7 +162,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
         {
             entity.ToTable("Ticket");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
@@ -195,7 +181,6 @@ public partial class EventsDbContext : DbContext, IEventsDbContext
         {
             entity.ToTable("Transaction");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Date).HasColumnType("datetime");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Transactions)

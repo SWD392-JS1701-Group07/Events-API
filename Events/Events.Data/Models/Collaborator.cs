@@ -13,8 +13,7 @@ public partial class Collaborator
 
     public int EventId { get; set; }
 
-    public Enums.CollaboratorStatus CollabStatus { get; set; }
-
+    public int CollabStatus { get; set; }
 
     public virtual Account Account { get; set; } = null!;
 

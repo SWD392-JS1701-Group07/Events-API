@@ -44,8 +44,8 @@ namespace Events.Data.Repositories
             }
 
             if (collabStatus.HasValue)
-            {
-                query = query.Where(c => c.CollabStatus == collabStatus.Value);
+			{
+				query = query.Where(c => c.CollabStatus == (int)collabStatus);
             }
 
             return await query.ToListAsync();
