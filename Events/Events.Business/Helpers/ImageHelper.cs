@@ -10,12 +10,12 @@ namespace Events.Business.Helper
 {
 	public static class ImageHelper
 	{
-		private static readonly string ImageDirectory = "Images";
+		private const string ImageDirectory = "Images";
 		public static async Task<string> SaveImageAsync(IFormFile image, IWebHostEnvironment environment)
 		{
 			var uploads = Path.Combine(environment.ContentRootPath, ImageDirectory);
 			string fileName = new String(Path.GetFileNameWithoutExtension(image.FileName).Take(10).ToArray()).Replace(' ', '-');
-			fileName = fileName + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(image.FileName);
+			fileName = fileName + DateTime.Now.ToString("yyMMssfff") + Path.GetExtension(image.FileName);
 			if (!Directory.Exists(uploads))
 			{
 				Directory.CreateDirectory(uploads);
