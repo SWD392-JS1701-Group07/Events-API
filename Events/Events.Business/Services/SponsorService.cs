@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 using Azure.Core;
-using Events.Business.Helper;
-using Events.Business.Interfaces;
-using Events.Data.DTOs;
+using Events.Utils.Helper;
+using Events.Business.Services.Interfaces;
 using Events.Data.DTOs.Request;
-using Events.Data.DTOs.Response;
-using Events.Data.Interfaces;
-using Events.Data.Models;
+using Events.Models.DTOs.Response;
+using Events.Models.Models;
 using Events.Data.Repositories;
+using Events.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -15,10 +14,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Events.Models.DTOs.Request;
+using Events.Models.DTOs;
 
 namespace Events.Business.Services
 {
-	public class SponsorService : ISponsorService
+    public class SponsorService : ISponsorService
 	{
 		private readonly ISponsorRepository _sponsorRepository;
 		private readonly IMapper _mapper;

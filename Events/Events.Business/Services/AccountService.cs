@@ -1,6 +1,6 @@
-﻿using Events.Business.Interfaces;
-using Events.Data.Interfaces;
-using Events.Data.Models;
+﻿using Events.Business.Services.Interfaces;
+using Events.Models.Models;
+using Events.Data.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

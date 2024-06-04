@@ -1,11 +1,12 @@
-﻿using Events.Data.Interfaces;
-using Events.Data.Models;
+﻿using Events.Models.Models;
+using Events.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Events.Models;
 
 namespace Events.Data.Repositories
 {
@@ -45,7 +46,7 @@ namespace Events.Data.Repositories
 
             if (collabStatus.HasValue)
 			{
-				query = query.Where(c => c.CollabStatus == (int)collabStatus);
+				query = query.Where(c => c.CollabStatus == collabStatus);
             }
 
             return await query.ToListAsync();

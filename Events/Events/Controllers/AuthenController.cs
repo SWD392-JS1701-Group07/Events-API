@@ -1,9 +1,10 @@
-﻿using Events.Business.Interfaces;
-using Events.Business.Services;
-using Events.Data.DTOs.Request;
-using Events.Data.Interfaces;
+﻿using Events.Business.Services;
+using Events.Business.Services.Interfaces;
+using Events.Models.DTOs.Request;
+using Events.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Events.Data.DTOs.Request;
 
 namespace Events.API.Controllers
 {

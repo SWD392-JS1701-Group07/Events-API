@@ -1,15 +1,16 @@
 ﻿using AutoMapper;
-using Events.Business.Interfaces;
+using Events.Business.Services.Interfaces;
 using Events.Data;
-using Events.Data.DTOs;
-using Events.Data.DTOs.Request;
-using Events.Data.Interfaces;
-using Events.Data.Models;
+using Events.Models.DTOs;
+using Events.Models.DTOs.Request;
+using Events.Models.Models;
+using Events.Data.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Events.Models;
 
 namespace Events.Business.Services
 {
@@ -64,7 +65,7 @@ namespace Events.Business.Services
             {
                 AccountId = createCollaboratorDto.AccountId,
                 EventId = createCollaboratorDto.EventId,
-                CollabStatus = (int)Enums.CollaboratorStatus.Registered,
+                CollabStatus = Enums.CollaboratorStatus.Registered,
                 IsCheckIn = 0
             };
 
@@ -75,7 +76,7 @@ namespace Events.Business.Services
                 Id = createdCollaborator.Id,
                 AccountId = createdCollaborator.AccountId,
                 EventId = createdCollaborator.EventId,
-                CollabStatus = (Enums.CollaboratorStatus)createdCollaborator.CollabStatus,
+                CollabStatus = createdCollaborator.CollabStatus,
                 IsCheckIn = createdCollaborator.IsCheckIn
             };
         }

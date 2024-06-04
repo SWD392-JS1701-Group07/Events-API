@@ -1,20 +1,20 @@
 ﻿using AutoMapper;
-using Events.Business.Interfaces;
-using Events.Data.DTOs;
-using Events.Data.DTOs.Request;
-using Events.Data.Interfaces;
-using Events.Data.Models;
+using Events.Business.Services.Interfaces;
+using Events.Models.DTOs;
+using Events.Models.DTOs.Request;
+using Events.Models.Models;
+using Events.Data.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Events.Data.Enums;
+using static Events.Models.Enums;
 
 namespace Events.Business.Services
 {
     public class EventService : IEventService
-    {
+    {   
         private readonly IEventRepository _eventRepository;
         private readonly IMapper _mapper;
 

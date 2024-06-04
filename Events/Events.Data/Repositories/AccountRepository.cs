@@ -1,5 +1,5 @@
-﻿using Events.Data.Interfaces;
-using Events.Data.Models;
+﻿using Events.Models.Models;
+using Events.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

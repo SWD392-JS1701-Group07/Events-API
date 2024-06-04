@@ -1,10 +1,10 @@
 using Events.API.Controllers;
-using Events.Business.Interfaces;
-using Events.Business.Mapping;
+using Events.Business;
 using Events.Business.Services;
-using Events.Data.Interfaces;
-using Events.Data.Models;
+using Events.Business.Services.Interfaces;
+using Events.Models.Models;
 using Events.Data.Repositories;
+using Events.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -105,7 +105,7 @@ builder.Services.AddAuthentication(options =>
         };
     });
     
-builder.Services.AddAutoMapper(typeof(MappingProfiles));
+builder.Services.AddAutoMapper(typeof(Events.Utils.Mapping.MappingProfiles));
 
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();

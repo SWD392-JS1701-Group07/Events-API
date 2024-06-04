@@ -1,18 +1,20 @@
-﻿using Events.Business.Interfaces;
-using Events.Business.Services;
+﻿using Events.Business.Services;
 using Events.Data.DTOs.Request;
-using Events.Data.DTOs;
+using Events.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Events.Business.Services.Interfaces;
+using Events.Models.DTOs.Request;
 
 namespace Events.API.Controllers
 {
-	[Route("api/[controller]")]
-	[ApiVersion("2.0")]
-	[ApiExplorerSettings(GroupName = "v2")]
-	[ApiController]
-	[ApiVersionNeutral]
-	public class SponsorController : ControllerBase
+    [ApiController]
+    [ApiVersion("2.0")]
+    [ApiExplorerSettings(GroupName = "v2")]
+    [Route("api/sponsors")]
+    [ApiVersionNeutral]
+
+    public class SponsorController : ControllerBase
 	{
 		private readonly ISponsorService _sponsorService;
         public SponsorController(ISponsorService sponsorService)

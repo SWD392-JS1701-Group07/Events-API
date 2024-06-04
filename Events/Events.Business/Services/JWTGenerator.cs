@@ -1,4 +1,4 @@
-﻿using Events.Data.Models;
+﻿using Events.Models.Models;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
