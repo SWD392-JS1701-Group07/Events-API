@@ -36,6 +36,9 @@ namespace Events.API.Controllers
                 string accessToken = JWTGenerator.GenerateToken(user);
                 return Ok(new
                 {
+                    AccountId = user.Id,
+                    FullName = user.Name,
+                    Role = user.RoleId,
                     accessToken = accessToken
                 });
             }

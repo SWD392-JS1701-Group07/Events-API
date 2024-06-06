@@ -1,4 +1,5 @@
-﻿using Events.Models.Models;
+﻿using Events.Models.DTOs;
+using Events.Models.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace Events.Business.Services.Interfaces
 {
     public interface IAccountService
     {
-        Task<Account> CheckLogin(string username, string password);
+        Task<AccountDTO> CheckLogin(string username, string password);
     }
 }
