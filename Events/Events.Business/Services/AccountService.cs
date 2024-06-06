@@ -6,19 +6,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Events.Models.DTOs;
+using AutoMapper;
 
 namespace Events.Business.Services
 {
     public class AccountService : IAccountService
     {
         private readonly IAccountRepository _accountRepository;
-        public AccountService(IAccountRepository accountRepository)
+        private readonly IMapper _mapper;
+
+        public AccountService(IAccountRepository accountRepository, IMapper mapper)
         {
-            _accountRepository = accountRepository;        
+            _accountRepository = accountRepository;
+            _mapper = mapper;
         }
-        public async Task<Account> CheckLogin(string username, string password)
+        public async Task<AccountDTO> CheckLogin(string username, string password)
         {
-            return await _accountRepository.GetAccount(username, password);
+            var account = await _accountRepository.GetAccount(username, password);
+            return _mapper.Map<AccountDTO>(account);
         }
     }
 }

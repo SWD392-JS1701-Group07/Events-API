@@ -27,8 +27,9 @@ namespace Events.Utils.Mapping
 				.ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
 
 			CreateMap<SponsorDTO, Sponsor>().ReverseMap();
-                
-		}
+            CreateMap<Account, AccountDTO>().ReverseMap();
+
+        }
 
     }
 }

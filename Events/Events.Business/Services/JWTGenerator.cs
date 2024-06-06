@@ -1,4 +1,5 @@
-﻿using Events.Models.Models;
+﻿using Events.Models.DTOs;
+using Events.Models.Models;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Events.Business.Services
 {
     public class JWTGenerator
     {
-        public static string GenerateToken(Account account)
+        public static string GenerateToken(AccountDTO account)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes("1c4890495b93b9e71fee12bf1880242771ad287f814d9553b120de5b82428b0b");
@@ -30,7 +31,7 @@ namespace Events.Business.Services
                     new Claim(ClaimTypes.Role, account.RoleId.ToString()),
                     new Claim("status", account.AccountStatus.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddHours(2),
+                Expires = DateTime.UtcNow.AddHours(10),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             };
 
