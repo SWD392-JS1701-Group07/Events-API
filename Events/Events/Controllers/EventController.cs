@@ -169,5 +169,26 @@ namespace Events.API.Controllers
             }
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetEventById(int id)
+        {
+            try
+            {
+                var eventExist = await _eventService.GetEventById(id);
+                if (eventExist != null)
+                {
+                    return Ok(eventExist);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }
