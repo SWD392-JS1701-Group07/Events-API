@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Events.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace Events.Models.Models;
@@ -25,7 +26,7 @@ public partial class Account
 
     public string? AvatarUrl { get; set; }
 
-    public int AccountStatus { get; set; }
+    public Enums.AccountStatus AccountStatus { get; set; }
 
     public int RoleId { get; set; }
 

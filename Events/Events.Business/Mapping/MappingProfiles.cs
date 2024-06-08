@@ -7,7 +7,7 @@ using Events.Models.Models;
 using System;
 
 
-namespace Events.Utils.Mapping
+namespace Events.Business.Mapping
 {
     public class MappingProfiles : Profile
     {
@@ -27,7 +27,9 @@ namespace Events.Utils.Mapping
 				.ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
 
 			CreateMap<SponsorDTO, Sponsor>().ReverseMap();
-            CreateMap<Account, AccountDTO>().ReverseMap();
+            CreateMap<Account, AccountDTO>()
+                .ForMember(dest => dest.AccountStatus, o => o.MapFrom(src => src.AccountStatus.ToString()))
+                .ReverseMap();
 
         }
 

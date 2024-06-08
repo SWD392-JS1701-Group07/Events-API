@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Events.Models.DTOs;
 using AutoMapper;
+using Events.Models.DTOs.Response;
 
 namespace Events.Business.Services
 {
@@ -25,6 +26,54 @@ namespace Events.Business.Services
         {
             var account = await _accountRepository.GetAccount(username, password);
             return _mapper.Map<AccountDTO>(account);
+        }
+
+        public async Task<BaseResponse> GetAccountById(int id)
+        {
+            var account = await _accountRepository.GetAccountById(id);
+
+            if(account == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "Can't found this account"
+                };
+            }
+            else
+            {
+                var results = _mapper.Map<AccountDTO>(account);
+                return new BaseResponse
+                {
+                    StatusCode = 200,
+                    Data = results,
+                    IsSuccess = true,
+                    Message = "Return successfully"
+                };
+            }
+        }
+
+        public async Task<BaseResponse> GetAllAccounts()
+        {
+            var accounts = await _accountRepository.GetAllAccounts();
+
+            var results = _mapper.Map<List<AccountDTO>>(accounts);
+            return results.Any() ? new BaseResponse
+            {
+                StatusCode = 200,
+                Data = results,
+                IsSuccess = true,
+                Message = "Return successfully"
+            } :
+            new BaseResponse
+            {
+                StatusCode = 404,
+                Data = null,
+                IsSuccess = false,
+                Message = "Unfound"
+            };
         }
     }
 }

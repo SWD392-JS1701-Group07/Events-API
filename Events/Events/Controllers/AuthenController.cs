@@ -28,7 +28,7 @@ namespace Events.API.Controllers
             var user = await _accountService.CheckLogin(loginRequest.Username, loginRequest.Password);
 
             if (user == null)
-            {
+            {   
                 return Unauthorized("Invalid username or password!");
             }
             else

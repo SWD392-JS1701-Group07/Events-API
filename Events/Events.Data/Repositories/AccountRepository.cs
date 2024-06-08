@@ -20,5 +20,15 @@ namespace Events.Data.Repositories
         {
             return await _context.Accounts.FirstOrDefaultAsync(e => e.Username == username && e.Password == password);
         }
+
+        public async Task<Account> GetAccountById(int id)
+        {
+            return await _context.Accounts.FirstOrDefaultAsync(e => e.Id == id);
+        }
+
+        public async Task<List<Account>> GetAllAccounts()
+        {
+            return await _context.Accounts.ToListAsync();
+        }
     }
 }
