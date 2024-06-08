@@ -16,6 +16,26 @@ namespace Events.Data.Repositories
         {
             _context = context;
         }
+
+        public async Task<Account> GetAccountByUsername(string username)
+        {
+            return await _context.Accounts.FirstOrDefaultAsync(e => e.Username == username);
+        }
+        public async Task<Account> GetAccountByPhoneNumber(string phoneNumber)
+        {
+            return await _context.Accounts.FirstOrDefaultAsync(e => e.PhoneNumber == phoneNumber);
+        }
+        public async Task<Account> GetAccountByEmail(string email)
+        {
+            return await _context.Accounts.FirstOrDefaultAsync(e => e.Email == email);
+        }
+
+        public async Task<bool> CreateAccount(Account account)
+        {
+            _context.Accounts.AddAsync(account);
+            return await _context.SaveChangesAsync() > 0;   
+        }
+
         public async Task<Account> GetAccount(string username, string password)
         {
             return await _context.Accounts.FirstOrDefaultAsync(e => e.Username == username && e.Password == password);

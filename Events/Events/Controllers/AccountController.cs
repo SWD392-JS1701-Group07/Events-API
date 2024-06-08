@@ -1,4 +1,5 @@
 ﻿using Events.Business.Services.Interfaces;
+using Events.Models.DTOs.Request;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers
@@ -32,6 +33,14 @@ namespace Events.API.Controllers
             var account = await _accountService.GetAccountById(id);
             
             return StatusCode(account.StatusCode, account);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAccount([FromBody] CreateAccountDTO account)
+        {
+            var accountCreate = await _accountService.CreateAccount(account);
+            
+            return StatusCode(accountCreate.StatusCode, accountCreate);
         }
     }
 }

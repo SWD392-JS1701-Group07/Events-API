@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Events.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Events.Models.DTOs
+namespace Events.Models.DTOs.Request
 {
-    public class AccountDTO
+    public class CreateAccountDTO
     {
-        public int Id { get; set; }
-
         public string Name { get; set; } = null!;
 
         public string Email { get; set; } = null!;
@@ -17,7 +16,6 @@ namespace Events.Models.DTOs
         public string Username { get; set; } = null!;
 
         public string Password { get; set; } = null!;
-
         public string? StudentId { get; set; }
 
         public string? PhoneNumber { get; set; }
@@ -27,8 +25,6 @@ namespace Events.Models.DTOs
         public string Gender { get; set; }
 
         public string? AvatarUrl { get; set; }
-
-        public string AccountStatus { get; set; }
 
         public int RoleId { get; set; }
 

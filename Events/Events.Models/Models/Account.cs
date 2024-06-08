@@ -20,9 +20,9 @@ public partial class Account
 
     public string? PhoneNumber { get; set; }
 
-    public DateOnly? Dob { get; set; }
+    public DateOnly Dob { get; set; }
 
-    public int Gender { get; set; }
+    public Enums.Gender Gender { get; set; }
 
     public string? AvatarUrl { get; set; }
 
