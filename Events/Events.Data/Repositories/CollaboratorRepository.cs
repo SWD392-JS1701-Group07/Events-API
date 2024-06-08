@@ -1,12 +1,13 @@
 ﻿using Events.Models.Models;
 using Events.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
+using System;   
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Events.Models;
+using Events.Utils;
 
 namespace Events.Data.Repositories
 {

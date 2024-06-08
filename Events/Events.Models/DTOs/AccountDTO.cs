@@ -28,7 +28,7 @@ namespace Events.Models.DTOs
 
         public string? AvatarUrl { get; set; }
 
-        public int AccountStatus { get; set; }
+        public string AccountStatus { get; set; }
 
         public int RoleId { get; set; }
 

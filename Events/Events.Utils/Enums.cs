@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Events.Models
+namespace Events.Utils
 {
     public class Enums
     {
@@ -23,6 +23,13 @@ namespace Events.Models
             Approved,
             Completed,
             Rejected
+        }
+
+        public enum AccountStatus
+        {
+            Active,
+            Inactive,
+            Banned
         }
     }
 }
