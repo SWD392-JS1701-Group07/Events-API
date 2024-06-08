@@ -31,5 +31,12 @@ namespace Events.Utils
             Inactive,
             Banned
         }
+
+        public enum Gender
+        {
+            Male,
+            Female,
+            Others
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Events.Models.DTOs;
+using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
 using Events.Models.Models;
 using System;
@@ -14,5 +15,6 @@ namespace Events.Business.Services.Interfaces
         Task<AccountDTO> CheckLogin(string username, string password);
         Task<BaseResponse> GetAllAccounts();
         Task<BaseResponse> GetAccountById(int id);
+        Task<BaseResponse> CreateAccount(CreateAccountDTO createAccountDTO);
     }
 }

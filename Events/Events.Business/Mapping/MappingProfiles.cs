@@ -5,13 +5,14 @@ using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
 using Events.Models.Models;
 using System;
+using static Events.Utils.Enums;
 
 
 namespace Events.Business.Mapping
 {
     public class MappingProfiles : Profile
     {
-        public MappingProfiles() 
+        public MappingProfiles()
         {
             CreateMap<Event, EventDTO>()
                 .ForMember(d => d.EventStatus, o => o.MapFrom(src => src.EventStatus.ToString()))
@@ -21,16 +22,21 @@ namespace Events.Business.Mapping
                .ForMember(d => d.EventStatus, o => o.MapFrom(src => src.EventStatus.ToString()));
 
             CreateMap<Collaborator, CollaboratorDTO>().ReverseMap();
-			CreateMap<CreateSponsorDTO, Sponsor>()
-			    .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
-			CreateMap<UpdateSponsorDTO, Sponsor>()
-				.ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
+            CreateMap<CreateSponsorDTO, Sponsor>()
+                .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
+            CreateMap<UpdateSponsorDTO, Sponsor>()
+                .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
 
-			CreateMap<SponsorDTO, Sponsor>().ReverseMap();
+            CreateMap<SponsorDTO, Sponsor>().ReverseMap();
             CreateMap<Account, AccountDTO>()
                 .ForMember(dest => dest.AccountStatus, o => o.MapFrom(src => src.AccountStatus.ToString()))
-                .ReverseMap();
-
+                .ForMember(dest => dest.Gender, o => o.MapFrom(src => src.Gender.ToString()))
+                .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => src.Dob.ToDateTime(TimeOnly.MinValue)));
+        
+            CreateMap<AccountDTO, Account>()
+                .ForMember(dest => dest.AccountStatus, o => o.MapFrom(src => Enum.Parse<AccountStatus>(src.AccountStatus)))
+                .ForMember(dest => dest.Gender, o => o.MapFrom(src => Enum.Parse<Gender>(src.Gender)))
+                .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.Dob)));
         }
 
     }

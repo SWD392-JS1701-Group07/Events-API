@@ -12,5 +12,9 @@ namespace Events.Data.Repositories.Interfaces
         Task<Account> GetAccount(string username, string password);
         Task<List<Account>> GetAllAccounts();
         Task<Account> GetAccountById(int id);
+        Task<bool> CreateAccount(Account account);
+        Task<Account> GetAccountByUsername(string username);
+        Task<Account> GetAccountByPhoneNumber(string phoneNumber);
+        Task<Account> GetAccountByEmail(string email);
     }
 }
