@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Events.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace Events.Models.Models;
@@ -9,11 +10,9 @@ public partial class Event
 
     public string Name { get; set; } = null!;
 
-    public string Place { get; set; } = null!;
+    public DateTime StartTimeOverall { get; set; }
 
-    public DateTime StartTime { get; set; }
-
-    public DateTime EndTime { get; set; }
+    public DateTime EndTimeOverall { get; set; }
 
     public DateTime StartDate { get; set; }
 
@@ -27,13 +26,15 @@ public partial class Event
 
     public string? Description { get; set; }
 
-    public int EventStatus { get; set; }
+    public Enums.EventStatus EventStatus { get; set; }
 
     public int OwnerId { get; set; }
 
     public int? SubjectId { get; set; }
 
     public virtual ICollection<Collaborator> Collaborators { get; set; } = new List<Collaborator>();
+
+    public virtual ICollection<EventSchedule> EventSchedules { get; set; } = new List<EventSchedule>();
 
     public virtual Account Owner { get; set; } = null!;
 

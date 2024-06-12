@@ -21,9 +21,7 @@ public partial class Account
     public string? PhoneNumber { get; set; }
 
     public DateOnly Dob { get; set; }
-
     public Enums.Gender Gender { get; set; }
-
     public string? AvatarUrl { get; set; }
 
     public Enums.AccountStatus AccountStatus { get; set; }

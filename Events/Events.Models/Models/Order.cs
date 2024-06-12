@@ -26,6 +26,4 @@ public partial class Order
     public virtual Customer Customer { get; set; } = null!;
 
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
-
-    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 }
