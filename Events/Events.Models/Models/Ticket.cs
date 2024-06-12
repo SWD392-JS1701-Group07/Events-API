@@ -11,6 +11,8 @@ public partial class Ticket
 
     public string PhoneNumber { get; set; } = null!;
 
+    public string Qrcode { get; set; } = null!;
+
     public string Email { get; set; } = null!;
 
     public int EventId { get; set; }
