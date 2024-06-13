@@ -37,6 +37,8 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.AccountStatus, o => o.MapFrom(src => Enum.Parse<AccountStatus>(src.AccountStatus)))
                 .ForMember(dest => dest.Gender, o => o.MapFrom(src => Enum.Parse<Gender>(src.Gender)))
                 .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.Dob)));
+
+            CreateMap<EventSchedule, EventScheduleDTO>().ReverseMap();
         }
 
     }
