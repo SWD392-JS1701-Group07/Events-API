@@ -11,6 +11,10 @@ using AutoMapper;
 using Events.Models.DTOs.Response;
 using Events.Models.DTOs.Request;
 using System.Diagnostics;
+using Events.Utils.Helper;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Hosting;
+using static Events.Utils.Enums;
 
 namespace Events.Business.Services
 {
@@ -18,12 +22,56 @@ namespace Events.Business.Services
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AccountService(IAccountRepository accountRepository, IMapper mapper)
+        public AccountService(IAccountRepository accountRepository, IMapper mapper, IWebHostEnvironment webHostEnvironment)
         {
             _accountRepository = accountRepository;
             _mapper = mapper;
+            _webHostEnvironment = webHostEnvironment;
         }
+
+        public async Task<BaseResponse> BanAccount(int id)
+        {
+            var account = await _accountRepository.GetAccountById(id);
+
+            if(account == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "Can't found this account"
+                };
+            }
+            else
+            {
+                var result = await _accountRepository.BanAccount(id);
+
+                if(result != false)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 200,
+                        Data = null,
+                        IsSuccess = true,
+                        Message = "Ban account successfully"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 500,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "This account is already banned"
+                    };
+                }
+            }
+        }
+
         public async Task<AccountDTO> CheckLogin(string username, string password)
         {
             var account = await _accountRepository.GetAccount(username, password);
@@ -154,6 +202,98 @@ namespace Events.Business.Services
                 IsSuccess = false,
                 Message = "Unfound"
             };
+        }
+
+        public async Task<BaseResponse> UpdateAccount(int id, UpdateAccountDTO updateAccountDTO)
+        {
+            var account = await _accountRepository.GetAccountById(id);
+
+            if (account == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "Can;t found this account"
+                };
+            }
+            else
+            {
+                account.Name = updateAccountDTO.Name;
+                account.Email = updateAccountDTO.Email;
+                account.StudentId = updateAccountDTO.StudentId;
+                account.PhoneNumber = updateAccountDTO.PhoneNumber;
+                account.Dob = DateOnly.FromDateTime(updateAccountDTO.Dob);
+                account.Gender = Enum.Parse<Gender>(updateAccountDTO.Gender);
+                account.AccountStatus = Enum.Parse<AccountStatus>(updateAccountDTO.AccountStatus);
+                account.RoleId = updateAccountDTO.RoleId;
+                account.AvatarUrl = updateAccountDTO.AvatarUrl;
+                account.SubjectId = updateAccountDTO.SubjectId;
+
+                var result = await _accountRepository.UpdateAccount(account);
+
+                if (!result)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 500,
+                        Message = "Failed to update account",
+                        IsSuccess = false
+                    };
+                }
+                return new BaseResponse
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Data = _mapper.Map<AccountDTO>(account)
+                };
+            }
+        }
+
+        public async Task<BaseResponse> UpdateProfile(int id, UpdateProfile updateProfile)
+        {
+            var account = await _accountRepository.GetAccountById(id);
+
+            if (account == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "Can;t found this account"
+                };
+            }
+            else
+            {
+                account.Name = updateProfile.Name;
+                account.Email = updateProfile.Email;
+                account.StudentId = updateProfile.StudentId;
+                account.PhoneNumber = updateProfile.PhoneNumber;
+                account.Dob = DateOnly.FromDateTime(updateProfile.Dob);
+                account.Gender = Enum.Parse<Gender>(updateProfile.Gender);
+                account.AvatarUrl = updateProfile.AvatarUrl;
+                account.SubjectId = updateProfile.SubjectId;
+
+                var result = await _accountRepository.UpdateAccount(account);
+
+                if (!result)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 500,
+                        Message = "Failed to update account",
+                        IsSuccess = false
+                    };
+                }
+                return new BaseResponse
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Data = _mapper.Map<AccountDTO>(account)
+                };
+            }
         }
     }
 }
