@@ -16,5 +16,8 @@ namespace Events.Business.Services.Interfaces
         Task<BaseResponse> GetAllAccounts();
         Task<BaseResponse> GetAccountById(int id);
         Task<BaseResponse> CreateAccount(CreateAccountDTO createAccountDTO);
+        Task<BaseResponse> BanAccount(int id);
+        Task<BaseResponse> UpdateAccount(int id, UpdateAccountDTO updateAccountDTO);
+        Task<BaseResponse> UpdateProfile(int id, UpdateProfile updateProfile);
     }
 }

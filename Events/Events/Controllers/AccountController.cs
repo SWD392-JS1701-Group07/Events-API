@@ -42,5 +42,42 @@ namespace Events.API.Controllers
             
             return StatusCode(accountCreate.StatusCode, accountCreate);
         }
+
+        /// <summary>
+        /// Soft delete account
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> BanAccount(int id)
+        {
+            var account = await _accountService.BanAccount(id);
+            return StatusCode(account.StatusCode, account); 
+        }
+
+        /// <summary>
+        /// Update account for visitor
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="accountDTO"></param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAccount(int id, [FromBody] UpdateAccountDTO accountDTO)
+        {
+            var account = await _accountService.UpdateAccount(id, accountDTO);
+            return StatusCode(account.StatusCode, account);
+        }
+        /// <summary>
+        /// Update profile
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="updateProfile"></param>
+        /// <returns></returns>
+        [HttpPut("update-profile/{id}")]
+        public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfile updateProfile)
+        {
+            var account = await _accountService.UpdateProfile(id, updateProfile);
+            return StatusCode(account.StatusCode, account);
+        }
     }
 }

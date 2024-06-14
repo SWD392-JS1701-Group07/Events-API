@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Events.Utils;
 
 namespace Events.Data.Repositories
 {
@@ -49,6 +50,42 @@ namespace Events.Data.Repositories
         public async Task<List<Account>> GetAllAccounts()
         {
             return await _context.Accounts.ToListAsync();
+        }
+
+        public async Task<bool> BanAccount(int id)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync(e => e.Id == id);
+
+            if(account == null)
+            {
+                return false;
+            }
+            else
+            {
+                try
+                {
+                    account.AccountStatus = Enums.AccountStatus.Banned;
+                    _context.Entry(account).State = EntityState.Modified;
+
+                    return await _context.SaveChangesAsync() > 0;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> UpdateAccount(Account account)
+        {
+            _context.Entry(account).State = EntityState.Modified;
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateProfile(Account account)
+        {
+            _context.Entry(account).State = EntityState.Modified;
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

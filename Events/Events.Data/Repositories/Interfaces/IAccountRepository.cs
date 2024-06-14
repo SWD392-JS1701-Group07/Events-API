@@ -13,6 +13,9 @@ namespace Events.Data.Repositories.Interfaces
         Task<List<Account>> GetAllAccounts();
         Task<Account> GetAccountById(int id);
         Task<bool> CreateAccount(Account account);
+        Task<bool> BanAccount(int id);
+        Task<bool> UpdateAccount(Account account);
+        Task<bool> UpdateProfile(Account account);
         Task<Account> GetAccountByUsername(string username);
         Task<Account> GetAccountByPhoneNumber(string phoneNumber);
         Task<Account> GetAccountByEmail(string email);
