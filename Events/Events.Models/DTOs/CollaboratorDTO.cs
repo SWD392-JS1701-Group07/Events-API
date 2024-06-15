@@ -13,6 +13,6 @@ namespace Events.Models.DTOs
         public int AccountId { get; set; }
         public int EventId { get; set; }
         public string EventName { get; set; }
-        public Enums.CollaboratorStatus CollabStatus { get; set; }
+        public string CollabStatus { get; set; }
     }
 }

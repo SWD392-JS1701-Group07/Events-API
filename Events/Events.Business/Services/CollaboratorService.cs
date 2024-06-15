@@ -35,7 +35,7 @@ namespace Events.Business.Services
                 AccountId = c.AccountId,
                 EventId = c.EventId,
                 EventName = c.Event.Name,
-                CollabStatus = c.CollabStatus
+                CollabStatus = c.CollabStatus.ToString() 
             }).ToList();
         }
 
@@ -55,7 +55,7 @@ namespace Events.Business.Services
                 AccountId = c.AccountId,
                 EventId = c.EventId,
                 EventName = c.Event.Name, 
-                CollabStatus = c.CollabStatus
+                CollabStatus = c.CollabStatus.ToString()
             }).ToList();
         }
 
@@ -76,7 +76,7 @@ namespace Events.Business.Services
                 Id = createdCollaborator.Id,
                 AccountId = createdCollaborator.AccountId,
                 EventId = createdCollaborator.EventId,
-                CollabStatus = createdCollaborator.CollabStatus,
+                CollabStatus = createdCollaborator.CollabStatus.ToString(),
                 IsCheckIn = createdCollaborator.IsCheckIn
             };
         }
@@ -98,7 +98,7 @@ namespace Events.Business.Services
                 AccountId = collaborator.AccountId,
                 EventId = collaborator.EventId,
                 EventName = collaborator.Event.Name,
-                CollabStatus = collaborator.CollabStatus
+                CollabStatus = collaborator.CollabStatus.ToString()
             };
         }
         public async Task<CollaboratorDTO> CancelCollaboratorAsync(int id)
@@ -119,7 +119,7 @@ namespace Events.Business.Services
                 AccountId = collaborator.AccountId,
                 EventId = collaborator.EventId,
                 EventName = collaborator.Event.Name,
-                CollabStatus = collaborator.CollabStatus
+                CollabStatus = collaborator.CollabStatus.ToString()
             };
         }
         public async Task<CollaboratorDTO> RejectCollaboratorAsync(int id)
@@ -140,7 +140,7 @@ namespace Events.Business.Services
                 AccountId = collaborator.AccountId,
                 EventId = collaborator.EventId,
                 EventName = collaborator.Event.Name,
-                CollabStatus = collaborator.CollabStatus
+                CollabStatus = collaborator.CollabStatus.ToString()
             };
         }
     }
