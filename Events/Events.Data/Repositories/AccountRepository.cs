@@ -87,5 +87,10 @@ namespace Events.Data.Repositories
             _context.Entry(account).State = EntityState.Modified;
             return await _context.SaveChangesAsync() > 0;
         }
+
+        public async Task<List<Account>> GetAccountByRole(int roleId)
+        {
+            return await _context.Accounts.Where(e => e.RoleId == roleId).ToListAsync();
+        }
     }
 }
