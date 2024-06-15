@@ -1,4 +1,5 @@
 ﻿using Events.Models.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -36,7 +37,10 @@ namespace Events.Models.DTOs.Request
         [Range(0, int.MaxValue)]
         public int Quantity { get; set; }
 
+        public string? AvatarUrl { get; set; }
+
         public string? Description { get; set; }
+
 
         [Required]
         public string EventStatus { get; set; }

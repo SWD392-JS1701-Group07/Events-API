@@ -70,25 +70,32 @@ namespace Events.Business.Services
 
         public async Task<EventDTO> CreateEvent(CreateEventDTO createEventDTO)
         {
+            // Check if ScheduleList is not empty
+            if (createEventDTO.ScheduleList == null || !createEventDTO.ScheduleList.Any())
+            {
+                throw new Exception("ScheduleList cannot be empty");
+            }
+
+            // Set startDate and endDate based on the first schedule's startTime and endTime
+            var firstSchedule = createEventDTO.ScheduleList.First();
+            createEventDTO.StartTimeOverall = firstSchedule.StartTime.Date; // Only date part
+            createEventDTO.EndTimeOverall = firstSchedule.EndTime.Date; // Only date part
+  
+
             var newEvent = _mapper.Map<Event>(createEventDTO);
 
             await _eventRepository.Add(newEvent);
             await _eventRepository.SaveChangesAsync(); // Save changes to generate EventId
 
-           
             foreach (var scheduleDTO in createEventDTO.ScheduleList)
             {
                 var newEventSchedule = _mapper.Map<EventSchedule>(scheduleDTO);
                 newEventSchedule.EventId = newEvent.Id;
                 await _eventScheduleRepository.AddEventScheduleAsync(newEventSchedule);
             }
-     
-
-
 
             return _mapper.Map<EventDTO>(newEvent);
         }
-
         public async Task<EventDTO> GetEventById(int id)
         {
             var eventEntity = await _eventRepository.GetEventById(id);
