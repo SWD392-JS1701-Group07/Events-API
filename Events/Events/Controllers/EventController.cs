@@ -2,10 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Events.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using static Events.Models.Enums;
+using Events.Utils;
 using Events.Models.DTOs.Request;
 using Events.Models.Models;
 using Events.Business.Services.Interfaces;
+using static Events.Utils.Enums;
 
 namespace Events.API.Controllers
 {
@@ -169,5 +170,26 @@ namespace Events.API.Controllers
             }
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetEventById(int id)
+        {
+            try
+            {
+                var eventExist = await _eventService.GetEventById(id);
+                if (eventExist != null)
+                {
+                    return Ok(eventExist);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

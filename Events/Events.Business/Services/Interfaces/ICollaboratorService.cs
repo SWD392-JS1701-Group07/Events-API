@@ -2,6 +2,7 @@
 using Events.Models;
 using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
+using Events.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;

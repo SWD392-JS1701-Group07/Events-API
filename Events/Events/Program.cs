@@ -105,12 +105,13 @@ builder.Services.AddAuthentication(options =>
         };
     });
     
-builder.Services.AddAutoMapper(typeof(Events.Utils.Mapping.MappingProfiles));
+builder.Services.AddAutoMapper(typeof(Events.Business.Mapping.MappingProfiles));
 
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IEventScheduleRepository, EventScheduleRepository>();
 
 builder.Services.AddScoped<ICollaboratorRepository, CollaboratorRepository>();
 builder.Services.AddScoped<ICollaboratorService, CollaboratorService>();

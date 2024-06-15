@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Events.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace Events.Models.Models;
@@ -19,13 +20,11 @@ public partial class Account
 
     public string? PhoneNumber { get; set; }
 
-    public DateOnly? Dob { get; set; }
-
-    public int Gender { get; set; }
-
+    public DateOnly Dob { get; set; }
+    public Enums.Gender Gender { get; set; }
     public string? AvatarUrl { get; set; }
 
-    public int AccountStatus { get; set; }
+    public Enums.AccountStatus AccountStatus { get; set; }
 
     public int RoleId { get; set; }
 

@@ -10,5 +10,14 @@ namespace Events.Data.Repositories.Interfaces
     public interface IAccountRepository
     {
         Task<Account> GetAccount(string username, string password);
+        Task<List<Account>> GetAllAccounts();
+        Task<Account> GetAccountById(int id);
+        Task<bool> CreateAccount(Account account);
+        Task<bool> BanAccount(int id);
+        Task<bool> UpdateAccount(Account account);
+        Task<bool> UpdateProfile(Account account);
+        Task<Account> GetAccountByUsername(string username);
+        Task<Account> GetAccountByPhoneNumber(string phoneNumber);
+        Task<Account> GetAccountByEmail(string email);
     }
 }

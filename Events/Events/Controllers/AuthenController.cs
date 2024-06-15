@@ -28,7 +28,7 @@ namespace Events.API.Controllers
             var user = await _accountService.CheckLogin(loginRequest.Username, loginRequest.Password);
 
             if (user == null)
-            {
+            {   
                 return Unauthorized("Invalid username or password!");
             }
             else
@@ -36,6 +36,9 @@ namespace Events.API.Controllers
                 string accessToken = JWTGenerator.GenerateToken(user);
                 return Ok(new
                 {
+                    AccountId = user.Id,
+                    FullName = user.Name,
+                    Role = user.RoleId,
                     accessToken = accessToken
                 });
             }

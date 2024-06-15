@@ -23,6 +23,8 @@ public partial class EventsDbContext : DbContext
 
     public virtual DbSet<Event> Events { get; set; }
 
+    public virtual DbSet<EventSchedule> EventSchedules { get; set; }
+
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -34,8 +36,6 @@ public partial class EventsDbContext : DbContext
     public virtual DbSet<Subject> Subjects { get; set; }
 
     public virtual DbSet<Ticket> Tickets { get; set; }
-
-    public virtual DbSet<Transaction> Transactions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -92,16 +92,29 @@ public partial class EventsDbContext : DbContext
             entity.ToTable("Event");
 
             entity.Property(e => e.EndDate).HasColumnType("datetime");
-            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.EndTimeOverall).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Place).HasMaxLength(100);
             entity.Property(e => e.StartDate).HasColumnType("datetime");
-            entity.Property(e => e.StartTime).HasColumnType("datetime");
+            entity.Property(e => e.StartTimeOverall).HasColumnType("datetime");
 
             entity.HasOne(d => d.Owner).WithMany(p => p.Events)
                 .HasForeignKey(d => d.OwnerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Event_Account");
+        });
+
+        modelBuilder.Entity<EventSchedule>(entity =>
+        {
+            entity.ToTable("EventSchedule");
+
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.Place).HasMaxLength(100);
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Event).WithMany(p => p.EventSchedules)
+                .HasForeignKey(d => d.EventId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EventSchedule_Event");
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -165,6 +178,7 @@ public partial class EventsDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
+            entity.Property(e => e.Qrcode).HasColumnName("QRCode");
 
             entity.HasOne(d => d.Event).WithMany(p => p.Tickets)
                 .HasForeignKey(d => d.EventId)
@@ -175,18 +189,6 @@ public partial class EventsDbContext : DbContext
                 .HasForeignKey(d => d.OrdersId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Ticket_Orders");
-        });
-
-        modelBuilder.Entity<Transaction>(entity =>
-        {
-            entity.ToTable("Transaction");
-
-            entity.Property(e => e.Date).HasColumnType("datetime");
-
-            entity.HasOne(d => d.Order).WithMany(p => p.Transactions)
-                .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Transaction_Orders");
         });
 
         OnModelCreatingPartial(modelBuilder);

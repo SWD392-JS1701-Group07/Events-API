@@ -1,6 +1,7 @@
 ﻿using Events.Business.Services.Interfaces;
 using Events.Models;
 using Events.Models.DTOs.Request;
+using Events.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;

@@ -9,25 +9,60 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Events.Models.Enums;
+using Events.Utils;
+using static Events.Utils.Enums;
+using System.Diagnostics;
 
 namespace Events.Business.Services
 {
     public class EventService : IEventService
     {   
         private readonly IEventRepository _eventRepository;
+        private readonly IEventScheduleRepository _eventScheduleRepository;
         private readonly IMapper _mapper;
 
-        public EventService(IEventRepository eventRepository, IMapper mapper)
+        public EventService(IEventRepository eventRepository, IEventScheduleRepository eventScheduleRepository, IMapper mapper)
         {
             _eventRepository = eventRepository;
+            _eventScheduleRepository = eventScheduleRepository;
             _mapper = mapper;
         }
 
         public async Task<List<EventDTO>> GetAllEvents()
         {
             var events = await _eventRepository.GetAllEvents();
-            return _mapper.Map<List<EventDTO>>(events);
+
+            List<EventDTO> result = new List<EventDTO>();
+
+            foreach(var c in events)
+            {
+                var example = await _eventScheduleRepository.GetEventScheduleById(c.Id);
+                var schedule = _mapper.Map<List<EventScheduleDTO>>(example);
+
+            //    List<EventScheduleDTO> scheduleList = new List<EventScheduleDTO>();
+
+                EventDTO element = new EventDTO
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    StartTimeOverall = c.StartTimeOverall,
+                    EndTimeOverall = c.EndTimeOverall,
+                    StartDate = c.StartDate,
+                    EndDate = c.EndDate,
+                    Price = c.Price,
+                    Quantity = c.Quantity,
+                    AvatarUrl = c.AvatarUrl,
+                    Description = c.Description,
+                    EventStatus = c.EventStatus.ToString(),
+                    OwnerId = c.OwnerId,
+                    SubjectId = c.SubjectId,
+                    ScheduleList = schedule
+                };
+
+                result.Add(element);
+            }
+
+            return result;
         }
 
         public async Task<EventDTO> CreateEvent(CreateEventDTO createEventDTO)
@@ -48,7 +83,7 @@ namespace Events.Business.Services
             var eventEntity = await _eventRepository.GetEventById(id);
             if (eventEntity != null)
             {
-                eventEntity.EventStatus = (int)newStatus;
+                eventEntity.EventStatus = newStatus;
                 await _eventRepository.UpdateStatus(eventEntity);
             }
         }
@@ -76,7 +111,7 @@ namespace Events.Business.Services
                 return new List<EventDTO>();
             }
 
-            var filteredEvents = events.Where(e => e.EventStatus == (int)status).ToList();
+            var filteredEvents = events.Where(e => e.EventStatus == status).ToList();
             return _mapper.Map<List<EventDTO>>(filteredEvents);
         }
 
