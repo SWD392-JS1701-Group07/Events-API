@@ -117,6 +117,8 @@ builder.Services.AddScoped<ICollaboratorRepository, CollaboratorRepository>();
 builder.Services.AddScoped<ICollaboratorService, CollaboratorService>();
 builder.Services.AddScoped<ISponsorRepository, SponsorRepository>();
 builder.Services.AddScoped<ISponsorService, SponsorService>();
+builder.Services.AddScoped<ISponsorshipRepository, SponsorshipRepository>();
+builder.Services.AddScoped<ISponsorshipService, SponsorshipService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder =>

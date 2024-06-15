@@ -10,13 +10,9 @@ public partial class Event
 
     public string Name { get; set; } = null!;
 
-    public DateTime StartTimeOverall { get; set; }
+    public DateTime StartSellDate { get; set; }
 
-    public DateTime EndTimeOverall { get; set; }
-
-    public DateTime StartDate { get; set; }
-
-    public DateTime EndDate { get; set; }
+    public DateTime EndSellDate { get; set; }
 
     public double Price { get; set; }
 
@@ -34,7 +30,7 @@ public partial class Event
 
     public virtual ICollection<Collaborator> Collaborators { get; set; } = new List<Collaborator>();
 
-    public ICollection<EventSchedule> EventSchedules { get; set; } = new List<EventSchedule>();
+    public virtual ICollection<EventSchedule> EventSchedules { get; set; } = new List<EventSchedule>();
 
     public virtual Account Owner { get; set; } = null!;
 

@@ -48,10 +48,8 @@ namespace Events.Business.Services
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    StartTimeOverall = c.StartTimeOverall,
-                    EndTimeOverall = c.EndTimeOverall,
-                    StartDate = c.StartDate,
-                    EndDate = c.EndDate,
+                    StartSellDate = c.StartSellDate,
+                    EndSellDate = c.EndSellDate,
                     Price = c.Price,
                     Quantity = c.Quantity,
                     AvatarUrl = c.AvatarUrl,

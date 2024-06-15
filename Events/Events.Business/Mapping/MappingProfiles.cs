@@ -42,6 +42,7 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.Gender, o => o.MapFrom(src => Enum.Parse<Gender>(src.Gender)))
                 .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.Dob)));
 
+            CreateMap<Sponsorship, SponsorshipDTO>().ReverseMap();
         }
 
     }
