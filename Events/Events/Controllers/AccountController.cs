@@ -1,5 +1,6 @@
 ﻿using Events.Business.Services.Interfaces;
 using Events.Models.DTOs.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers
@@ -20,6 +21,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles ="1")]
         public async Task<IActionResult> GetAllAccounts()
         {
             var accounts = await _accountService.GetAllAccounts();
@@ -28,6 +30,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> GetAccount(int id)
         {
             var account = await _accountService.GetAccountById(id);
@@ -35,7 +38,17 @@ namespace Events.API.Controllers
             return StatusCode(account.StatusCode, account);
         }
 
+        [HttpGet("role/{id}")]
+        //[Authorize(Roles = "1")]
+        public async Task<IActionResult> GetAccountByRoleId(int id)
+        {
+            var account = await _accountService.GetAccountByRole(id);
+
+            return StatusCode(account.StatusCode, account);
+        }
+
         [HttpPost]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> CreateAccount([FromBody] CreateAccountDTO account)
         {
             var accountCreate = await _accountService.CreateAccount(account);
@@ -49,6 +62,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPatch("{id}")]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> BanAccount(int id)
         {
             var account = await _accountService.BanAccount(id);
@@ -56,12 +70,13 @@ namespace Events.API.Controllers
         }
 
         /// <summary>
-        /// Update account for visitor
+        /// Update account for admin
         /// </summary>
         /// <param name="id"></param>
         /// <param name="accountDTO"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> UpdateAccount(int id, [FromBody] UpdateAccountDTO accountDTO)
         {
             var account = await _accountService.UpdateAccount(id, accountDTO);
@@ -74,6 +89,7 @@ namespace Events.API.Controllers
         /// <param name="updateProfile"></param>
         /// <returns></returns>
         [HttpPut("update-profile/{id}")]
+        [Authorize(Roles = "1,2,3,4,5")]
         public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfile updateProfile)
         {
             var account = await _accountService.UpdateProfile(id, updateProfile);

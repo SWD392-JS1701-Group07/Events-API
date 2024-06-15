@@ -18,9 +18,9 @@ namespace Events.Models.DTOs.Request
         [Required]
         public DateTime EndTime { get; set; }
         [Required]
-        public DateTime StartDate { get; set; }
+        public DateTime StartSellDate { get; set; }
         [Required]
-        public DateTime EndDate { get; set; }
+        public DateTime EndSellDate { get; set; }
         [Required]
         [Range(0, double.MaxValue)]
         public double Price { get; set; }
