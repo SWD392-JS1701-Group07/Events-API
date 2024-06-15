@@ -183,6 +183,29 @@ namespace Events.Business.Services
                 };
             }
         }
+
+        public async Task<BaseResponse> GetAccountByRole(int roleId)
+        {
+            var accounts = await _accountRepository.GetAccountByRole(roleId);
+
+            var results = _mapper.Map<List<AccountDTO>>(accounts);
+
+            return results.Any() ? new BaseResponse
+            {
+                StatusCode = 200,
+                Data = results,
+                IsSuccess = true,
+                Message = "Return successfully"
+            } :
+            new BaseResponse
+            {
+                StatusCode = 404,
+                Data = null,
+                IsSuccess = false,
+                Message = "Unfound"
+            };
+        }
+
         public async Task<BaseResponse> GetAllAccounts()
         {
             var accounts = await _accountRepository.GetAllAccounts();
@@ -235,7 +258,7 @@ namespace Events.Business.Services
 
                 if (!result)
                 {
-                    return new BaseResponse
+                    return new BaseResponse 
                     {
                         StatusCode = 500,
                         Message = "Failed to update account",
