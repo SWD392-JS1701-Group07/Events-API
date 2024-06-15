@@ -11,10 +11,8 @@ namespace Events.Models.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public DateTime StartTimeOverall { get; set; }
-        public DateTime EndTimeOverall { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime StartSellDate { get; set; }
+        public DateTime EndSellDate { get; set; }
         public double Price { get; set; }
         public int Quantity { get; set; }
         public string? AvatarUrl { get; set; }

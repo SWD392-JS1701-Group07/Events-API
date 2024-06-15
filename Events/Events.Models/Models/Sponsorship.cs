@@ -11,7 +11,7 @@ public partial class Sponsorship
 
     public string Type { get; set; } = null!;
 
-    public int Title { get; set; }
+    public string Title { get; set; } = null!;
 
     public double Sum { get; set; }
 

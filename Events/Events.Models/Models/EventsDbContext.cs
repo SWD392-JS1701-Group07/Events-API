@@ -91,11 +91,9 @@ public partial class EventsDbContext : DbContext
         {
             entity.ToTable("Event");
 
-            entity.Property(e => e.EndDate).HasColumnType("datetime");
-            entity.Property(e => e.EndTimeOverall).HasColumnType("datetime");
+            entity.Property(e => e.EndSellDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
-            entity.Property(e => e.StartTimeOverall).HasColumnType("datetime");
+            entity.Property(e => e.StartSellDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Owner).WithMany(p => p.Events)
                 .HasForeignKey(d => d.OwnerId)
@@ -150,6 +148,7 @@ public partial class EventsDbContext : DbContext
         {
             entity.ToTable("Sponsorship");
 
+            entity.Property(e => e.Title).HasMaxLength(150);
             entity.Property(e => e.Type).HasMaxLength(50);
 
             entity.HasOne(d => d.Event).WithMany(p => p.Sponsorships)
