@@ -34,7 +34,7 @@ public partial class Event
 
     public virtual ICollection<Collaborator> Collaborators { get; set; } = new List<Collaborator>();
 
-    public virtual ICollection<EventSchedule> EventSchedules { get; set; } = new List<EventSchedule>();
+    public ICollection<EventSchedule> EventSchedules { get; set; } = new List<EventSchedule>();
 
     public virtual Account Owner { get; set; } = null!;
 

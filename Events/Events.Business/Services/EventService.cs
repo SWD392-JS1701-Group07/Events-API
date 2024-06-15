@@ -12,19 +12,22 @@ using System.Threading.Tasks;
 using Events.Utils;
 using static Events.Utils.Enums;
 using System.Diagnostics;
+using Events.Data.Repositories;
 
 namespace Events.Business.Services
 {
     public class EventService : IEventService
-    {   
+    {
         private readonly IEventRepository _eventRepository;
         private readonly IEventScheduleRepository _eventScheduleRepository;
+        private readonly ISponsorRepository _sponsorRepository;
         private readonly IMapper _mapper;
 
-        public EventService(IEventRepository eventRepository, IEventScheduleRepository eventScheduleRepository, IMapper mapper)
+        public EventService(IEventRepository eventRepository, IEventScheduleRepository eventScheduleRepository, ISponsorRepository sponsorRepository, IMapper mapper)
         {
             _eventRepository = eventRepository;
             _eventScheduleRepository = eventScheduleRepository;
+            _sponsorRepository = sponsorRepository;
             _mapper = mapper;
         }
 
@@ -68,8 +71,21 @@ namespace Events.Business.Services
         public async Task<EventDTO> CreateEvent(CreateEventDTO createEventDTO)
         {
             var newEvent = _mapper.Map<Event>(createEventDTO);
+
             await _eventRepository.Add(newEvent);
-            await _eventRepository.SaveChangesAsync();
+            await _eventRepository.SaveChangesAsync(); // Save changes to generate EventId
+
+           
+            foreach (var scheduleDTO in createEventDTO.ScheduleList)
+            {
+                var newEventSchedule = _mapper.Map<EventSchedule>(scheduleDTO);
+                newEventSchedule.EventId = newEvent.Id;
+                await _eventScheduleRepository.AddEventScheduleAsync(newEventSchedule);
+            }
+     
+
+
+
             return _mapper.Map<EventDTO>(newEvent);
         }
 

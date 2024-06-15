@@ -48,9 +48,26 @@ namespace Events.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            createEventDTO.EventStatus = (int)EventStatus.Planning; 
+            // Validate DateTime values
+            if (!IsValidSqlDateTime(createEventDTO.StartDate) ||
+                !IsValidSqlDateTime(createEventDTO.EndDate) ||
+                createEventDTO.ScheduleList.Any(schedule =>
+                    !IsValidSqlDateTime(schedule.StartTime) || !IsValidSqlDateTime(schedule.EndTime)))
+            {
+                return BadRequest("One or more DateTime values are out of range.");
+            }
+
+            createEventDTO.EventStatus = EventStatus.Planning.ToString();
             var createdEvent = await _eventService.CreateEvent(createEventDTO);
             return CreatedAtAction(nameof(CreateEvent), new { id = createdEvent.Id }, createdEvent);
+        }
+
+        private bool IsValidSqlDateTime(DateTime dateTime)
+        {
+            var minSqlDateTime = (DateTime)System.Data.SqlTypes.SqlDateTime.MinValue;
+            var maxSqlDateTime = (DateTime)System.Data.SqlTypes.SqlDateTime.MaxValue;
+
+            return dateTime >= minSqlDateTime && dateTime <= maxSqlDateTime;
         }
 
         /// <summary>
@@ -59,7 +76,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [Authorize(Roles = "4")]
+       // [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateEventStatus(int id)
@@ -77,7 +94,7 @@ namespace Events.API.Controllers
         }
         ///
         [HttpGet("needing-approval")]
-        [Authorize(Roles = "4")]
+      //  [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetEventsNeedingApproval()
         {
@@ -86,7 +103,7 @@ namespace Events.API.Controllers
             return Ok(events);
         }
         [HttpPut("{id}/update-details")]
-        [Authorize(Roles = "5")]
+      //  [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

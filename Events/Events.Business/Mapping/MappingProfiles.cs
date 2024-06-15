@@ -15,13 +15,17 @@ namespace Events.Business.Mapping
         public MappingProfiles()
         {
             CreateMap<Event, EventDTO>()
-                .ForMember(d => d.EventStatus, o => o.MapFrom(src => src.EventStatus.ToString()))
-                .ReverseMap();
+            .ForMember(d => d.EventStatus, o => o.MapFrom(src => src.EventStatus.ToString()))
+            .ReverseMap()
+            .ForMember(d => d.EventStatus, o => o.MapFrom(src => Enum.Parse<EventStatus>(src.EventStatus)));
 
             CreateMap<CreateEventDTO, Event>()
-               .ForMember(d => d.EventStatus, o => o.MapFrom(src => src.EventStatus.ToString()));
+                .ForMember(d => d.EventStatus, o => o.MapFrom(src => Enum.Parse<EventStatus>(src.EventStatus)));
 
-            CreateMap<Collaborator, CollaboratorDTO>().ReverseMap();
+            CreateMap<EventSchedule, EventScheduleDTO>().ReverseMap();
+            CreateMap<CreateEventScheduleDTO, EventSchedule>();
+
+            CreateMap<Collaborator, CollaboratorDTO>().ReverseMap();  
             CreateMap<CreateSponsorDTO, Sponsor>()
                 .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
             CreateMap<UpdateSponsorDTO, Sponsor>()
@@ -38,7 +42,6 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.Gender, o => o.MapFrom(src => Enum.Parse<Gender>(src.Gender)))
                 .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.Dob)));
 
-            CreateMap<EventSchedule, EventScheduleDTO>().ReverseMap();
         }
 
     }
