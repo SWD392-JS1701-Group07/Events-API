@@ -92,5 +92,15 @@ namespace Events.Data.Repositories
         {
             return await _context.Accounts.Where(e => e.RoleId == roleId).ToListAsync();
         }
+
+        public async
+            
+            
+            
+            Task<bool> RegisterAccount(Account account)
+        {
+            _context.Accounts.AddAsync(account);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

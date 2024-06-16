@@ -227,6 +227,79 @@ namespace Events.Business.Services
             };
         }
 
+        public async Task<BaseResponse> RegisterAccount(RegisterAccountDTO registerAccountDTO)
+        {
+            var emailExist = await _accountRepository.GetAccountByEmail(registerAccountDTO.Email);
+            var usernameExist = _accountRepository.GetAccountByUsername(registerAccountDTO.Username);
+            if (emailExist != null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 400,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "This email is already existed"
+                };
+            }
+            else if (usernameExist == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 400,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "This username is already existed"
+                };
+            }
+            else if (registerAccountDTO.Password != registerAccountDTO.ConfirmPassword)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 400,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "Password is not the same"
+                };
+            }
+            else
+            {
+                AccountDTO account = new AccountDTO
+                {
+                    Email = registerAccountDTO.Email,
+                    Name = "John",
+                    Username = registerAccountDTO.Username,
+                    Password = registerAccountDTO.Password,
+                    Dob = DateTime.UtcNow,
+                    Gender = "Others",
+                    AccountStatus = "Active",
+                    RoleId = 2
+                };
+
+                var result = await _accountRepository.RegisterAccount(_mapper.Map<Account>(account));
+
+                if (result)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 200,
+                        Data = account,
+                        IsSuccess = true,
+                        Message = "Create successfully"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 500,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "Something went wrong"
+                    };
+                }
+            }
+        }
+
         public async Task<BaseResponse> UpdateAccount(int id, UpdateAccountDTO updateAccountDTO)
         {
             var account = await _accountRepository.GetAccountById(id);

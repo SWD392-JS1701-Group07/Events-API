@@ -14,6 +14,7 @@ namespace Events.Data.Repositories.Interfaces
         Task<Account> GetAccountById(int id);
         Task<List<Account>> GetAccountByRole(int roleId);
         Task<bool> CreateAccount(Account account);
+        Task<bool> RegisterAccount(Account account);
         Task<bool> BanAccount(int id);
         Task<bool> UpdateAccount(Account account);
         Task<bool> UpdateProfile(Account account);

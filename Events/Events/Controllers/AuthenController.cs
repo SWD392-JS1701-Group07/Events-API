@@ -52,5 +52,12 @@ namespace Events.API.Controllers
             JWTGenerator.InvalidateToken(token);
             return Ok(new { message = "Logout successfully" });
         }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterAccountDTO registerAccount)
+        {
+            var result = await _accountService.RegisterAccount(registerAccount);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }
