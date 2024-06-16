@@ -62,5 +62,18 @@ namespace Events.API.Controllers
 			var reponse = await _sponsorService.DeleteSponsorAsync(id);
 			return StatusCode(reponse.StatusCode, reponse);
 		}
-	} 
+
+        [HttpGet("email/{email}")]
+        public async Task<IActionResult> GetSponsorByEmail(string email)
+        {
+            var sponsor = await _sponsorService.GetSponsorByEmailAsync(email);
+
+            if (sponsor == null)
+            {
+                return NotFound(new { Message = "Sponsor not found" });
+            }
+
+            return Ok(sponsor);
+        }
+    } 
 }

@@ -48,27 +48,22 @@ namespace Events.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Validate DateTime values
-            if (!IsValidSqlDateTime(createEventDTO.StartDate) ||
-                !IsValidSqlDateTime(createEventDTO.EndDate) ||
-                createEventDTO.ScheduleList.Any(schedule =>
-                    !IsValidSqlDateTime(schedule.StartTime) || !IsValidSqlDateTime(schedule.EndTime)))
+            // Set the event status
+            createEventDTO.EventStatus = EventStatus.Planning.ToString();
+
+            // Create the event
+            var response = await _eventService.CreateEvent(createEventDTO);
+
+            if (!response.IsSuccess)
             {
-                return BadRequest("One or more DateTime values are out of range.");
+                return StatusCode(response.StatusCode, response.Message);
             }
 
-            createEventDTO.EventStatus = EventStatus.Planning.ToString();
-            var createdEvent = await _eventService.CreateEvent(createEventDTO);
+            var createdEvent = response.Data as EventDTO;
+
             return CreatedAtAction(nameof(CreateEvent), new { id = createdEvent.Id }, createdEvent);
         }
 
-        private bool IsValidSqlDateTime(DateTime dateTime)
-        {
-            var minSqlDateTime = (DateTime)System.Data.SqlTypes.SqlDateTime.MinValue;
-            var maxSqlDateTime = (DateTime)System.Data.SqlTypes.SqlDateTime.MaxValue;
-
-            return dateTime >= minSqlDateTime && dateTime <= maxSqlDateTime;
-        }
 
         /// <summary>
         /// approve-events

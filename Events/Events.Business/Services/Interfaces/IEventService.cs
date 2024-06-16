@@ -7,13 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Events.Utils;
 using static Events.Utils.Enums;
+using Events.Models.DTOs.Response;
 
 namespace Events.Business.Services.Interfaces
 {
     public interface IEventService
     {
         Task<List<EventDTO>> GetAllEvents();
-        Task<EventDTO> CreateEvent(CreateEventDTO createEventDTO);
+        Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO);
         Task<EventDTO> GetEventById(int id);
         Task UpdateStatus(int id, EventStatus newStatus);
         Task UpdateEventDetails(int id, CreateEventDTO updateEventDTO);

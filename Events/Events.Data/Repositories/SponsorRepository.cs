@@ -38,5 +38,65 @@ namespace Events.Data.Repositories
 			_context.Entry(sponsor).State = EntityState.Modified;
 			return await _context.SaveChangesAsync() > 0;
 		}
-	}
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
+        public async Task<Sponsor> GetSponsorByEmailAsync(string email)
+        {
+            return await _context.Sponsors.FirstOrDefaultAsync(s => s.Email == email);
+        }
+        public async Task DeleteSponsorsWithNullAccountIdAsync()
+        {
+            var sponsorsToDelete = await _context.Sponsors
+                .Where(s => s.AccountId == null)
+                .ToListAsync();
+
+            if (sponsorsToDelete.Any())
+            {
+                var sponsorIds = sponsorsToDelete.Select(s => s.Id).ToList();
+                var sponsorshipsToDelete = await _context.Sponsorships
+                    .Where(sp => sponsorIds.Contains(sp.SponsorId))
+                    .ToListAsync();
+
+                _context.Sponsorships.RemoveRange(sponsorshipsToDelete);
+                _context.Sponsors.RemoveRange(sponsorsToDelete);
+
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task DeleteDuplicateSponsorsAsync()
+        {
+            var duplicateEmails = await _context.Sponsors
+                .GroupBy(s => s.Email)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToListAsync();
+
+            foreach (var email in duplicateEmails)
+            {
+                var duplicateSponsors = await _context.Sponsors
+                    .Where(s => s.Email == email)
+                    .OrderBy(s => s.Id)
+                    .ToListAsync();
+
+                var sponsorToKeep = duplicateSponsors.First();
+                var sponsorsToDelete = duplicateSponsors.Skip(1).ToList();
+
+                if (sponsorsToDelete.Any())
+                {
+                    var sponsorIdsToDelete = sponsorsToDelete.Select(s => s.Id).ToList();
+                    var sponsorshipsToDelete = await _context.Sponsorships
+                        .Where(sp => sponsorIdsToDelete.Contains(sp.SponsorId))
+                        .ToListAsync();
+
+                    _context.Sponsorships.RemoveRange(sponsorshipsToDelete);
+                    _context.Sponsors.RemoveRange(sponsorsToDelete);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+    }
 }

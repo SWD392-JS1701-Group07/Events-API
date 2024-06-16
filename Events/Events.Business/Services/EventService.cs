@@ -13,6 +13,7 @@ using Events.Utils;
 using static Events.Utils.Enums;
 using System.Diagnostics;
 using Events.Data.Repositories;
+using Events.Models.DTOs.Response;
 
 namespace Events.Business.Services
 {
@@ -21,13 +22,23 @@ namespace Events.Business.Services
         private readonly IEventRepository _eventRepository;
         private readonly IEventScheduleRepository _eventScheduleRepository;
         private readonly ISponsorRepository _sponsorRepository;
+        private readonly ISponsorshipRepository _sponsorshipRepository;
+        private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
 
-        public EventService(IEventRepository eventRepository, IEventScheduleRepository eventScheduleRepository, ISponsorRepository sponsorRepository, IMapper mapper)
+        public EventService(
+            IEventRepository eventRepository,
+            IEventScheduleRepository eventScheduleRepository,
+            ISponsorRepository sponsorRepository,
+            ISponsorshipRepository sponsorshipRepository,
+            IAccountRepository accountRepository,
+            IMapper mapper)
         {
             _eventRepository = eventRepository;
             _eventScheduleRepository = eventScheduleRepository;
             _sponsorRepository = sponsorRepository;
+            _sponsorshipRepository = sponsorshipRepository;
+            _accountRepository = accountRepository;
             _mapper = mapper;
         }
 
@@ -66,34 +77,130 @@ namespace Events.Business.Services
             return result;
         }
 
-        public async Task<EventDTO> CreateEvent(CreateEventDTO createEventDTO)
+        public async Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO)
         {
             // Check if ScheduleList is not empty
             if (createEventDTO.ScheduleList == null || !createEventDTO.ScheduleList.Any())
             {
-                throw new Exception("ScheduleList cannot be empty");
+                return new BaseResponse
+                {
+                    StatusCode = 400,
+                    Message = "ScheduleList cannot be empty",
+                    IsSuccess = false
+                };
             }
 
-            // Set startDate and endDate based on the first schedule's startTime and endTime
-            var firstSchedule = createEventDTO.ScheduleList.First();
-            createEventDTO.StartTimeOverall = firstSchedule.StartTime.Date; // Only date part
-            createEventDTO.EndTimeOverall = firstSchedule.EndTime.Date; // Only date part
-  
+            // Validate Sponsorships and Sponsors
+            List<Sponsorship> sponsorships = new List<Sponsorship>();
+            foreach (var sponsorshipDTO in createEventDTO.Sponsorships)
+            {
+                var sponsorDTO = sponsorshipDTO.Sponsor;
+                var existingSponsor = await _sponsorRepository.GetSponsorByEmailAsync(sponsorDTO.Email);
 
+                if (existingSponsor == null)
+                {
+                    // Check if the account already exists by email
+                    var existingAccount = await _accountRepository.GetAccountByEmail(sponsorDTO.Email);
+                    if (existingAccount == null)
+                    {
+                        // Creating new account for sponsor
+                        var newAccount = new Account
+                        {
+                            Name = sponsorDTO.Email.Split('@')[0],
+                            Email = sponsorDTO.Email,
+                            Username = sponsorDTO.Email,
+                            Password = "1",
+                            PhoneNumber = sponsorDTO.PhoneNumber,
+                            Dob = DateOnly.FromDateTime(DateTime.Now),
+                            Gender = Gender.Others,
+                            AvatarUrl = null,
+                            RoleId = 3,
+                            SubjectId = null
+                        };
+                        await _accountRepository.CreateAccount(newAccount);
+                        sponsorDTO.AccountId = newAccount.Id;
+                    }
+                    else
+                    {
+                        sponsorDTO.AccountId = existingAccount.Id;
+                    }
+
+                    var newSponsor = _mapper.Map<Sponsor>(sponsorDTO);
+                    newSponsor.AccountId = sponsorDTO.AccountId;
+
+                    await _sponsorRepository.AddSponsorAsync(newSponsor);
+                    await _sponsorRepository.SaveChangesAsync();
+
+                    existingSponsor = newSponsor;
+                }
+
+                // Create the sponsorship with the existing or new sponsor ID, and default EventId
+                var sponsorship = new Sponsorship
+                {
+                    EventId = 0, // Temporary default EventId
+                    SponsorId = existingSponsor.Id,
+                    Description = sponsorshipDTO.Description,
+                    Type = sponsorshipDTO.Type,
+                    Title = sponsorshipDTO.Title,
+                    Sum = sponsorshipDTO.Sum
+                };
+                sponsorships.Add(sponsorship);
+            }
+
+            // Map the DTO to the Event entity
             var newEvent = _mapper.Map<Event>(createEventDTO);
 
+            // Add the event to the repository and save changes to generate EventId
             await _eventRepository.Add(newEvent);
-            await _eventRepository.SaveChangesAsync(); // Save changes to generate EventId
+            Console.WriteLine($"Event created with ID: {newEvent.Id}");
 
+            // Delete sponsors with null AccountId and duplicate
+            await _sponsorRepository.DeleteDuplicateSponsorsAsync(); ;
+            Console.WriteLine("Sponsors with null AccountId deleted.");
+
+            // Add each schedule in the ScheduleList
             foreach (var scheduleDTO in createEventDTO.ScheduleList)
             {
                 var newEventSchedule = _mapper.Map<EventSchedule>(scheduleDTO);
                 newEventSchedule.EventId = newEvent.Id;
                 await _eventScheduleRepository.AddEventScheduleAsync(newEventSchedule);
+                Console.WriteLine($"Schedule added with Start Time: {scheduleDTO.StartTime}, End Time: {scheduleDTO.EndTime}, Place: {scheduleDTO.Place}");
             }
 
-            return _mapper.Map<EventDTO>(newEvent);
+            // Update sponsorships with the new EventId
+            foreach (var sponsorship in sponsorships)
+            {
+                sponsorship.EventId = newEvent.Id;
+                await _sponsorshipRepository.UpdateSponsorship(sponsorship);
+                Console.WriteLine($"Sponsorship updated with new Event ID: {newEvent.Id}");
+            }
+
+            var eventDTO = _mapper.Map<EventDTO>(newEvent);
+
+            Console.WriteLine("Event creation process completed. Detailed check:");
+            Console.WriteLine($"Event ID: {newEvent.Id}");
+            Console.WriteLine($"Schedules count: {createEventDTO.ScheduleList.Count}");
+            Console.WriteLine($"Sponsorships count: {createEventDTO.Sponsorships?.Count ?? 0}");
+
+            if (createEventDTO.Sponsorships != null)
+            {
+                foreach (var sponsorshipDTO in createEventDTO.Sponsorships)
+                {
+                    Console.WriteLine($"Sponsorship Title: {sponsorshipDTO.Title}");
+                    Console.WriteLine($"Sponsor Email: {sponsorshipDTO.Sponsor?.Email}");
+                }
+            }
+
+            return new BaseResponse
+            {
+                StatusCode = 201,
+                IsSuccess = true,
+                Data = eventDTO
+            };
         }
+
+
+
         public async Task<EventDTO> GetEventById(int id)
         {
             var eventEntity = await _eventRepository.GetEventById(id);

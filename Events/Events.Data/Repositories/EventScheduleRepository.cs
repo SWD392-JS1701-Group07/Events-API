@@ -26,10 +26,10 @@ namespace Events.Data.Repositories
         {
             return await _context.EventSchedules.Where(e => e.EventId == id).ToListAsync();
         }
-        public async Task AddEventScheduleAsync(EventSchedule eventSchedule)
+        public async Task<bool> AddEventScheduleAsync(EventSchedule eventSchedule)
         {
             await _context.EventSchedules.AddAsync(eventSchedule);
-            await _context.SaveChangesAsync();
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

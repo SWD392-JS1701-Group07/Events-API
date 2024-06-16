@@ -16,14 +16,15 @@ namespace Events.Data.Repositories
         public EventRepository(EventsDbContext eventsDbContext)
         {
             _context = eventsDbContext;
-        }
+         }
         public async Task<List<Event>> GetAllEvents()
         {
             return await _context.Events.ToListAsync();
         }
-        public async Task Add(Event newEvent)
+        public async Task<bool> Add(Event newEvent)
         {
             await _context.Events.AddAsync(newEvent);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task SaveChangesAsync()

@@ -209,5 +209,10 @@ namespace Events.Business.Services
 				Data = sponsorDTO
 			};
 		}
-	}
+
+        public async Task<Sponsor> GetSponsorByEmailAsync(string email)
+        {
+            return await _sponsorRepository.GetSponsorByEmailAsync(email);
+        }
+    }
 }

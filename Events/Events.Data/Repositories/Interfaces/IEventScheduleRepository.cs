@@ -11,6 +11,6 @@ namespace Events.Data.Repositories.Interfaces
     {
         Task<List<EventSchedule>> GetAllEventSchedule();
         Task<List<EventSchedule>> GetEventScheduleById(int id);
-        Task AddEventScheduleAsync(EventSchedule eventSchedule);
+        Task<bool> AddEventScheduleAsync(EventSchedule eventSchedule);
     }
 }

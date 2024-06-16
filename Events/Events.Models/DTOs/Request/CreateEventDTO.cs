@@ -17,17 +17,12 @@ namespace Events.Models.DTOs.Request
         [Required]
         public string Place { get; set; } = null!;
 
-        [Required]
-        public DateTime StartTimeOverall { get; set; }
 
         [Required]
-        public DateTime EndTimeOverall { get; set; }
+        public DateTime StartSellDate { get; set; }
 
         [Required]
-        public DateTime StartDate { get; set; }
-
-        [Required]
-        public DateTime EndDate { get; set; }
+        public DateTime EndSellDate { get; set; }
 
         [Required]
         [Range(0, double.MaxValue)]
@@ -51,6 +46,8 @@ namespace Events.Models.DTOs.Request
         public int? SubjectId { get; set; }
 
         public List<CreateEventScheduleDTO> ScheduleList { get; set; } = new List<CreateEventScheduleDTO>();
+
+        public List<CreateSponsorshipEventDTO> Sponsorships { get; set; } = new List<CreateSponsorshipEventDTO>();
 
     }
 }

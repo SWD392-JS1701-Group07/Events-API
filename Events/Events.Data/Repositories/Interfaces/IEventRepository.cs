@@ -12,7 +12,7 @@ namespace Events.Data.Repositories.Interfaces
     {
         Task<List<Event>> GetAllEvents();
 
-        Task Add(Event newEvent);
+        Task<bool> Add(Event newEvent);
         Task SaveChangesAsync();
         Task UpdateStatus(Event eventEntity);
 

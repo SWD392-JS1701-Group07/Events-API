@@ -33,5 +33,11 @@ namespace Events.Data.Repositories
         {
             return await _context.Sponsorships.FirstOrDefaultAsync(e => e.Id == id);
         }
+
+        public async Task<bool> UpdateSponsorship(Sponsorship sponsorship)
+        {
+            _context.Sponsorships.Update(sponsorship);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

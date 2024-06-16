@@ -43,6 +43,14 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.Dob)));
 
             CreateMap<Sponsorship, SponsorshipDTO>().ReverseMap();
+
+            CreateMap<CreateSponsorshipEventDTO, Sponsorship>()
+           .ForMember(dest => dest.EventId, opt => opt.Ignore())
+           .ForMember(dest => dest.SponsorId, opt => opt.Ignore());
+
+            CreateMap<CreateSponsorshipDTO, Sponsorship>()
+           .ForMember(dest => dest.EventId, opt => opt.Ignore())
+           .ForMember(dest => dest.SponsorId, opt => opt.Ignore());
         }
 
     }

@@ -2,6 +2,7 @@
 using Events.Models.DTOs.Request;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace Events.API.Controllers
 {
     [ApiController]
