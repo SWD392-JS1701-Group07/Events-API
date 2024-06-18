@@ -231,7 +231,7 @@ namespace Events.Business.Services
 
         public async Task<List<EventDTO>> GetEventsByStatus(EventStatus status)
         {
-            var events = await _eventRepository.GetAllEvents(null, null, null);
+            var events = await _eventRepository.GetAllEvents(null, null, null, 0, 0);
             if (events == null)
             {
                 return new List<EventDTO>();
