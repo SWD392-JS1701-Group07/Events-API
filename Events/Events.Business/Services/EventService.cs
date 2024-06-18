@@ -42,9 +42,9 @@ namespace Events.Business.Services
             _mapper = mapper;
         }
 
-        public async Task<List<EventDTO>> GetAllEvents()
+        public async Task<List<EventDTO>> GetAllEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var events = await _eventRepository.GetAllEvents();
+            var events = await _eventRepository.GetAllEvents(searchTerm, sortColumn, sortOrder, 1, 10);
 
             List<EventDTO> result = new List<EventDTO>();
 
@@ -52,8 +52,6 @@ namespace Events.Business.Services
             {
                 var example = await _eventScheduleRepository.GetEventScheduleById(c.Id);
                 var schedule = _mapper.Map<List<EventScheduleDTO>>(example);
-
-            //    List<EventScheduleDTO> scheduleList = new List<EventScheduleDTO>();
 
                 EventDTO element = new EventDTO
                 {
@@ -233,7 +231,7 @@ namespace Events.Business.Services
 
         public async Task<List<EventDTO>> GetEventsByStatus(EventStatus status)
         {
-            var events = await _eventRepository.GetAllEvents();
+            var events = await _eventRepository.GetAllEvents(null, null, null);
             if (events == null)
             {
                 return new List<EventDTO>();

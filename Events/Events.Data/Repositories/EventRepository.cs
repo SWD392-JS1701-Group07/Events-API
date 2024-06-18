@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace Events.Data.Repositories
 {
@@ -17,9 +18,43 @@ namespace Events.Data.Repositories
         {
             _context = eventsDbContext;
          }
-        public async Task<List<Event>> GetAllEvents()
+        public async Task<List<Event>> GetAllEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            return await _context.Events.ToListAsync();
+            IQueryable<Event> eventQuery = _context.Events;
+
+            if(!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                eventQuery = eventQuery.Where(p => p.Name.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortColumn) && !string.IsNullOrWhiteSpace(sortOrder))
+            {
+                Expression<Func<Event, object>> keySelector = sortColumn switch
+                {
+                    "name" => e => e.Name,
+                    "price" => e => e.Price,
+                    "quantity" => e => e.Quantity,
+                    "startselldate" => e => e.StartSellDate,
+                    "endselldate" => e => e.EndSellDate,
+                    _ => e => e.Id, // Default sorting
+                };
+
+                eventQuery = sortOrder.ToLower() switch
+                {
+                    "asc" => eventQuery.OrderBy(keySelector),
+                    "desc" => eventQuery.OrderByDescending(keySelector),
+                    _ => eventQuery.OrderBy(keySelector)
+                };
+            }
+            else
+            {
+                eventQuery = eventQuery.OrderBy(e => e.Id);
+            }
+
+            eventQuery = eventQuery.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var events = await eventQuery.ToListAsync();
+            return events;
         }
         public async Task<bool> Add(Event newEvent)
         {

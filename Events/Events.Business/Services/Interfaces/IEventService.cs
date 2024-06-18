@@ -13,7 +13,7 @@ namespace Events.Business.Services.Interfaces
 {
     public interface IEventService
     {
-        Task<List<EventDTO>> GetAllEvents();
+        Task<List<EventDTO>> GetAllEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO);
         Task<EventDTO> GetEventById(int id);
         Task UpdateStatus(int id, EventStatus newStatus);

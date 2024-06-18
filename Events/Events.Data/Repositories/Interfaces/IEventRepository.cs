@@ -10,7 +10,7 @@ namespace Events.Data.Repositories.Interfaces
 {
     public interface IEventRepository
     {
-        Task<List<Event>> GetAllEvents();
+        Task<List<Event>> GetAllEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
 
         Task<bool> Add(Event newEvent);
         Task SaveChangesAsync();

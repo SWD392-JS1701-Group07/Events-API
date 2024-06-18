@@ -25,9 +25,9 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ViewAllEvents()
+        public async Task<IActionResult> ViewAllEvents([FromQuery] string? searchTerm, string? sortColumn, string? sortOrder, int page = 1, int pageSize = 10)
         {
-            var events = await _eventService.GetAllEvents();
+            var events = await _eventService.GetAllEvents(searchTerm, sortColumn, sortOrder, page, pageSize);
             if (events == null)
             {
                 return NotFound();
