@@ -47,7 +47,7 @@ namespace Events.Models.DTOs.Request
 
         public List<CreateEventScheduleDTO> ScheduleList { get; set; } = new List<CreateEventScheduleDTO>();
 
-        public List<CreateSponsorshipEventDTO> Sponsorships { get; set; } = new List<CreateSponsorshipEventDTO>();
+        public List<CreateSponsorshipEventDTO>? Sponsorships { get; set; } = null;
 
     }
 }
