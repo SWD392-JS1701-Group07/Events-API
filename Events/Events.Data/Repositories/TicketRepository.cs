@@ -17,6 +17,13 @@ namespace Events.Data.Repositories
         {
             _context = context;
         }
+
+        public async Task<bool> CheckTicketExist(string email, string phoneNumber, int eventId)
+        {
+            var ticket = await _context.Tickets.FirstOrDefaultAsync(e => e.Email == email && e.PhoneNumber == phoneNumber && e.EventId == eventId);
+            return ticket != null;
+        }
+
         public async Task<bool> CreateTicket(Ticket ticket)
         {
             await _context.Tickets.AddAsync(ticket);

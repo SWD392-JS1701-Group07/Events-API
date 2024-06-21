@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Events.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace Events.Models.Models;
@@ -19,7 +20,7 @@ public partial class Ticket
 
     public double Price { get; set; }
 
-    public int IsCheckIn { get; set; }
+    public Enums.IsCheckin IsCheckIn { get; set; }
 
     public int OrdersId { get; set; }
 

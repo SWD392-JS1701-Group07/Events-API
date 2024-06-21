@@ -10,5 +10,6 @@ namespace Events.Data.Repositories.Interfaces
     public interface ITicketRepository
     {
         Task<bool> CreateTicket(Ticket ticket);
+        Task<bool> CheckTicketExist(string email, string phoneNumber, int eventId);
     }
 }

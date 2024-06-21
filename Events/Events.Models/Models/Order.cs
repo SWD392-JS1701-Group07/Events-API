@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Events.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace Events.Models.Models;
@@ -13,9 +14,9 @@ public partial class Order
 
     public string? Notes { get; set; }
 
-    public int PaymentMethod { get; set; }
+    public Enums.PaymentMethod PaymentMethod { get; set; }
 
-    public int OrderStatus { get; set; }
+    public Enums.OrderStatus OrderStatus { get; set; }
 
     public string Email { get; set; } = null!;
 
