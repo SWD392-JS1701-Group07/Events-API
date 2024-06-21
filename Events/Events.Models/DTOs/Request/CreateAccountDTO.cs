@@ -15,7 +15,7 @@ namespace Events.Models.DTOs.Request
 
         public string Username { get; set; } = null!;
 
-        public string Password { get; set; } = null!;
+        public string? Password { get; set; }
         public string? StudentId { get; set; }
 
         public string? PhoneNumber { get; set; }

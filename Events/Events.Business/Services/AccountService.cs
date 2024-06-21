@@ -15,6 +15,7 @@ using Events.Utils.Helper;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using static Events.Utils.Enums;
+using Events.Utils.Helpers;
 
 namespace Events.Business.Services
 {
@@ -22,13 +23,15 @@ namespace Events.Business.Services
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ISponsorRepository _sponsorRepository;
+        private readonly EmailHelper _emailHelper;
 
-        public AccountService(IAccountRepository accountRepository, IMapper mapper, IWebHostEnvironment webHostEnvironment)
+        public AccountService(IAccountRepository accountRepository, IMapper mapper, ISponsorRepository sponsorRepository, EmailHelper emailHelper)
         {
             _accountRepository = accountRepository;
             _mapper = mapper;
-            _webHostEnvironment = webHostEnvironment;
+            _sponsorRepository = sponsorRepository;
+            _emailHelper = emailHelper;
         }
 
         public async Task<BaseResponse> BanAccount(int id)
@@ -116,12 +119,22 @@ namespace Events.Business.Services
             }
             else
             {
+                string examplePassword;
+                if(createAccountDTO.Password == null)
+                {
+                    examplePassword = GenerateRandomPassword(8);
+                }
+                else
+                {
+                    examplePassword = createAccountDTO.Password;
+                }
+
                 var account = new AccountDTO
                 {
                     Name = createAccountDTO.Name,
                     Email = createAccountDTO.Email,
                     Username = createAccountDTO.Username,
-                    Password = createAccountDTO.Password,
+                    Password = examplePassword,
                     StudentId = createAccountDTO.StudentId,
                     PhoneNumber = createAccountDTO.PhoneNumber,
                     Dob = createAccountDTO.Dob,
@@ -131,6 +144,8 @@ namespace Events.Business.Services
                     RoleId = createAccountDTO.RoleId,
                     SubjectId = createAccountDTO.SubjectId
                 };
+
+                _emailHelper.SendEmailToNewAccount(createAccountDTO.Email, createAccountDTO.Username, examplePassword);
 
                 var accountCreate =  await _accountRepository.CreateAccount(_mapper.Map<Account>(account));
 
@@ -390,6 +405,14 @@ namespace Events.Business.Services
                     Data = _mapper.Map<AccountDTO>(account)
                 };
             }
+        }
+
+        public static string GenerateRandomPassword(int length)
+        {
+            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+            Random random = new Random();
+            return new string(Enumerable.Repeat(validChars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

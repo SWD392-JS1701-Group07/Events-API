@@ -18,6 +18,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using Events.Utils.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -112,6 +113,7 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IEventScheduleRepository, EventScheduleRepository>();
+builder.Services.AddScoped<EmailHelper>();
 
 builder.Services.AddScoped<ICollaboratorRepository, CollaboratorRepository>();
 builder.Services.AddScoped<ICollaboratorService, CollaboratorService>();
