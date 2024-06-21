@@ -16,6 +16,6 @@ namespace Events.Models.DTOs.Request
 
         public double Sum { get; set; }
 
-        public CreateSponsorDTO? Sponsor { get; set; }
+        public CreateSponsorEventDTO Sponsor { get; set; }
     }
 }

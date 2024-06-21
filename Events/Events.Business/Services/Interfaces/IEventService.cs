@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Events.Utils;
 using static Events.Utils.Enums;
 using Events.Models.DTOs.Response;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Events.Business.Services.Interfaces
 {

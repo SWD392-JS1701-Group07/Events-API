@@ -28,6 +28,9 @@ namespace Events.Business.Mapping
             CreateMap<Collaborator, CollaboratorDTO>().ReverseMap();  
             CreateMap<CreateSponsorDTO, Sponsor>()
                 .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
+
+            CreateMap<CreateSponsorEventDTO, Sponsor>()
+           .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl));
             CreateMap<UpdateSponsorDTO, Sponsor>()
                 .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
 

@@ -14,6 +14,9 @@ using static Events.Utils.Enums;
 using System.Diagnostics;
 using Events.Data.Repositories;
 using Events.Models.DTOs.Response;
+using Events.Utils.Helper;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Events.Business.Services
 {
@@ -108,6 +111,7 @@ namespace Events.Business.Services
                 foreach (var sponsorshipDTO in createEventDTO.Sponsorships)
                 {
                     var sponsorDTO = sponsorshipDTO.Sponsor;
+                  
                     var existingSponsor = await _sponsorRepository.GetSponsorByEmailAsync(sponsorDTO.Email);
 
                     if (existingSponsor == null)
@@ -139,13 +143,14 @@ namespace Events.Business.Services
                         }
 
                         var newSponsor = _mapper.Map<Sponsor>(sponsorDTO);
+                       
                         newSponsor.AccountId = sponsorDTO.AccountId;
 
                         await _sponsorRepository.AddSponsorAsync(newSponsor);
 
                         existingSponsor = newSponsor;
                     }
-
+                    
                     // Create the sponsorship with the existing or new sponsor ID, and the new EventId
                     var sponsorship = new Sponsorship
                     {
