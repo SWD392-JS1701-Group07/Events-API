@@ -38,5 +38,22 @@ namespace Events.Utils
             Female,
             Others
         }
+        public enum IsCheckin
+        {
+            Yes, 
+            No
+        }
+        public enum PaymentMethod
+        {
+            VNPay,
+            Momo,
+            Free
+        }
+        public enum OrderStatus
+        {
+            Pending,
+            Paid,
+            Cancel
+        }
     }
 }
