@@ -30,7 +30,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "1")]
+    //    [Authorize(Roles = "1")]
         public async Task<IActionResult> GetAccount(int id)
         {
             var account = await _accountService.GetAccountById(id);
