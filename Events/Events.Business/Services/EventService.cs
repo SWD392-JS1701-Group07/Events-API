@@ -20,8 +20,8 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Events.Business.Services
 {
-    public class EventService : IEventService
-    {
+	public class EventService : IEventService
+	{
         private readonly IEventRepository _eventRepository;
         private readonly IEventScheduleRepository _eventScheduleRepository;
         private readonly ISponsorRepository _sponsorRepository;
@@ -93,6 +93,7 @@ namespace Events.Business.Services
 
             // Map the DTO to the Event entity
             var newEvent = _mapper.Map<Event>(createEventDTO);
+            newEvent.Remaining = createEventDTO.Quantity;
 
             // Add the event to the repository and save changes to generate EventId
             await _eventRepository.Add(newEvent);
@@ -245,5 +246,25 @@ namespace Events.Business.Services
             }
             return eventEntity.Name;
         }
-    }
+
+		public async Task<double> GetTotalPriceTicketOfEvent(List<TicketDetail> tickets)
+		{
+			double total = 0;
+            foreach (var ticketDetail in tickets) {
+                total += await _eventRepository.GetPriceOfEvent(ticketDetail.EventId);
+            }
+            return total;
+		}
+
+		public async Task<bool> UpdateTicketQuantity(int eventId, int quantity)
+		{
+			var eventEntity = await _eventRepository.GetEventById(eventId);
+            bool isSuccess = false;
+			if (eventEntity != null)
+			{
+				isSuccess =  await _eventRepository.UpdateTicketQuantity(eventEntity, quantity);
+			}
+            return isSuccess;
+		}
+	}
 }

@@ -23,6 +23,7 @@ namespace Events.Data.Repositories.Interfaces
         Task DeleteEvent(int id);
         Task<IEnumerable<Event>> SearchEventsByNameAsync(string eventName);
         Task<Event> GetEventByIdAsync(int eventId);
-
+        Task<double> GetPriceOfEvent(int eventId);
+        Task<bool> UpdateTicketQuantity(Event eventEntity, int quantity);
     }
 }

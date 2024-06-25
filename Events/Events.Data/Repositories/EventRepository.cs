@@ -10,8 +10,8 @@ using System.Linq.Expressions;
 
 namespace Events.Data.Repositories
 {
-    public class EventRepository : IEventRepository
-    {
+	public class EventRepository : IEventRepository
+	{
         private readonly EventsDbContext _context;
 
         public EventRepository(EventsDbContext eventsDbContext)
@@ -117,5 +117,25 @@ namespace Events.Data.Repositories
                                  .FirstOrDefaultAsync(e => e.Id == eventId);
         }
 
-    }
+		public async Task<double> GetPriceOfEvent(int eventId)
+		{
+			var eventFound = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+            return eventFound!.Price;
+		}
+
+		public async Task<bool> UpdateTicketQuantity(Event eventEntity, int quantity)
+		{
+            var local = _context.Set<Event>().Local.FirstOrDefault(entity => entity.Id == eventEntity.Id);
+            if (local != null)
+            {
+                _context.Entry(local).State = EntityState.Detached;
+            }
+            if(quantity < eventEntity.Remaining)
+            {
+				eventEntity.Remaining -= quantity;
+			}
+			_context.Events.Update(eventEntity);
+            return await _context.SaveChangesAsync() > 0;
+		}
+	}
 }
