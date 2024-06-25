@@ -91,27 +91,83 @@ namespace Events.Business.Services
                 };
             }
 
+            // Validation: StartSellDate < EndSellDate
+            if (createEventDTO.StartSellDate >= createEventDTO.EndSellDate)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 400,
+                    Message = "StartSellDate must be before EndSellDate",
+                    IsSuccess = false
+                };
+            }
+
             // Map the DTO to the Event entity
             var newEvent = _mapper.Map<Event>(createEventDTO);
 
+            // Check for overlapping events at the same place and time
+            foreach (var scheduleDTO in createEventDTO.ScheduleList)
+            {
+                // Validation: EndSellDate < StartTime
+                if (createEventDTO.EndSellDate >= scheduleDTO.StartTime)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 400,
+                        Message = "EndSellDate must be before StartTime",
+                        IsSuccess = false
+                    };
+                }
+
+                // Validation: StartTime < EndTime
+                if (scheduleDTO.StartTime >= scheduleDTO.EndTime)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 400,
+                        Message = "StartTime must be before EndTime",
+                        IsSuccess = false
+                    };
+                }
+
+                // Check if there are overlapping events at the same place and time
+                var overlappingEvents = await _eventScheduleRepository.GetOverlappingSchedulesAsync(
+                    scheduleDTO.Place,
+                    scheduleDTO.StartTime,
+                    scheduleDTO.EndTime
+                );
+
+                if (overlappingEvents.Any())
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 400,
+                        Message = "There is an overlapping event at the same place and time",
+                        IsSuccess = false
+                    };
+                }
+            }
+
             // Add the event to the repository and save changes to generate EventId
             await _eventRepository.Add(newEvent);
-          
+
             foreach (var scheduleDTO in createEventDTO.ScheduleList)
             {
                 var newEventSchedule = _mapper.Map<EventSchedule>(scheduleDTO);
                 newEventSchedule.EventId = newEvent.Id;
                 await _eventScheduleRepository.AddEventScheduleAsync(newEventSchedule);
             }
+
             await _sponsorRepository.DeleteDuplicateSponsorsAsync();
             await _sponsorRepository.DeleteSponsorsWithNullAccountIdAsync();
+
             if (createEventDTO.Sponsorships != null)
             {
                 // Validate Sponsorships and Sponsors as pairs
                 foreach (var sponsorshipDTO in createEventDTO.Sponsorships)
                 {
                     var sponsorDTO = sponsorshipDTO.Sponsor;
-                  
+
                     var existingSponsor = await _sponsorRepository.GetSponsorByEmailAsync(sponsorDTO.Email);
 
                     if (existingSponsor == null)
@@ -143,14 +199,14 @@ namespace Events.Business.Services
                         }
 
                         var newSponsor = _mapper.Map<Sponsor>(sponsorDTO);
-                       
+
                         newSponsor.AccountId = sponsorDTO.AccountId;
 
                         await _sponsorRepository.AddSponsorAsync(newSponsor);
 
                         existingSponsor = newSponsor;
                     }
-                    
+
                     // Create the sponsorship with the existing or new sponsor ID, and the new EventId
                     var sponsorship = new Sponsorship
                     {
@@ -164,10 +220,8 @@ namespace Events.Business.Services
 
                     // Add the sponsorship to the repository
                     await _sponsorshipRepository.CreateSponsorship(sponsorship);
-                }              
+                }
             }
-
-           
 
             var eventDTO = _mapper.Map<EventDTO>(newEvent);
 
