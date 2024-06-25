@@ -38,5 +38,12 @@ namespace Events.Utils
             Female,
             Others
         }
+
+        public enum OrderStatus
+        {
+            Cancel,
+            Success,
+
+        }
     }
 }

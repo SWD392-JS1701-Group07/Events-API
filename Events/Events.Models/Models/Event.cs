@@ -18,6 +18,8 @@ public partial class Event
 
     public int Quantity { get; set; }
 
+    public int Remaining { get; set; }
+
     public string? AvatarUrl { get; set; }
 
     public string? Description { get; set; }
