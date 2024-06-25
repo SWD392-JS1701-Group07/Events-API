@@ -1,14 +1,13 @@
-﻿using Events.Models.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Events.Models.DTOs.Request;
+using Events.Models.Models;
 
 namespace Events.Data.Repositories.Interfaces
 {
     public interface ITicketRepository
     {
-        Task<bool> CreateTicket(Ticket ticket);
-    }
+        Task<string> CreateTicket(CreateTicketRequest request);
+		Task UpdateOrderStatus(string orderId, string? responeCode);
+        Task<IEnumerable<Ticket>> GetTicketFilter(bool isBought = false, string? orderId = null, string? includeProps = null);
+	}
 }
+    

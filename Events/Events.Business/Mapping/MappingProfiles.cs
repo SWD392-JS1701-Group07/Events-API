@@ -48,12 +48,16 @@ namespace Events.Business.Mapping
             CreateMap<Sponsorship, SponsorshipDTO>().ReverseMap();
 
             CreateMap<CreateSponsorshipEventDTO, Sponsorship>()
-           .ForMember(dest => dest.EventId, opt => opt.Ignore())
-           .ForMember(dest => dest.SponsorId, opt => opt.Ignore());
+                .ForMember(dest => dest.EventId, opt => opt.Ignore())
+                .ForMember(dest => dest.SponsorId, opt => opt.Ignore());
 
             CreateMap<CreateSponsorshipDTO, Sponsorship>()
-           .ForMember(dest => dest.EventId, opt => opt.Ignore())
-           .ForMember(dest => dest.SponsorId, opt => opt.Ignore());
+                .ForMember(dest => dest.EventId, opt => opt.Ignore())
+                .ForMember(dest => dest.SponsorId, opt => opt.Ignore());
+
+            CreateMap<Ticket, TicketDTO>()
+                .ForMember(dest => dest.EventName, otp => otp.MapFrom(src => src.Event.Name))
+                .ForMember(dest => dest.EventSchedules, otp => otp.MapFrom(src => src.Event.EventSchedules));
         }
 
     }

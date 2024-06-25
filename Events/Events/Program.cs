@@ -121,6 +121,9 @@ builder.Services.AddScoped<ISponsorRepository, SponsorRepository>();
 builder.Services.AddScoped<ISponsorService, SponsorService>();
 builder.Services.AddScoped<ISponsorshipRepository, SponsorshipRepository>();
 builder.Services.AddScoped<ISponsorshipService, SponsorshipService>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IVNPayPaymentService, VNPayPaymentService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder =>
