@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Events.Utils.Enums;
 
 namespace Events.Data.Repositories.Interfaces
 {
@@ -23,6 +24,8 @@ namespace Events.Data.Repositories.Interfaces
         Task DeleteEvent(int id);
         Task<IEnumerable<Event>> SearchEventsByNameAsync(string eventName);
         Task<Event> GetEventByIdAsync(int eventId);
+        Task<List<Event>> GetEventsByStatus(EventStatus status);
+
 
     }
 }

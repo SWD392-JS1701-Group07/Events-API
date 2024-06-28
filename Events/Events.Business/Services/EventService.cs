@@ -238,7 +238,18 @@ namespace Events.Business.Services
         public async Task<EventDTO> GetEventById(int id)
         {
             var eventEntity = await _eventRepository.GetEventById(id);
-            return _mapper.Map<EventDTO>(eventEntity);
+            if (eventEntity == null)
+            {
+                return null;
+            }
+
+            var scheduleEntity = await _eventScheduleRepository.GetEventScheduleById(id);
+            var scheduleDto = _mapper.Map<List<EventScheduleDTO>>(scheduleEntity);
+
+            var eventDto = _mapper.Map<EventDTO>(eventEntity);
+            eventDto.ScheduleList = scheduleDto;
+
+            return eventDto;
         }
         public async Task UpdateStatus(int id, EventStatus newStatus)
         {
@@ -267,14 +278,21 @@ namespace Events.Business.Services
 
         public async Task<List<EventDTO>> GetEventsByStatus(EventStatus status)
         {
-            var events = await _eventRepository.GetAllEvents(null, null, null, 0, 0);
-            if (events == null)
+            var events = await _eventRepository.GetEventsByStatus(status);
+            if (events == null || events.Count == 0)
             {
                 return new List<EventDTO>();
             }
 
-            var filteredEvents = events.Where(e => e.EventStatus == status).ToList();
-            return _mapper.Map<List<EventDTO>>(filteredEvents);
+            var eventDTOs = _mapper.Map<List<EventDTO>>(events);
+
+            foreach (var eventDTO in eventDTOs)
+            {
+                var schedules = await _eventScheduleRepository.GetEventScheduleById(eventDTO.Id);
+                eventDTO.ScheduleList = _mapper.Map<List<EventScheduleDTO>>(schedules);
+            }
+
+            return eventDTOs;
         }
 
         public async Task DeleteEvent(int id)

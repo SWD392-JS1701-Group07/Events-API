@@ -92,7 +92,7 @@ namespace Events.API.Controllers
       //  [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetEventsNeedingApproval()
-        {
+        {   
             var eventStatus = EventStatus.Planning;
             var events = await _eventService.GetEventsByStatus(eventStatus);
             return Ok(events);
