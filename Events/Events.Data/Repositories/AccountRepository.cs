@@ -44,7 +44,7 @@ namespace Events.Data.Repositories
 
         public async Task<Account> GetAccountById(int id)
         {
-            return await _context.Accounts.FirstOrDefaultAsync(e => e.Id == id);
+            return await _context.Accounts.Include(a => a.Role).FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<List<Account>> GetAllAccounts()

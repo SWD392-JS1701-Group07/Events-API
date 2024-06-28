@@ -18,9 +18,12 @@ namespace Events.API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAllTicket()
+		public async Task<IActionResult> GetAllTicket([FromQuery] bool? isBought = null,
+													[FromQuery] string? searchTerm = null,
+													[FromQuery] string? orderId = null,
+													[FromQuery] int accountId = 1)
 		{
-			var ticketDtos = await _ticketService.GetTicketFilter(includeProps: "Orders,Event");
+			var ticketDtos = await _ticketService.GetTicketFilter(accountId, isBought, orderId: orderId, searchTerm, includeProps: "Orders,Event");
 			return !ticketDtos.Any()
 				? NotFound(new BaseResponse
 				{
@@ -28,7 +31,7 @@ namespace Events.API.Controllers
 					Message = "Not found any Ticket !!!",
 					IsSuccess = false
 				})
-				: Ok(new BaseResponse
+				: Ok(new BaseResponse	
 				{
 					StatusCode = StatusCodes.Status200OK,
 					Data = ticketDtos,

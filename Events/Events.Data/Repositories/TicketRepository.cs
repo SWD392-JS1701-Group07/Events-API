@@ -14,12 +14,12 @@ namespace Events.Data.Repositories
 {
 	public class TicketRepository : ITicketRepository
 	{
-        private readonly EventsDbContext _context;
+		private readonly EventsDbContext _context;
 
-        public TicketRepository(EventsDbContext context)
-        {
-            _context = context;
-        }
+		public TicketRepository(EventsDbContext context)
+		{
+			_context = context;
+		}
 
 		public async Task<string> CreateTicket(CreateTicketRequest request)
 		{
@@ -76,63 +76,59 @@ namespace Events.Data.Repositories
 			}
 		}
 
-		public async Task<IEnumerable<Ticket>> GetTicketFilter(bool isBought = false, string? orderId = null, string? includeProps = null)
+		public async Task<IEnumerable<Ticket>> GetTicketFilter(Account account, bool? isBought = null, string? orderId = null,
+																string? searchTern = null, string? includeProps = null)
 		{
 			IQueryable<Ticket> query = _context.Tickets;
 			if (includeProps != null)
 			{
-				foreach (var includePro in includeProps.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
+				foreach (var includePro in includeProps.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
 				{
 					query = query.Include(includePro);
 				}
 			}
-			if (isBought)
+			var roleName = account.Role.Name;
+			if (string.Equals(roleName, "Visistor", StringComparison.OrdinalIgnoreCase))
 			{
-				if(!string.IsNullOrEmpty(orderId))
+				query = query.Where(t => t.Orders != null && t.Orders.CustomerId.Equals(account.Id));
+			}
+			else if (string.Equals(roleName, "Event operator", StringComparison.OrdinalIgnoreCase))
+			{
+				query = query.Where(t => t.Event != null && t.Event.OwnerId.Equals(account.Id));
+			}
+			if (!string.IsNullOrEmpty(searchTern))
+			{
+				query = query.Where(t =>
+					EF.Functions.Like(t.PhoneNumber, $"%{searchTern}%") ||
+					EF.Functions.Like(t.Email, $"%{searchTern}%") ||
+					EF.Functions.Like(t.Name, $"%{searchTern}%") ||
+					EF.Functions.Like(t.Event.Name, $"%{searchTern}%")
+				);
+			}
+			if (isBought.HasValue)
+			{
+				if (isBought.Value)
 				{
-					query = query.Where(t => t.Orders != null && t.Orders.OrderStatus == 1 && t.OrdersId == orderId);
+					if (!string.IsNullOrEmpty(orderId))
+						query = query.Where(t => t.Orders != null && t.Orders.OrderStatus == 1 && t.OrdersId == orderId);
+					else
+						query = query.Where(t => t.Orders != null && t.Orders.OrderStatus == 1);
 				}
 				else
 				{
-					query = query.Where(t => t.Orders != null && t.Orders.OrderStatus == 1);
+					if (!string.IsNullOrEmpty(orderId))
+						query = query.Where(t => t.Orders != null && t.Orders.OrderStatus != 1 && t.OrdersId == orderId);
+					else
+						query = query.Where(t => t.Orders != null && t.Orders.OrderStatus != 1);
 				}
 			}
-			else if(!orderId.IsNullOrEmpty())
+			else
 			{
-				query = query.Where(t => t.OrdersId == orderId);
+				if (!string.IsNullOrEmpty(orderId))
+					query = query.Where(t => t.OrdersId == orderId);
 			}
 			return await query.ToListAsync();
 		}
-
-		public async Task UpdateOrderStatus(string orderId, string? responeCode)
-		{
-			using (var transaction = await _context.Database.BeginTransactionAsync())
-			{
-				try
-				{
-					var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id.Equals(orderId));
-
-					if (order == null)
-					{
-						throw new Exception("Order not found");
-					}
-
-					order.OrderStatus = !responeCode.Equals("00") ? 0 : 1;
-					if(responeCode != null)
-					{
-						order.VnPayResponseCode = responeCode;
-					}
-					_context.Orders.Update(order);
-					await _context.SaveChangesAsync();
-
-					await transaction.CommitAsync();
-				}
-				catch (Exception)
-				{
-					await transaction.RollbackAsync();
-					throw;
-				}
-			}
-		}
 	}
 }
+

@@ -259,12 +259,11 @@ namespace Events.Business.Services
 		public async Task<bool> UpdateTicketQuantity(int eventId, int quantity)
 		{
 			var eventEntity = await _eventRepository.GetEventById(eventId);
-            bool isSuccess = false;
-			if (eventEntity != null)
-			{
-				isSuccess =  await _eventRepository.UpdateTicketQuantity(eventEntity, quantity);
-			}
-            return isSuccess;
+            if(eventEntity == null)
+            {
+                throw new KeyNotFoundException("Event not found");
+            }
+			return await _eventRepository.UpdateTicketQuantity(eventEntity, quantity);
 		}
 	}
 }

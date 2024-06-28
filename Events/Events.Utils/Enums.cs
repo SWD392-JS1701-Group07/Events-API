@@ -45,5 +45,14 @@ namespace Events.Utils
             Success,
 
         }
+
+  //      public enum Role
+  //      {
+		//	Admin =1,
+		//	Visistor,
+		//	Sponsor,
+  //          Staff,
+  //          Event_Operator,
+		//}
     }
 }

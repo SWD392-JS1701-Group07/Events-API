@@ -6,8 +6,7 @@ namespace Events.Data.Repositories.Interfaces
     public interface ITicketRepository
     {
         Task<string> CreateTicket(CreateTicketRequest request);
-		Task UpdateOrderStatus(string orderId, string? responeCode);
-        Task<IEnumerable<Ticket>> GetTicketFilter(bool isBought = false, string? orderId = null, string? includeProps = null);
+        Task<IEnumerable<Ticket>> GetTicketFilter(Account account, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null);
 	}
 }
     
