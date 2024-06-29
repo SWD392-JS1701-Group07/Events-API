@@ -43,16 +43,12 @@ namespace Events.Utils
         {
             Cancel,
             Success,
-
         }
-
-  //      public enum Role
-  //      {
-		//	Admin =1,
-		//	Visistor,
-		//	Sponsor,
-  //          Staff,
-  //          Event_Operator,
-		//}
+      
+        public enum IsCheckin
+        {
+            Yes, 
+            No
+        }
     }
 }

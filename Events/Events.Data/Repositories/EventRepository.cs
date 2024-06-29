@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using static Events.Utils.Enums;
 
 namespace Events.Data.Repositories
 {
@@ -137,5 +138,18 @@ namespace Events.Data.Repositories
 			_context.Events.Update(eventEntity);
             return await _context.SaveChangesAsync() > 0;
 		}
+    
+            public async Task<List<Event>> GetEventsByStatus(EventStatus status)
+        {
+            var statusInt = (int)status;
+            var events = await _context.Events
+                .Where(e => (int)e.EventStatus == statusInt)
+                .ToListAsync();
+
+            // Logging the number of events retrieved
+
+            return events;
+        }
+    }
 	}
-}
+

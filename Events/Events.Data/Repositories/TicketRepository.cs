@@ -130,5 +130,3 @@ namespace Events.Data.Repositories
 			return await query.ToListAsync();
 		}
 	}
-}
-

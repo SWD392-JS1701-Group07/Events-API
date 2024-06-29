@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Events.API.Controllers
 {
     [ApiController]
-    [ApiVersion("2.0")]
-    [ApiExplorerSettings(GroupName = "v2")]
+    [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("api/accounts")]
     [ApiVersionNeutral]
 
@@ -30,7 +30,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "1")]
+    //    [Authorize(Roles = "1")]
         public async Task<IActionResult> GetAccount(int id)
         {
             var account = await _accountService.GetAccountById(id);

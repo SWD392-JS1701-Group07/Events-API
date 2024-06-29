@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Events.Utils.Enums;
 
 namespace Events.Data.Repositories.Interfaces
 {
@@ -25,5 +26,6 @@ namespace Events.Data.Repositories.Interfaces
         Task<Event> GetEventByIdAsync(int eventId);
         Task<double> GetPriceOfEvent(int eventId);
         Task<bool> UpdateTicketQuantity(Event eventEntity, int quantity);
+        Task<List<Event>> GetEventsByStatus(EventStatus status);
     }
 }

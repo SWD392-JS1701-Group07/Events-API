@@ -1,3 +1,4 @@
+
 ﻿using Events.Business.Services;
 using Events.Business.Services.Interfaces;
 using Events.Models.DTOs.Response;
@@ -7,8 +8,8 @@ namespace Events.API.Controllers
 {
 	[Route("api/tickets")]
 	[ApiController]
-	[ApiVersion("2.0")]
-	[ApiExplorerSettings(GroupName = "v2")]
+	[ApiVersion("1.0")]
+	[ApiExplorerSettings(GroupName = "v1")]
 	[ApiVersionNeutral]
 	public class TicketController : ControllerBase
 	{

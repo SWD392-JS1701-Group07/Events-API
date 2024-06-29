@@ -12,8 +12,8 @@ namespace Events.API.Controllers
 {
 
     [ApiController]
-    [ApiVersion("2.0")]
-    [ApiExplorerSettings(GroupName = "v2")]
+    [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("api/events")]
     [ApiVersionNeutral]
     public class EventController : ControllerBase
@@ -92,7 +92,7 @@ namespace Events.API.Controllers
       //  [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetEventsNeedingApproval()
-        {
+        {   
             var eventStatus = EventStatus.Planning;
             var events = await _eventService.GetEventsByStatus(eventStatus);
             return Ok(events);

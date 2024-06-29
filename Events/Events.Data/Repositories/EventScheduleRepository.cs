@@ -31,5 +31,15 @@ namespace Events.Data.Repositories
             await _context.EventSchedules.AddAsync(eventSchedule);
             return await _context.SaveChangesAsync() > 0;
         }
+
+        public async Task<IEnumerable<EventSchedule>> GetOverlappingSchedulesAsync(string place, DateTime startTime, DateTime endTime)
+        {
+            return await _context.EventSchedules
+                .Where(es => es.Place == place &&
+                             ((es.StartTime <= startTime && es.EndTime >= startTime) ||
+                              (es.StartTime <= endTime && es.EndTime >= endTime) ||
+                              (es.StartTime >= startTime && es.EndTime <= endTime)))
+                .ToListAsync();
+        }
     }
 }

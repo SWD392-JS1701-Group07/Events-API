@@ -1,3 +1,4 @@
+
 ﻿using System;
 using System.Collections.Generic;
 
@@ -19,7 +20,7 @@ public partial class Ticket
 
     public double Price { get; set; }
 
-    public int IsCheckIn { get; set; }
+    public Enums.IsCheckin IsCheckIn { get; set; }
 
     public string OrdersId { get; set; } = null!;
 

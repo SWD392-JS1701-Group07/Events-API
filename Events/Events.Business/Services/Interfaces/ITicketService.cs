@@ -1,3 +1,4 @@
+
 ﻿using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
 using Events.Models.Models;
@@ -13,5 +14,5 @@ namespace Events.Business.Services.Interfaces
     {
 		Task<string> CreateTicket(CreateTicketRequest request);
 		Task<IEnumerable<TicketDTO>> GetTicketFilter(int accountId = 1, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null);
-	}
+  }
 }
