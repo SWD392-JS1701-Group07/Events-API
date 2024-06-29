@@ -39,5 +39,9 @@ namespace Events.Data.Repositories
             _context.Sponsorships.Update(sponsorship);
             return await _context.SaveChangesAsync() > 0;
         }
+        public async Task<List<Sponsorship>> GetAllSponsorshipsByEventId(int id)
+        {
+            return await _context.Sponsorships.Where(e => e.EventId == id).ToListAsync();
+        }
     }
 }

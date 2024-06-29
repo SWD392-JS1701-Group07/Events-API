@@ -76,6 +76,8 @@ namespace Events.Business.Mapping
             CreateMap<Ticket, TicketDTO>()
                 .ForMember(dest => dest.EventName, otp => otp.MapFrom(src => src.Event.Name))
                 .ForMember(dest => dest.EventSchedules, otp => otp.MapFrom(src => src.Event.EventSchedules));
+
+            CreateMap<Subject, SubjectDTO>().ReverseMap();
         }
 
     }

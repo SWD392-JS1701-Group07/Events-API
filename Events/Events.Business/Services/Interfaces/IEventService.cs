@@ -16,7 +16,7 @@ namespace Events.Business.Services.Interfaces
     {
         Task<List<EventDTO>> GetAllEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO);
-        Task<EventDTO> GetEventById(int id);
+        Task<BaseResponse> GetEventById(int id);
         Task UpdateStatus(int id, EventStatus newStatus);
         Task UpdateEventDetails(int id, CreateEventDTO updateEventDTO);
         Task<List<EventDTO>> GetEventsByStatus(EventStatus status);
