@@ -24,7 +24,7 @@ namespace Events.Models.DTOs
 
 		public double Price { get; set; }
 
-		public int IsCheckIn { get; set; }
+		public string IsCheckIn { get; set; }
 
 		public string OrdersId { get; set; } = null!;
 

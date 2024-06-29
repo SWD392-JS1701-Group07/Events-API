@@ -1,5 +1,6 @@
 
-﻿using System;
+using Events.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace Events.Models.Models;
