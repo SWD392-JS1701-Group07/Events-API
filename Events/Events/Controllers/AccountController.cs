@@ -39,7 +39,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("role/{id}")]
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> GetAccountByRoleId(int id)
         {
             var account = await _accountService.GetAccountByRole(id);
