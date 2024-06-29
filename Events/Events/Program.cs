@@ -116,6 +116,7 @@ builder.Services.AddScoped<IEventScheduleRepository, EventScheduleRepository>();
 builder.Services.AddScoped<EmailHelper>();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();

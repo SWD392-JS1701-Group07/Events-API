@@ -20,13 +20,14 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Events.Business.Services
 {
-	public class EventService : IEventService
-	{
+    public class EventService : IEventService
+    {
         private readonly IEventRepository _eventRepository;
         private readonly IEventScheduleRepository _eventScheduleRepository;
         private readonly ISponsorRepository _sponsorRepository;
         private readonly ISponsorshipRepository _sponsorshipRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly ISubjectRepository _subjectRepository;
         private readonly IMapper _mapper;
 
         public EventService(
@@ -35,6 +36,7 @@ namespace Events.Business.Services
             ISponsorRepository sponsorRepository,
             ISponsorshipRepository sponsorshipRepository,
             IAccountRepository accountRepository,
+            ISubjectRepository subjectRepository,
             IMapper mapper)
         {
             _eventRepository = eventRepository;
@@ -42,6 +44,7 @@ namespace Events.Business.Services
             _sponsorRepository = sponsorRepository;
             _sponsorshipRepository = sponsorshipRepository;
             _accountRepository = accountRepository;
+            _subjectRepository = subjectRepository;
             _mapper = mapper;
         }
 
@@ -51,7 +54,7 @@ namespace Events.Business.Services
 
             List<EventDTO> result = new List<EventDTO>();
 
-            foreach(var c in events)
+            foreach (var c in events)
             {
                 var example = await _eventScheduleRepository.GetEventScheduleById(c.Id);
                 var schedule = _mapper.Map<List<EventScheduleDTO>>(example);
@@ -236,21 +239,64 @@ namespace Events.Business.Services
 
 
 
-        public async Task<EventDTO> GetEventById(int id)
+        public async Task<BaseResponse> GetEventById(int id)
         {
             var eventEntity = await _eventRepository.GetEventById(id);
             if (eventEntity == null)
             {
-                return null;
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    IsSuccess = false,
+                    Data = null,
+                    Message = "Event not found"
+                };
+            }
+            else
+            {
+                var scheduleEntity = await _eventScheduleRepository.GetEventScheduleById(id);
+                var scheduleDto = _mapper.Map<List<EventScheduleDTO>>(scheduleEntity);
+
+                var sponsorships = await _sponsorshipRepository.GetAllSponsorshipsByEventId(id);
+                var sponsorshipsDTO = _mapper.Map<List<SponsorshipDTO>>(sponsorships);
+
+                var owner = await _accountRepository.GetAccountById(eventEntity.OwnerId);
+                var ownerDTO = _mapper.Map<AccountDTO>(owner);
+
+                var subject = await _subjectRepository.GetSubjectById((int)eventEntity.SubjectId);
+                var subjectDTO = _mapper.Map<SubjectDTO>(subject);
+
+
+                EventDetailsResponseDTO eventDetails = new EventDetailsResponseDTO
+                {
+                    Id = eventEntity.Id,
+                    Name = eventEntity.Name,
+                    StartSellDate = eventEntity.StartSellDate,
+                    EndSellDate = eventEntity.EndSellDate,
+                    Price = eventEntity.Price,
+                    Quantity = eventEntity.Quantity,
+                    Remaining = eventEntity.Remaining,
+                    AvatarUrl = eventEntity.AvatarUrl,
+                    Description = eventEntity.Description,
+                    EventStatus = eventEntity.EventStatus.ToString(),
+                    OwnerId = eventEntity.OwnerId,
+                    SubjectId = eventEntity.SubjectId,
+                    Subject = subjectDTO,
+                    EventOperator = ownerDTO,
+                    ScheduleList = scheduleDto,
+                    Sponsorships = sponsorshipsDTO,
+                };
+
+                return new BaseResponse
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Data = eventDetails,
+                    Message = null
+                };
             }
 
-            var scheduleEntity = await _eventScheduleRepository.GetEventScheduleById(id);
-            var scheduleDto = _mapper.Map<List<EventScheduleDTO>>(scheduleEntity);
-
-            var eventDto = _mapper.Map<EventDTO>(eventEntity);
-            eventDto.ScheduleList = scheduleDto;
-
-            return eventDto;
+            //  return eventDto;
         }
         public async Task UpdateStatus(int id, EventStatus newStatus)
         {
@@ -319,23 +365,24 @@ namespace Events.Business.Services
             return eventEntity.Name;
         }
 
-		public async Task<double> GetTotalPriceTicketOfEvent(List<TicketDetail> tickets)
-		{
-			double total = 0;
-            foreach (var ticketDetail in tickets) {
+        public async Task<double> GetTotalPriceTicketOfEvent(List<TicketDetail> tickets)
+        {
+            double total = 0;
+            foreach (var ticketDetail in tickets)
+            {
                 total += await _eventRepository.GetPriceOfEvent(ticketDetail.EventId);
             }
             return total;
-		}
+        }
 
-		public async Task<bool> UpdateTicketQuantity(int eventId, int quantity)
-		{
-			var eventEntity = await _eventRepository.GetEventById(eventId);
-            if(eventEntity == null)
+        public async Task<bool> UpdateTicketQuantity(int eventId, int quantity)
+        {
+            var eventEntity = await _eventRepository.GetEventById(eventId);
+            if (eventEntity == null)
             {
                 throw new KeyNotFoundException("Event not found");
             }
-			return await _eventRepository.UpdateTicketQuantity(eventEntity, quantity);
-		}
-	}
+            return await _eventRepository.UpdateTicketQuantity(eventEntity, quantity);
+        }
+    }
 }
