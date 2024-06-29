@@ -1,18 +1,18 @@
-﻿using Events.Utils;
-using System;
+
+﻿using System;
 using System.Collections.Generic;
 
 namespace Events.Models.Models;
 
 public partial class Ticket
 {
-    public int Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     public string Name { get; set; } = null!;
 
     public string PhoneNumber { get; set; } = null!;
 
-    public string Qrcode { get; set; } = null!;
+    public string? Qrcode { get; set; }
 
     public string Email { get; set; } = null!;
 
@@ -22,7 +22,7 @@ public partial class Ticket
 
     public Enums.IsCheckin IsCheckIn { get; set; }
 
-    public int OrdersId { get; set; }
+    public string OrdersId { get; set; } = null!;
 
     public virtual Event Event { get; set; } = null!;
 
