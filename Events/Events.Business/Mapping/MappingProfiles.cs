@@ -52,12 +52,12 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.IsCheckIn, o => o.MapFrom(src => Enum.Parse<IsCheckin>(src.IsCheckIn)));
 
             CreateMap<Order, OrderDTO>()
-                .ForMember(dest => dest.PaymentMethod, o => o.MapFrom(src => src.PaymentMethod.ToString()))
+          //      .ForMember(dest => dest.PaymentMethod, o => o.MapFrom(src => src.PaymentMethod.ToString()))
                 .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
                 .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate.ToDateTime(TimeOnly.MinValue)));
 
             CreateMap<OrderDTO, Order>()
-                .ForMember(dest => dest.PaymentMethod, o => o.MapFrom(src => Enum.Parse<PaymentMethod>(src.PaymentMethod)))
+         //       .ForMember(dest => dest.PaymentMethod, o => o.MapFrom(src => Enum.Parse<PaymentMethod>(src.PaymentMethod)))
                 .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)))
                 .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.OrderDate)));
 

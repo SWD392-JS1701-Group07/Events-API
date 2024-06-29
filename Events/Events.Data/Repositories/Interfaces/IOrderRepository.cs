@@ -12,6 +12,6 @@ namespace Events.Data.Repositories.Interfaces
 	{
 		Task<Order> GetOrderByIdAsync(string id);
 		Task<bool> UpdateOrderStatusAsync(Order order, string? responeCode);
-    Task<bool> CreateOrders(Order order);
+   // Task<bool> CreateOrders(Order order);
 	}
 }

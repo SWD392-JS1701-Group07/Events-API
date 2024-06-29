@@ -54,7 +54,7 @@ namespace Events.Data.Repositories
 							PhoneNumber = ticketDetail.PhoneNumber,
 							Email = ticketDetail.Email,
 							EventId = ticketDetail.EventId,
-							Price = request.TotalAmount/request.Tickets.Count,
+							Price = request.TotalAmount / request.Tickets.Count,
 							IsCheckIn = 0,
 							OrdersId = orderId.ToString()
 						};
@@ -130,3 +130,4 @@ namespace Events.Data.Repositories
 			return await query.ToListAsync();
 		}
 	}
+}

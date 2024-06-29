@@ -49,7 +49,7 @@ namespace Events.Data.Repositories
 
         public async Task<List<Account>> GetAllAccounts()
         {
-            return await _context.Accounts.ToListAsync();
+            return await _context.Accounts.Where(e => e.AccountStatus == Enums.AccountStatus.Active).ToListAsync();
         }
 
         public async Task<bool> BanAccount(int id)
