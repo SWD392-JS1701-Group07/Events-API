@@ -5,6 +5,7 @@ using Events.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Events.Data.DTOs.Request;
+using Events.Models.DTOs;
 
 namespace Events.API.Controllers
 {
@@ -39,6 +40,7 @@ namespace Events.API.Controllers
                     AccountId = user.Id,
                     FullName = user.Name,
                     Role = user.RoleId,
+                    AccountDTO = user,
                     accessToken = accessToken
                 });
             }
