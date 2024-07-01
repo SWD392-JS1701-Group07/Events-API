@@ -16,6 +16,10 @@ public partial class Collaborator
 
     public Enums.CollaboratorStatus CollabStatus { get; set; }
 
+    public string? Task { get; set; }
+
+    public string? Description { get; set; }
+
     public virtual Account Account { get; set; } = null!;
 
     public virtual Event Event { get; set; } = null!;
