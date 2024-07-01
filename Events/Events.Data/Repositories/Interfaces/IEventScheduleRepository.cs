@@ -13,5 +13,6 @@ namespace Events.Data.Repositories.Interfaces
         Task<List<EventSchedule>> GetEventScheduleById(int id);
         Task<bool> AddEventScheduleAsync(EventSchedule eventSchedule);
         Task<IEnumerable<EventSchedule>> GetOverlappingSchedulesAsync(string place, DateTime startTime, DateTime endTime);
+        Task<List<EventSchedule>> GetOverlappingSchedulesPlace(DateTime startTime, DateTime endTime);
     }
 }

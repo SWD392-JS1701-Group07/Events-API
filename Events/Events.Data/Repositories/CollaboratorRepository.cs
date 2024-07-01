@@ -28,7 +28,9 @@ namespace Events.Data.Repositories
 
         public async Task<Collaborator> GetCollaboratorById(int id)
         {
-            return await _context.Set<Collaborator>().FindAsync(id);
+            return await _context.Collaborators
+                                 .Include(c => c.Event)
+                                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
         public async Task<IEnumerable<Collaborator>> SearchCollaborators(int? accountId, int? eventId, Enums.CollaboratorStatus? collabStatus)
@@ -79,5 +81,20 @@ namespace Events.Data.Repositories
         {
             return await _context.Collaborators.Where(e => e.EventId == id).ToListAsync();
         }
+
+        public async Task<Collaborator> GetCollaboratorByEventAndAccount(int eventId, int accountId)
+        {
+            return await _context.Collaborators
+                                 .FirstOrDefaultAsync(c => c.EventId == eventId && c.AccountId == accountId);
+        }
+
+        public async Task<List<Event>> GetEventsByCollaboratorAccount(int accountId)
+        {
+            return await (from e in _context.Events
+                          join c in _context.Collaborators on e.Id equals c.EventId
+                          where c.AccountId == accountId
+                          select e).ToListAsync();
+        }
+
     }
 }
