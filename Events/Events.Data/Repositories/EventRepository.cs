@@ -150,6 +150,11 @@ namespace Events.Data.Repositories
 
             return events;
         }
+
+        public async Task<List<Event>> GetEventByCollaboratorId(int id)
+        {
+            return await _context.Events.Where(e => e.Id == id).ToListAsync();
+        }
     }
 	}
 

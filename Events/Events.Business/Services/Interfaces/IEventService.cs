@@ -25,5 +25,6 @@ namespace Events.Business.Services.Interfaces
         Task<string> GetEventNameByIdAsync(int eventId);
 		Task<double> GetTotalPriceTicketOfEvent(List<TicketDetail> tickets);
 		Task<bool> UpdateTicketQuantity(int eventId, int quantity);
+        Task<BaseResponse> GetEventByCollaboratorId(int id);
 	}
 }

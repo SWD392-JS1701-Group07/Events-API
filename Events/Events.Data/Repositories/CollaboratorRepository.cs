@@ -68,5 +68,11 @@ namespace Events.Data.Repositories
             _context.Collaborators.Update(collaborator);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<int>> GetAllEventIdByCollaboratorId(int id)
+        {
+            var eventList = await _context.Collaborators.Where(e => e.AccountId == id).Select(e => e.Event.Id).ToListAsync();
+            return eventList;
+        }
     }
 }

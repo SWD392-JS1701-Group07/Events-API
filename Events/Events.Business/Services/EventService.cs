@@ -28,6 +28,7 @@ namespace Events.Business.Services
         private readonly ISponsorshipRepository _sponsorshipRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly ISubjectRepository _subjectRepository;
+        private readonly ICollaboratorRepository _collaboratorRepository;
         private readonly IMapper _mapper;
 
         public EventService(
@@ -37,6 +38,7 @@ namespace Events.Business.Services
             ISponsorshipRepository sponsorshipRepository,
             IAccountRepository accountRepository,
             ISubjectRepository subjectRepository,
+            ICollaboratorRepository collaboratorRepository,
             IMapper mapper)
         {
             _eventRepository = eventRepository;
@@ -45,6 +47,7 @@ namespace Events.Business.Services
             _sponsorshipRepository = sponsorshipRepository;
             _accountRepository = accountRepository;
             _subjectRepository = subjectRepository;
+            _collaboratorRepository = collaboratorRepository;
             _mapper = mapper;
         }
 
@@ -383,6 +386,40 @@ namespace Events.Business.Services
                 throw new KeyNotFoundException("Event not found");
             }
             return await _eventRepository.UpdateTicketQuantity(eventEntity, quantity);
+        }
+
+        public async Task<BaseResponse> GetEventByCollaboratorId(int id)
+        {
+            var collaboratorId = await _accountRepository.GetAccountById(id);
+            if (collaboratorId == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    IsSuccess = false,
+                    Data = null,
+                    Message = "Can't found this collaborators"
+                };
+            }
+            else
+            {
+                List<EventDTO> eventList = new List<EventDTO>();
+                var eventIdList = await _collaboratorRepository.GetAllEventIdByCollaboratorId(id);
+                foreach(var eventId in eventIdList)
+                {
+                    var eventEntity = await _eventRepository.GetEventByIdAsync(eventId);
+                    var eventMapper = _mapper.Map<EventDTO>(eventEntity);
+                    eventList.Add(eventMapper);
+                }
+
+                return new BaseResponse
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Data = eventList,
+                    Message = null
+                };
+            }
         }
     }
 }

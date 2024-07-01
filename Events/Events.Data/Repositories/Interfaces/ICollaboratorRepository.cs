@@ -17,5 +17,6 @@ namespace Events.Data.Repositories.Interfaces
         Task<Collaborator> AddAsync(Collaborator collaborator);
         Task<Collaborator> GetByIdAsync(int id);
         Task UpdateAsync(Collaborator collaborator);
+        Task<List<int>> GetAllEventIdByCollaboratorId(int id);
     }
 }
