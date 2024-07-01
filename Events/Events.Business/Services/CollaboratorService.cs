@@ -12,17 +12,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Events.Models;
 using Events.Utils;
+using Events.Data.Repositories;
 
 namespace Events.Business.Services
 {
     public class CollaboratorService : ICollaboratorService
     {
         private readonly ICollaboratorRepository _collaboratorRepository;
+        private readonly IEventRepository _eventRepository;
+        private readonly IEventScheduleRepository _eventScheduleRepository;
         private readonly IMapper _mapper;
 
-        public CollaboratorService(ICollaboratorRepository collaboratorRepository, IMapper mapper)
+        public CollaboratorService(ICollaboratorRepository collaboratorRepository,
+                                   IEventRepository eventRepository,
+                                   IEventScheduleRepository eventScheduleRepository,
+                                   IMapper mapper)
         {
             _collaboratorRepository = collaboratorRepository;
+            _eventRepository = eventRepository;
+            _eventScheduleRepository = eventScheduleRepository;
             _mapper = mapper;
         }
 
@@ -62,6 +70,40 @@ namespace Events.Business.Services
 
         public async Task<CollaboratorDTO> CreateCollaborator(CreateCollaboratorDTO createCollaboratorDto)
         {
+            // Retrieve the event
+            var eventEntity = await _eventRepository.GetEventById(createCollaboratorDto.EventId);
+            if (eventEntity == null || eventEntity.EventStatus != Enums.EventStatus.Ongoing)
+            {
+                throw new Exception("The event is either not found or not in an ongoing status.");
+            }
+
+            // Check if the collaborator is already registered for the event
+            var existingCollaborator = await _collaboratorRepository.GetCollaboratorByEventAndAccount(createCollaboratorDto.EventId, createCollaboratorDto.AccountId);
+            if (existingCollaborator != null)
+            {
+                throw new Exception("The collaborator is already registered for this event.");
+            }
+
+
+            // Check for overlapping event schedules
+            var newEventSchedules = await _eventScheduleRepository.GetEventScheduleById(createCollaboratorDto.EventId);
+            var collaboratorEvents = await _collaboratorRepository.GetEventsByCollaboratorAccount(createCollaboratorDto.AccountId);
+            foreach (var collaboratorEvent in collaboratorEvents)
+            {
+                var collaboratorEventSchedules = await _eventScheduleRepository.GetEventScheduleById(collaboratorEvent.Id);
+                foreach (var collaboratorEventSchedule in collaboratorEventSchedules)
+                {
+                    foreach (var newEventSchedule in newEventSchedules)
+                    {
+                        if ((collaboratorEventSchedule.StartTime < newEventSchedule.EndTime && collaboratorEventSchedule.EndTime > newEventSchedule.StartTime))
+                        {
+                            throw new Exception("The collaborator is already registered for events with overlapping schedules.");
+                        }
+                    }
+                }
+            }
+
+            // Create new collaborator
             var newCollaborator = new Collaborator
             {
                 AccountId = createCollaboratorDto.AccountId,
@@ -77,10 +119,11 @@ namespace Events.Business.Services
                 Id = createdCollaborator.Id,
                 AccountId = createdCollaborator.AccountId,
                 EventId = createdCollaborator.EventId,
+                EventName = eventEntity.Name,
                 CollabStatus = createdCollaborator.CollabStatus.ToString(),
                 IsCheckIn = createdCollaborator.IsCheckIn
             };
-        }
+        } 
         public async Task<CollaboratorDTO> ApproveCollaboratorAsync(int id)
         {
             var collaborator = await _collaboratorRepository.GetByIdAsync(id);

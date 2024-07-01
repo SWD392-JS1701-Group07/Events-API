@@ -25,7 +25,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "4, 5")]
+      //  [Authorize(Roles = "4, 5")]
         public async Task<IActionResult> GetAllCollaborators()
         {
             var collaborators = await _collaboratorService.GetAllCollaborators();
@@ -33,7 +33,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "4, 5")]
+      //  [Authorize(Roles = "4, 5")]
         public async Task<IActionResult> GetCollaboratorById(int id)
         {
             var collaborator = await _collaboratorService.GetCollaboratorById(id);
@@ -45,7 +45,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("search")]
-        [Authorize(Roles = "4, 5")]
+      //  [Authorize(Roles = "4, 5")]
         public async Task<IActionResult> SearchCollaborators(int? accountId, int? eventId, string? collabStatus)
         {
             Enums.CollaboratorStatus? status = null;
@@ -68,7 +68,7 @@ namespace Events.API.Controllers
         /// <param name="createCollaboratorDto"></param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize(Roles = "2")]
+       // [Authorize(Roles = "2")]
         public async Task<IActionResult> RegisterCollaborator([FromBody] CreateCollaboratorDTO createCollaboratorDto)
         {
             if (!ModelState.IsValid)
@@ -81,7 +81,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(GetCollaboratorById), new { id = collaborator.Id }, collaborator);
         }
         [HttpPatch("{id}/approve")]
-        [Authorize(Roles = "5")]
+      //  [Authorize(Roles = "5")]
         public async Task<IActionResult> ApproveCollaborator(int id)
         {
             var updatedCollaborator = await _collaboratorService.ApproveCollaboratorAsync(id);
@@ -93,7 +93,7 @@ namespace Events.API.Controllers
             return Ok(updatedCollaborator);
         }
         [HttpPatch("{id}/cancel")]
-        [Authorize(Roles = "2")]
+     //   [Authorize(Roles = "2")]
         public async Task<IActionResult> CancelCollaborator(int id)
         {
             var updatedCollaborator = await _collaboratorService.CancelCollaboratorAsync(id);
@@ -105,7 +105,7 @@ namespace Events.API.Controllers
             return Ok(updatedCollaborator);
         }
         [HttpPatch("{id}/reject")]
-        [Authorize(Roles = "5")]
+     //   [Authorize(Roles = "5")]
         public async Task<IActionResult> RejectCollaborator(int id)
         {
             var updatedCollaborator = await _collaboratorService.RejectCollaboratorAsync(id);

@@ -1,4 +1,5 @@
 ﻿using Events.Models;
+using Events.Models.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace Events.Models.DTOs
         public int OwnerId { get; set; }
         public int? SubjectId { get; set; }
         public List<EventScheduleDTO> ScheduleList { get; set; }
+        public virtual ICollection<EventSchedule> Schedule { get; set; }
     }
 }
 
