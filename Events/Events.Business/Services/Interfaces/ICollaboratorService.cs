@@ -22,5 +22,6 @@ namespace Events.Business.Services.Interfaces
         Task<CollaboratorDTO> CancelCollaboratorAsync(int id);
         Task<CollaboratorDTO> RejectCollaboratorAsync(int id);
         Task<BaseResponse> GetAllCollaboratorsByEventId(int id);
+        Task<BaseResponse> AssignTask(int eventId, int accountId, string task);
     }
 }

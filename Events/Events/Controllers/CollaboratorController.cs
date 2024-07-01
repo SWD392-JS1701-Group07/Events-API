@@ -129,5 +129,13 @@ namespace Events.API.Controllers
             var collaboratorList = await _collaboratorService.GetAllCollaboratorsByEventId(id);
             return StatusCode(collaboratorList.StatusCode, collaboratorList);
         }
+
+
+        [HttpPatch("task")]
+        public async Task<IActionResult> AssignTask(int eventId, int accountId, string task)
+        {
+            var result = await _collaboratorService.AssignTask(eventId, accountId, task);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

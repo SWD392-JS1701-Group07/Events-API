@@ -236,5 +236,47 @@ namespace Events.Business.Services
                 };
             }
         }
+
+        public async Task<BaseResponse> AssignTask(int eventId, int accountId, string task)
+        {
+            var collbaborator = await _collaboratorRepository.GetCollaboratorByEventAndAccount(eventId, accountId);
+
+            if (collbaborator == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    IsSuccess = false,
+                    Data = null,
+                    Message = "Can't found this collaborator"
+                };
+            }
+            else
+            {
+                collbaborator.Task = task;
+                var result = await _collaboratorRepository.UpdateCollaborators(collbaborator);
+                if(!result)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 501,
+                        IsSuccess = false,
+                        Data = null,
+                        Message = "Can't assign task for this user"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 200,
+                        IsSuccess = true,
+                        Data = collbaborator,
+                        Message = "Update successfully"
+                    };
+                }
+            }
+
+        }
     }
 }

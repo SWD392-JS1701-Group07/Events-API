@@ -22,7 +22,7 @@ namespace Events.Data.Repositories.Interfaces
 
         Task<Collaborator> GetCollaboratorByEventAndAccount(int eventId, int accountId);
         Task<List<Event>> GetEventsByCollaboratorAccount(int accountId);
-
+        Task<bool> UpdateCollaborators(Collaborator collaborator);
 
     }
 }
