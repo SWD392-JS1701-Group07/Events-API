@@ -1,5 +1,4 @@
-
-using Events.Utils;
+﻿using Events.Utils;
 using System;
 using System.Collections.Generic;
 
