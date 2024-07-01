@@ -74,5 +74,10 @@ namespace Events.Data.Repositories
             var eventList = await _context.Collaborators.Where(e => e.AccountId == id).Select(e => e.Event.Id).ToListAsync();
             return eventList;
         }
+
+        public async Task<List<Collaborator>> GetAllCollaboratorsByEventId(int id)
+        {
+            return await _context.Collaborators.Where(e => e.EventId == id).ToListAsync();
+        }
     }
 }

@@ -2,6 +2,7 @@
 using Events.Models;
 using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
+using Events.Models.DTOs.Response;
 using Events.Utils;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,6 @@ namespace Events.Business.Services.Interfaces
         Task<CollaboratorDTO> ApproveCollaboratorAsync(int id);
         Task<CollaboratorDTO> CancelCollaboratorAsync(int id);
         Task<CollaboratorDTO> RejectCollaboratorAsync(int id);
+        Task<BaseResponse> GetAllCollaboratorsByEventId(int id);
     }
 }

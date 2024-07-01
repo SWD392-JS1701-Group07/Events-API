@@ -12,17 +12,22 @@ using System.Text;
 using System.Threading.Tasks;
 using Events.Models;
 using Events.Utils;
+using Events.Models.DTOs.Response;
 
 namespace Events.Business.Services
 {
     public class CollaboratorService : ICollaboratorService
     {
         private readonly ICollaboratorRepository _collaboratorRepository;
+        private readonly IAccountRepository _accountRepository;
+        private readonly IEventRepository _eventRepository;
         private readonly IMapper _mapper;
 
-        public CollaboratorService(ICollaboratorRepository collaboratorRepository, IMapper mapper)
+        public CollaboratorService(ICollaboratorRepository collaboratorRepository, IAccountRepository accountRepository, IEventRepository eventRepository, IMapper mapper)
         {
             _collaboratorRepository = collaboratorRepository;
+            _accountRepository = accountRepository;
+            _eventRepository = eventRepository;
             _mapper = mapper;
         }
 
@@ -143,6 +148,51 @@ namespace Events.Business.Services
                 EventName = collaborator.Event.Name,
                 CollabStatus = collaborator.CollabStatus.ToString()
             };
+        }
+
+        public async Task<BaseResponse> GetAllCollaboratorsByEventId(int id)
+        {
+            var eventEntity = await _eventRepository.GetEventByIdAsync(id);
+
+            if(eventEntity == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    IsSuccess = false,
+                    Data = null,
+                    Message = "Can't found this event"
+                };
+            }
+            else
+            {
+                List<CollaboratorsResponseDTO> accountList = new List<CollaboratorsResponseDTO>();
+                var accountIdList = await _collaboratorRepository.GetAllCollaboratorsByEventId(id);
+                foreach(var e in accountIdList)
+                {
+                    var account = await _accountRepository.GetAccountById(e.AccountId);
+                    CollaboratorsResponseDTO collaboratorsResponseDTO = new CollaboratorsResponseDTO
+                    {
+                        Id = e.Id,
+                        IsCheckIn = e.IsCheckIn,
+                        EventId = e.EventId,
+                        CollabStatus = e.CollabStatus.ToString(),
+                        Task = e.Task,
+                        Description = e.Description,
+                        Account = _mapper.Map<AccountDTO>(account)
+                    };
+
+                    accountList.Add(collaboratorsResponseDTO);
+                }
+
+                return new BaseResponse
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Data = accountList,
+                    Message = null
+                };
+            }
         }
     }
 }
