@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,6 +38,7 @@ public partial class EventsDbContext : DbContext
     public virtual DbSet<Ticket> Tickets { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -67,6 +68,8 @@ public partial class EventsDbContext : DbContext
         modelBuilder.Entity<Collaborator>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_JoinEvent");
+
+            entity.Property(e => e.Task).HasMaxLength(100);
 
             entity.HasOne(d => d.Account).WithMany(p => p.Collaborators)
                 .HasForeignKey(d => d.AccountId)
@@ -116,15 +119,14 @@ public partial class EventsDbContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id);
-			entity.Property(e => e.Id).HasMaxLength(50);
+            entity.Property(e => e.Id).HasMaxLength(50);
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Notes).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
+            entity.Property(e => e.VnPayResponseCode).HasMaxLength(10);
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Orders_Customers");
         });
 
@@ -175,8 +177,10 @@ public partial class EventsDbContext : DbContext
         {
             entity.ToTable("Ticket");
 
+            entity.Property(e => e.Id).HasMaxLength(50);
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.OrdersId).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
             entity.Property(e => e.Qrcode).HasColumnName("QRCode");
 
