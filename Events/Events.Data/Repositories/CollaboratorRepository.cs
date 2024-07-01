@@ -96,5 +96,10 @@ namespace Events.Data.Repositories
                           select e).ToListAsync();
         }
 
+        public async Task<bool> UpdateCollaborators(Collaborator collaborator)
+        {
+           _context.Collaborators.Update(collaborator);
+           return await _context.SaveChangesAsync() > 0;
+        }
     }
 }
