@@ -116,5 +116,18 @@ namespace Events.API.Controllers
 
             return Ok(updatedCollaborator);
         }
+
+        /// <summary>
+        /// Get all collaborators of an event
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/event")]
+     //   [Authorize(Roles = "5")]
+        public async Task<IActionResult> GetAllCollaboratorsByEvent(int id)
+        {
+            var collaboratorList = await _collaboratorService.GetAllCollaboratorsByEventId(id);
+            return StatusCode(collaboratorList.StatusCode, collaboratorList);
+        }
     }
 }

@@ -203,5 +203,17 @@ namespace Events.API.Controllers
                 throw;
             }
         }
+
+        /// <summary>
+        /// Get an event list by collaborator id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("collaborators/{id}")]
+        public async Task<IActionResult> GetEventByCollaboratorsId(int id)
+        {
+            var eventExist = await _eventService.GetEventByCollaboratorId(id);
+            return StatusCode(eventExist.StatusCode, eventExist);
+        }
     }
 }

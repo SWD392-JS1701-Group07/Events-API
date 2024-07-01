@@ -71,6 +71,17 @@ namespace Events.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<int>> GetAllEventIdByCollaboratorId(int id)
+        {
+            var eventList = await _context.Collaborators.Where(e => e.AccountId == id).Select(e => e.Event.Id).ToListAsync();
+            return eventList;
+        }
+
+        public async Task<List<Collaborator>> GetAllCollaboratorsByEventId(int id)
+        {
+            return await _context.Collaborators.Where(e => e.EventId == id).ToListAsync();
+        }
+
         public async Task<Collaborator> GetCollaboratorByEventAndAccount(int eventId, int accountId)
         {
             return await _context.Collaborators
@@ -84,5 +95,6 @@ namespace Events.Data.Repositories
                           where c.AccountId == accountId
                           select e).ToListAsync();
         }
+
     }
 }
