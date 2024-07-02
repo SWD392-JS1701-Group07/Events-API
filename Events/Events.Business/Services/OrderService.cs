@@ -7,6 +7,7 @@ using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
 using Events.Models.Models;
 using Events.Utils;
+using Events.Utils.Helpers;
 using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using static Events.Utils.Enums;
 
@@ -31,8 +33,9 @@ namespace Events.Business.Services
 		private readonly IMapper _mapper;
 		private readonly EventsDbContext _dbContext;
 		private readonly ITransactionRepository _transactionRepository;
+		private readonly EmailHelper _emailHelper;
 
-		public OrderService(IOrderRepository orderRepository, ITicketRepository ticketRepository, ITicketService ticketService, IEventService eventService, IVNPayPaymentService vnPayPaymentService, IMapper mapper, EventsDbContext dbContext, ITransactionRepository transactionRepository)
+		public OrderService(IOrderRepository orderRepository, ITicketRepository ticketRepository, ITicketService ticketService, IEventService eventService, IVNPayPaymentService vnPayPaymentService, IMapper mapper, EventsDbContext dbContext, ITransactionRepository transactionRepository, EmailHelper emailHelper)
 		{
 			_orderRepository=orderRepository;
 			_ticketRepository=ticketRepository;
@@ -42,6 +45,7 @@ namespace Events.Business.Services
 			_mapper=mapper;
 			_dbContext=dbContext;
 			_transactionRepository=transactionRepository;
+			_emailHelper=emailHelper;
 		}
 
 		public async Task<BaseResponse> CreateOrderAndPayment(CreateOrderRequest request, HttpContext context)
@@ -82,6 +86,10 @@ namespace Events.Business.Services
 							ticketEntity.Price = request.TotalAmount / request.Tickets.Count;
 							ticketEntity.IsCheckIn = IsCheckin.No;
 							ticketEntity.OrdersId = orderEntity.Id;
+							var ticketInfo = _mapper.Map<QrCodeDTO>(ticketEntity);
+							ticketInfo.Price = ticketEntity.Price;
+							ticketInfo.EventName = await _eventService.GetEventNameByIdAsync(ticketDetail.EventId);
+							ticketEntity.Qrcode = QrHelper.GenerateQr(JsonSerializer.Serialize(ticketInfo));
 							await _ticketRepository.CreateTicket(ticketEntity);
 						}
 
@@ -107,7 +115,16 @@ namespace Events.Business.Services
 							return new BaseResponse { IsSuccess = true, Message = "Order created. Proceed to payment.", Data = payUrl };
 						}
 
-						return new BaseResponse { IsSuccess = true, Message = "Order created successfully. No payment needed!!" };
+						var orderFromDb = await _orderRepository.GetOrderByIdAsync(orderEntity.Id);
+						var listTicket = orderFromDb.Tickets.ToList();
+						if (listTicket != null)
+						{
+							foreach(var ticket in listTicket)
+							{
+								_emailHelper.SendEmailToBuyTicketSuccess(ticket.Email, ticket.Qrcode);
+							}
+						}
+						return new BaseResponse { StatusCode = StatusCodes.Status200OK , IsSuccess = true, Message = "Order created successfully. No payment needed!!" };
 
 					}
 					catch (Exception)
@@ -182,6 +199,17 @@ namespace Events.Business.Services
 												}
 											}
 											await transactionDb.CommitAsync();
+
+											//Send Email
+											var listTicket = orderFromDb.Tickets.ToList();
+											if (listTicket != null)
+											{
+												foreach (var ticket in listTicket)
+												{
+													_emailHelper.SendEmailToBuyTicketSuccess(ticket.Email, ticket.Qrcode);
+												}
+											}
+
 											return new BaseResponse
 											{
 												StatusCode = StatusCodes.Status200OK,

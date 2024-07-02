@@ -95,6 +95,10 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.VnPayTransactioId, otp => otp.MapFrom(src => src.TransactionId))
                 .ForMember(dest => dest.ResponseCode, otp => otp.MapFrom(src => src.VnPayResponseCode));
 
+            CreateMap<Ticket, QrCodeDTO>()
+                .ForMember(dest => dest.TicketId, otp => otp.MapFrom(src => src.Id))
+                .ForMember(dest => dest.EventName, otp => otp.Ignore());
+
 		}
 
     }

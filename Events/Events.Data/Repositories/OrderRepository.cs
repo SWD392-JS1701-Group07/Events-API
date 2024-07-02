@@ -25,7 +25,7 @@ namespace Events.Data.Repositories
 
 		public async Task<Order> GetOrderByIdAsync(string id)
 		{
-			return await _context.Orders.FindAsync(id) ?? throw new KeyNotFoundException("Order not found !!");
+			return await _context.Orders.Include(o => o.Tickets).FirstOrDefaultAsync(o => o.Id == id) ?? throw new KeyNotFoundException("Order not found !!");
 		}
 
 		public async Task<bool> UpdateOrderStatusAsync(Order order)

@@ -32,7 +32,43 @@ namespace Events.Utils.Helpers
             smtp.Disconnect(true);
         }
 
-        private string CreateEmailBody(string username, string password)
+		public void SendEmailToBuyTicketSuccess(string to, string base64Image)
+		{
+			//Create format
+			string body = CreateEmailBodyForTicket(base64Image);
+
+			var email = new MimeMessage();
+			email.From.Add(MailboxAddress.Parse("vngo6790@gmail.com"));
+			email.To.Add(MailboxAddress.Parse(to));
+			email.Subject = "Your QRCode Infomation";
+			var bodyBuilder = new BodyBuilder
+			{
+				HtmlBody = body
+			};
+			email.Body = bodyBuilder.ToMessageBody();
+
+			using var smtp = new SmtpClient();
+			smtp.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+			smtp.Authenticate("vngo6790@gmail.com", "zsty sdbt azoc guoz");
+			smtp.Send(email);
+			smtp.Disconnect(true);
+		}
+
+		private string CreateEmailBodyForTicket(string base64Image)
+		{
+            string path = $"data:image/png;base64,{base64Image}";
+			return $@"
+            <html>
+            <body>
+                <p>Thank you for participating in our event</p>
+                <p>Your Qrcode:</p>
+                <img height=""224"" width=""225"" src=""{path}"" />
+
+			</body>
+            </html>";
+		}
+
+		private string CreateEmailBody(string username, string password)
         {
             return $@"
             <html>
