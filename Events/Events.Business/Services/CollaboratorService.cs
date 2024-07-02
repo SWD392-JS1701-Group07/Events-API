@@ -14,6 +14,7 @@ using Events.Models;
 using Events.Utils;
 using Events.Models.DTOs.Response;
 using Events.Data.Repositories;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Events.Business.Services
 {
@@ -277,6 +278,65 @@ namespace Events.Business.Services
                 }
             }
 
+        }
+
+        public async Task<BaseResponse> GetAllCollaboratorsByEventOperator(int id)
+        {
+            var account = await _accountRepository.GetAccountById(id);
+            if(account == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    IsSuccess = false,
+                    Data = null,
+                    Message = "Can't found this event operator"
+                };
+            }
+            else
+            {
+                List<CollaboratorDTO> collaborators = new List<CollaboratorDTO>();
+                var eventId = await _eventRepository.GetEventByEventOperatorId(id);
+                if(eventId.IsNullOrEmpty())
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 404,
+                        IsSuccess = false,
+                        Data = null,
+                        Message = "This user don't host any event!"
+                    };
+                }
+                else
+                {
+                    foreach (var e in eventId)
+                    {
+                        var collaborator = await _collaboratorRepository.GetAllCollaboratorsByEventId(e.Id);
+                        if (collaborator != null)
+                        {
+                            foreach(var c in collaborator)
+                            {
+                                collaborators.Add(new CollaboratorDTO
+                                {
+                                    Id = c.Id,
+                                    IsCheckIn = c.IsCheckIn,
+                                    AccountId = c.AccountId,
+                                    EventId = c.EventId,
+                                    EventName = e.Name,
+                                    CollabStatus = c.CollabStatus.ToString()
+                                });
+                            }                            
+                        }
+                    }
+                    return new BaseResponse
+                    {
+                        StatusCode = 200,
+                        IsSuccess = true,
+                        Data = collaborators,
+                        Message = null
+                    };
+                }
+            }
         }
     }
 }

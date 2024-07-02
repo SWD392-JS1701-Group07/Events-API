@@ -28,5 +28,6 @@ namespace Events.Data.Repositories.Interfaces
         Task<bool> UpdateTicketQuantity(Event eventEntity, int quantity);
         Task<List<Event>> GetEventsByStatus(EventStatus status);
         Task<List<Event>> GetEventByCollaboratorId(int id);
+        Task<List<Event>> GetEventByEventOperatorId(int id);
     }
 }

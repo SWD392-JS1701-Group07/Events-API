@@ -155,6 +155,11 @@ namespace Events.Data.Repositories
         {
             return await _context.Events.Where(e => e.Id == id).ToListAsync();
         }
+
+        public async Task<List<Event>> GetEventByEventOperatorId(int id)
+        {
+            return await _context.Events.Where(e => e.OwnerId == id).ToListAsync();
+        }
     }
 	}
 
