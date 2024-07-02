@@ -76,36 +76,57 @@ namespace Events.Business.Services
 
 		public async Task<BaseResponse> DeleteSponsorAsync(int id)
 		{
-			var sponsor = await _sponsorRepository.GetSponsorByIdAsync(id);
-			if (sponsor == null)
+			try
+			{
+				var sponsor = await _sponsorRepository.GetSponsorByIdAsync(id);
+				if (sponsor == null)
+				{
+					return new BaseResponse
+					{
+						StatusCode = StatusCodes.Status404NotFound,
+						Message = "Sponsor not found",
+						IsSuccess = false
+					};
+				}
+				if (!string.IsNullOrWhiteSpace(sponsor.AvatarUrl))
+				{
+					ImageHelper.DeleteImage(sponsor.AvatarUrl, _environment);
+				}
+				var result = await _sponsorRepository.DeleteSponsorAsync(sponsor);
+				if (!result)
+				{
+					return new BaseResponse
+					{
+						StatusCode = 500,
+						Message = "Failed to delete sponsor",
+						IsSuccess = false
+					};
+				}
+				return new BaseResponse
+				{
+					StatusCode = StatusCodes.Status200OK,
+					Message = "Sponsor deleted successfully",
+					IsSuccess = true
+				};
+			}
+			catch (KeyNotFoundException ex)
 			{
 				return new BaseResponse
 				{
 					StatusCode = StatusCodes.Status404NotFound,
-					Message = "Sponsor not found",
+					Message = ex.Message,
 					IsSuccess = false
 				};
 			}
-			if(!string.IsNullOrWhiteSpace(sponsor.AvatarUrl))
-			{
-				ImageHelper.DeleteImage(sponsor.AvatarUrl, _environment);
-			}
-			var result = await _sponsorRepository.DeleteSponsorAsync(sponsor);
-			if(!result)
+			catch (Exception ex)
 			{
 				return new BaseResponse
 				{
-					StatusCode = 500,
-					Message = "Failed to delete sponsor",
+					StatusCode = StatusCodes.Status500InternalServerError,
+					Message = ex.Message,
 					IsSuccess = false
 				};
 			}
-			return new BaseResponse
-			{
-				StatusCode = StatusCodes.Status200OK,
-				Message = "Sponsor deleted successfully",
-				IsSuccess = true
-			};
 		}
 
 		public async Task<BaseResponse> GetAllSponsor()
@@ -138,76 +159,111 @@ namespace Events.Business.Services
 
 		public async Task<BaseResponse> GetSponsorByIdAsync(int id)
 		{
-			var sponsor = await _sponsorRepository.GetSponsorByIdAsync(id);
-			if (sponsor == null)
+			try
+			{
+				var sponsor = await _sponsorRepository.GetSponsorByIdAsync(id);
+				if (sponsor == null)
+				{
+					return new BaseResponse
+					{
+						StatusCode = StatusCodes.Status404NotFound,
+						Message = "Sponsor not found",
+						IsSuccess = false
+					};
+				}
+
+				var sponsorDTO = _mapper.Map<SponsorDTO>(sponsor);
+				if (sponsorDTO.AvatarUrl is not null)
+					sponsorDTO.AvatarUrl = $"{_httpContextAccessor?.HttpContext?.Request.Scheme}://" +
+													$"{_httpContextAccessor?.HttpContext?.Request.Host}" +
+													$"{_httpContextAccessor?.HttpContext?.Request.PathBase}" +
+													$"{sponsorDTO.AvatarUrl}";
+				return new BaseResponse
+				{
+					StatusCode = StatusCodes.Status200OK,
+					IsSuccess = true,
+					Data = sponsorDTO
+				};
+			}
+			catch (KeyNotFoundException ex)
 			{
 				return new BaseResponse
 				{
 					StatusCode = StatusCodes.Status404NotFound,
-					Message = "Sponsor not found",
+					Message = ex.Message,
 					IsSuccess = false
 				};
 			}
-
-			var sponsorDTO = _mapper.Map<SponsorDTO>(sponsor);
-			if(sponsorDTO.AvatarUrl is not null)
-			sponsorDTO.AvatarUrl = $"{_httpContextAccessor?.HttpContext?.Request.Scheme}://" +
-											$"{_httpContextAccessor?.HttpContext?.Request.Host}" +
-											$"{_httpContextAccessor?.HttpContext?.Request.PathBase}" +
-											$"{sponsorDTO.AvatarUrl}";
-			return new BaseResponse
+			catch (Exception ex)
 			{
-				StatusCode = StatusCodes.Status200OK,
-				IsSuccess = true,
-				Data = sponsorDTO
-			};
+				return new BaseResponse
+				{
+					StatusCode = StatusCodes.Status500InternalServerError,
+					Message = ex.Message,
+					IsSuccess = false
+				};
+				
+			}
 		}
 
 		public async Task<BaseResponse> UpdateSponsorAsync(int id, UpdateSponsorDTO updateSponsor)
 		{
-			var sponsor = await _sponsorRepository.GetSponsorByIdAsync(id);
-			if (sponsor==null)
+			try
 			{
+				var sponsor = await _sponsorRepository.GetSponsorByIdAsync(id);
+				if (sponsor==null)
+				{
+					return new BaseResponse
+					{
+						StatusCode = StatusCodes.Status404NotFound,
+						IsSuccess=false,
+						Message = "Sponsor not found"
+					};
+				}
+				if (updateSponsor.AvatarFile != null && updateSponsor.AvatarFile.Length > 0)
+				{
+					if (!string.IsNullOrEmpty(sponsor.AvatarUrl))
+					{
+						ImageHelper.DeleteImage(sponsor.AvatarUrl, _environment);
+					}
+					sponsor.AvatarUrl = await ImageHelper.SaveImageAsync(updateSponsor.AvatarFile, _environment);
+				}
+				_mapper.Map(updateSponsor, sponsor);
+				var result = await _sponsorRepository.UpdateSponsorAsync(sponsor);
+				var sponsorDTO = _mapper.Map<SponsorDTO>(sponsor);
+				if (sponsorDTO.AvatarUrl is not null)
+				{
+					sponsorDTO.AvatarUrl = $"{_httpContextAccessor?.HttpContext?.Request.Scheme}://" +
+												$"{_httpContextAccessor?.HttpContext?.Request.Host}" +
+												$"{_httpContextAccessor?.HttpContext?.Request.PathBase}" +
+												$"{sponsorDTO.AvatarUrl}";
+				}
+				if (!result)
+				{
+					return new BaseResponse
+					{
+						StatusCode = 500,
+						Message = "Failed to update sponsor",
+						IsSuccess = false
+					};
+				}
 				return new BaseResponse
 				{
-					StatusCode = StatusCodes.Status404NotFound,
-					IsSuccess=false,
-					Message = "Sponsor not found"
+					StatusCode = 200,
+					IsSuccess = true,
+					Data = sponsorDTO
 				};
 			}
-			if (updateSponsor.AvatarFile != null && updateSponsor.AvatarFile.Length > 0)
-			{
-				if (!string.IsNullOrEmpty(sponsor.AvatarUrl))
-				{
-					ImageHelper.DeleteImage(sponsor.AvatarUrl, _environment);
-				}
-				sponsor.AvatarUrl = await ImageHelper.SaveImageAsync(updateSponsor.AvatarFile, _environment);
-			}
-			_mapper.Map(updateSponsor, sponsor);
-			var result = await _sponsorRepository.UpdateSponsorAsync(sponsor);
-			var sponsorDTO = _mapper.Map<SponsorDTO>(sponsor);
-			if(sponsorDTO.AvatarUrl is not null)
-			{
-				sponsorDTO.AvatarUrl = $"{_httpContextAccessor?.HttpContext?.Request.Scheme}://" +
-											$"{_httpContextAccessor?.HttpContext?.Request.Host}" +
-											$"{_httpContextAccessor?.HttpContext?.Request.PathBase}" +
-											$"{sponsorDTO.AvatarUrl}";
-			}
-			if (!result)
+			catch (Exception ex)
 			{
 				return new BaseResponse
 				{
-					StatusCode = 500,
-					Message = "Failed to update sponsor",
+					StatusCode = StatusCodes.Status500InternalServerError,
+					Message = ex.Message,
 					IsSuccess = false
 				};
 			}
-			return new BaseResponse
-			{
-				StatusCode = 200,
-				IsSuccess = true,
-				Data = sponsorDTO
-			};
+			
 		}
 
         public async Task<Sponsor> GetSponsorByEmailAsync(string email)

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Events.Business.Services.Interfaces;
 using Events.Models.DTOs.Request;
+using Events.Models.DTOs.Response;
 
 namespace Events.API.Controllers
 {
@@ -38,6 +39,14 @@ namespace Events.API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> AddSponsor([FromForm] CreateSponsorDTO sponsorDto)
 		{
+			if(sponsorDto == null || !ModelState.IsValid) {
+				return BadRequest(new BaseResponse
+				{
+					StatusCode = StatusCodes.Status400BadRequest,
+					IsSuccess = false,
+					Message = "Invalid request body"
+				});
+			}
 			var response = await _sponsorService.AddSponsorAsync(sponsorDto);
 
 			if (response.IsSuccess)
@@ -52,6 +61,15 @@ namespace Events.API.Controllers
 		[HttpPut("{id}")]
 		public async Task<IActionResult> UpdateSponsor([FromRoute] int id, [FromForm] UpdateSponsorDTO sponsorDTO)
 		{
+			if(sponsorDTO == null || !ModelState.IsValid)
+			{
+				return BadRequest(new BaseResponse
+				{
+					StatusCode = StatusCodes.Status400BadRequest,
+					IsSuccess = false,
+					Message = "Invalid request body"
+				});
+			}
 			var response = await _sponsorService.UpdateSponsorAsync(id, sponsorDTO);
 			return StatusCode(response.StatusCode, response);
 		}

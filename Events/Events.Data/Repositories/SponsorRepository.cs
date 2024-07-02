@@ -19,7 +19,7 @@ namespace Events.Data.Repositories
 
 		public async Task<IEnumerable<Sponsor>> GetAllSponsor() => await _context.Sponsors.ToListAsync();
 
-		public async Task<Sponsor> GetSponsorByIdAsync(int id) => await _context.Sponsors.FindAsync(id);
+		public async Task<Sponsor> GetSponsorByIdAsync(int id) => await _context.Sponsors.FindAsync(id) ?? throw new KeyNotFoundException("Sponsor not found!");
 
 		public async Task<bool> AddSponsorAsync(Sponsor sponsor)
 		{
