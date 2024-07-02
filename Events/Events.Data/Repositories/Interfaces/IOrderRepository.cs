@@ -11,7 +11,7 @@ namespace Events.Data.Repositories.Interfaces
 	public interface IOrderRepository
 	{
 		Task<Order> GetOrderByIdAsync(string id);
-		Task<bool> UpdateOrderStatusAsync(Order order, string? responeCode);
-   // Task<bool> CreateOrders(Order order);
+		Task<bool> UpdateOrderStatusAsync(Order order);
+		Task CreateOrders(Order order);
 	}
 }

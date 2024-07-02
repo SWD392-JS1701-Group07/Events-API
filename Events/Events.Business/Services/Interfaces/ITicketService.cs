@@ -12,7 +12,6 @@ namespace Events.Business.Services.Interfaces
 {
     public interface ITicketService
     {
-		Task<string> CreateTicket(CreateTicketRequest request);
 		Task<IEnumerable<TicketDTO>> GetTicketFilter(int accountId = 1, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null);
   }
 }

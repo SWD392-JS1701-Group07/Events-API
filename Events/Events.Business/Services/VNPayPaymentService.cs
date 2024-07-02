@@ -16,7 +16,7 @@ namespace Events.Business.Services
             _vpnPayLibrary = vnPayLibrary;
         }
 
-        public string CreatePayment(string amount, string orderId, string orderInfo, HttpContext context)
+        public string CreatePayment(string amount, string orderInfo, HttpContext context)
         {
             var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);

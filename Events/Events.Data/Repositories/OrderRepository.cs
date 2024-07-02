@@ -18,20 +18,20 @@ namespace Events.Data.Repositories
             _context = context;
         }
 
+		public async Task CreateOrders(Order order)
+		{
+			await _context.Orders.AddAsync(order);
+		}
+
 		public async Task<Order> GetOrderByIdAsync(string id)
 		{
 			return await _context.Orders.FindAsync(id) ?? throw new KeyNotFoundException("Order not found !!");
 		}
 
-		public async Task<bool> UpdateOrderStatusAsync(Order order, string? responeCode)
+		public async Task<bool> UpdateOrderStatusAsync(Order order)
 		{
 			try
 			{
-				if (responeCode != null)
-				{
-					order.OrderStatus = responeCode.Equals("00") ? 1 : 0;
-					order.VnPayResponseCode = responeCode;
-				}
 				_context.Entry(order).State = EntityState.Modified;
 				return await _context.SaveChangesAsync() > 0;
 			} catch (Exception)

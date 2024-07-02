@@ -15,25 +15,25 @@ public class VnPayLibrary
 
     public PaymentResponseModel GetFullResponseData(IQueryCollection collection, string hashSecret)
     {
-        var vnPay = new VnPayLibrary();
 
         foreach (var (key, value) in collection)
         {
             if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_"))
             {
-                vnPay.AddResponseData(key, value);
+                AddResponseData(key, value);
             }
         }
 
-        var orderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
-        var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
-        var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
+        var refId = Convert.ToInt64(GetResponseData("vnp_TxnRef"));
+        var vnPayTranId = Convert.ToInt64(GetResponseData("vnp_TransactionNo"));
+        var payDate = GetResponseData("vnp_PayDate");
+        var vnpResponseCode = GetResponseData("vnp_ResponseCode");
         var vnpSecureHash =
             collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value; //hash HmacSHA256 của dữ liệu trả về
-        var orderInfo = vnPay.GetResponseData("vnp_OrderInfo");
+        var orderInfo = GetResponseData("vnp_OrderInfo");
 
         var checkSignature =
-            vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
+            ValidateSignature(vnpSecureHash, hashSecret); //check Signature
 
         if (!checkSignature)
             return new PaymentResponseModel()
@@ -46,10 +46,10 @@ public class VnPayLibrary
             Success = true,
             PaymentMethod = "VnPay",
             OrderDescription = orderInfo,
-            OrderId = orderId.ToString(),
-            PaymentId = vnPayTranId.ToString(),
+            RefId = refId.ToString(),
             TransactionId = vnPayTranId.ToString(),
-            Token = vnpSecureHash,
+            PayDate = DateTime.ParseExact(payDate, "yyyyMMddHHmmss", CultureInfo.InvariantCulture),
+			Token = vnpSecureHash,
             VnPayResponseCode = vnpResponseCode
         };
     }

@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Events.Models.DTOs.Request;
+using Events.Models.DTOs.Response;
+using Events.Models.Models;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +12,7 @@ namespace Events.Business.Services.Interfaces
 {
 	public interface IOrderService
 	{
-		Task<bool> UpdateOrderStatus(string orderId, string? responeCode);
+		Task<BaseResponse> CreateOrderAndPayment(CreateOrderRequest request, HttpContext context);
+		Task<BaseResponse> HandlePaymentCallback(IQueryCollection query);
 	}
 }

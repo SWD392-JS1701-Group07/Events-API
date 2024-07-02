@@ -22,11 +22,6 @@ namespace Events.Business.Services
 			_accountRepository = accountRepository;
 
 		}
-        public async Task<string> CreateTicket(CreateTicketRequest request)
-        {
-
-            return await _ticketRepository.CreateTicket(request);
-        }
 
 		public async Task<IEnumerable<TicketDTO>> GetTicketFilter(int accountId = 1, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null)
 		{

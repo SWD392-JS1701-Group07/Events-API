@@ -3,6 +3,7 @@
 using Events.Data.DTOs.Request;
 using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
+using Events.Models.DTOs.Response;
 using Events.Models.Models;
 using System;
 using static Events.Utils.Enums;
@@ -52,9 +53,8 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.IsCheckIn, o => o.MapFrom(src => Enum.Parse<IsCheckin>(src.IsCheckIn)));
 
             CreateMap<Order, OrderDTO>()
-          //      .ForMember(dest => dest.PaymentMethod, o => o.MapFrom(src => src.PaymentMethod.ToString()))
-                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
-                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate.ToDateTime(TimeOnly.MinValue)));
+                //      .ForMember(dest => dest.PaymentMethod, o => o.MapFrom(src => src.PaymentMethod.ToString()))
+                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()));
 
             CreateMap<OrderDTO, Order>()
          //       .ForMember(dest => dest.PaymentMethod, o => o.MapFrom(src => Enum.Parse<PaymentMethod>(src.PaymentMethod)))
@@ -78,7 +78,24 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.EventSchedules, otp => otp.MapFrom(src => src.Event.EventSchedules));
 
             CreateMap<Subject, SubjectDTO>().ReverseMap();
-        }
+
+            CreateMap<CreateOrderRequest, Order>()
+                .ForMember(dest => dest.Notes, otp => otp.MapFrom(src => src.OrderNotes))
+                .ForMember(dest => dest.TotalPrice, otp => otp.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.Tickets, otp => otp.Ignore());
+
+            CreateMap<TicketDetail, Ticket>();
+
+            CreateMap<PaymentResponseModel, Transaction>()
+                .ForMember(dest => dest.Description, otp => otp.MapFrom(src => src.OrderDescription))
+                .ForMember(dest => dest.RefId, otp => otp.MapFrom(src => src.RefId))
+                .ForMember(dest => dest.TransactionDate, otp => otp.MapFrom(src => src.PayDate))
+                .ForMember(dest => dest.PaymentMethod, otp => otp.MapFrom(src => src.PaymentMethod))
+                .ForMember(dest => dest.VnPayTransactioId, otp => otp.MapFrom(src => src.TransactionId))
+                .ForMember(dest => dest.VnPayTransactioId, otp => otp.MapFrom(src => src.TransactionId))
+                .ForMember(dest => dest.ResponseCode, otp => otp.MapFrom(src => src.VnPayResponseCode));
+
+		}
 
     }
 }

@@ -12,6 +12,6 @@ namespace Events.Models.DTOs.Response
         public string? Message { get; set; }
         public bool IsSuccess { get; set; }
 		public object? Data { get; set; } = null!;
-		public IDictionary<string, string[]>? Errors { get; set; } = null!;
+		public IDictionary<string, string>? Errors { get; set; } = null!;
 	}
 }
