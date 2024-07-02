@@ -5,17 +5,17 @@ namespace Events.Models.Models;
 
 public partial class Sponsor
 {
-    public int Id { get; set; }
+	public int Id { get; set; }
 
-    public string Name { get; set; } = null!;
+	public string Name { get; set; } = null!;
 
-    public string Email { get; set; } = null!;
+	public string Email { get; set; } = null!;
 
-    public string PhoneNumber { get; set; } = null!;
+	public string PhoneNumber { get; set; } = null!;
 
-    public string? AvatarUrl { get; set; }
+	public string? AvatarUrl { get; set; }
 
-    public int? AccountId { get; set; }
+	public int? AccountId { get; set; }
 
-    public virtual ICollection<Sponsorship> Sponsorships { get; set; } = new List<Sponsorship>();
+	public virtual ICollection<Sponsorship> Sponsorships { get; set; } = new List<Sponsorship>();
 }

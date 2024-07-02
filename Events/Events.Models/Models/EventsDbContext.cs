@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +36,8 @@ public partial class EventsDbContext : DbContext
     public virtual DbSet<Subject> Subjects { get; set; }
 
     public virtual DbSet<Ticket> Tickets { get; set; }
+
+    public virtual DbSet<Transaction> Transactions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -123,7 +125,6 @@ public partial class EventsDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Notes).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
-            entity.Property(e => e.VnPayResponseCode).HasMaxLength(10);
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
@@ -193,6 +194,25 @@ public partial class EventsDbContext : DbContext
                 .HasForeignKey(d => d.OrdersId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Ticket_Orders");
+        });
+
+        modelBuilder.Entity<Transaction>(entity =>
+        {
+            entity.ToTable("Transaction");
+
+            entity.Property(e => e.Id).HasMaxLength(50);
+            entity.Property(e => e.PaymentMethod).HasMaxLength(50);
+            entity.Property(e => e.Description).HasMaxLength(50);
+            entity.Property(e => e.OrderId).HasMaxLength(50);
+            entity.Property(e => e.RefId).HasMaxLength(50);
+            entity.Property(e => e.ResponseCode).HasMaxLength(10);
+            entity.Property(e => e.ResponseMessage).HasMaxLength(50);
+            entity.Property(e => e.TransactionDate).HasColumnType("datetime");
+            entity.Property(e => e.VnPayTransactioId).HasMaxLength(50);
+
+            entity.HasOne(d => d.Order).WithMany(p => p.Transactions)
+                .HasForeignKey(d => d.OrderId)
+                .HasConstraintName("FK_Transaction_Orders");
         });
 
         OnModelCreatingPartial(modelBuilder);
