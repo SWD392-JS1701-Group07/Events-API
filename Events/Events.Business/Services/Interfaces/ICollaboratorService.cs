@@ -23,5 +23,6 @@ namespace Events.Business.Services.Interfaces
         Task<CollaboratorDTO> RejectCollaboratorAsync(int id);
         Task<BaseResponse> GetAllCollaboratorsByEventId(int id);
         Task<BaseResponse> AssignTask(int eventId, int accountId, string task);
+        Task<BaseResponse> GetAllCollaboratorsByEventOperator(int id);
     }
 }
