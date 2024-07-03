@@ -317,7 +317,16 @@ namespace Events.Business.Services
 					var key = $"{ticketDetail.Email}-{ticketDetail.PhoneNumber}";
 					if (!errors.ContainsKey(key))
 					{
-						errors.Add(key, $"A ticket with phone number '{ticketDetail.PhoneNumber}' and email '{ticketDetail.Email}' already exists for event ID '{ticketDetail.EventId}'");
+						errors.Add(key, $"A ticket with phone number '{ticketDetail.PhoneNumber}' and email '{ticketDetail.Email}' already exists for event '{ticketDetail.EventId}'");
+					}
+				}
+				var eventResponse = await _eventService.GetEventById(ticketDetail.EventId);
+				if(!eventResponse.IsSuccess)
+				{
+					var key = $"{ticketDetail.EventId}";
+					if(!errors.ContainsKey(key))
+					{
+						errors.Add(key, $"Not found Event with event id '{ticketDetail.EventId}'");
 					}
 				}
 			}
