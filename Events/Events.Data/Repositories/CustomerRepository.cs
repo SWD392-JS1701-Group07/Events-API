@@ -26,6 +26,7 @@ namespace Events.Data.Repositories
         public async Task<bool> CreateCustomer(Customer customer)
         {
             var result = await _context.Customers.AddAsync(customer);
+            await _context.SaveChangesAsync();
             return result != null;
         }
 
@@ -37,6 +38,25 @@ namespace Events.Data.Repositories
         public async Task<Customer> GetCustomerByPhoneNumber(string phoneNumber)
         {
             return await _context.Customers.FirstOrDefaultAsync(e => e.PhoneNumber == phoneNumber);
+        }
+
+        public async Task<List<Customer>> GetAllCustomersAsync()
+        {
+            return await _context.Customers.ToListAsync();
+        }
+        public async Task<Customer> GetCustomerByIdAsync(int id)
+        {
+            return await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
+        }
+        public async Task<bool> UpdateCustomerAsync(Customer customer)
+        {
+            _context.Entry(customer).State = EntityState.Modified;
+            return await _context.SaveChangesAsync() > 0;
+        }
+        public async Task<bool> DeleteCustomerAsync(Customer customer)
+        {
+            _context.Customers.Remove(customer);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }
