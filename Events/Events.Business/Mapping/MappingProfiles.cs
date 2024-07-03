@@ -62,6 +62,7 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.OrderDate)));
 
             CreateMap<Customer, CustomerDTO>().ReverseMap();
+            CreateMap<UpdateCustomerDTO, Customer>();
 
             CreateMap<Sponsorship, SponsorshipDTO>().ReverseMap();
 

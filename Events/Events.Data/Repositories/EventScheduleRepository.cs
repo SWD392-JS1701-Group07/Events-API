@@ -41,14 +41,5 @@ namespace Events.Data.Repositories
                               (es.StartTime >= startTime && es.EndTime <= endTime)))
                 .ToListAsync();
         }
-        public async Task<List<EventSchedule>> GetOverlappingSchedulesPlace(DateTime startTime, DateTime endTime)
-        {
-            return await _context.EventSchedules
-                     .Where(es =>
-                            (es.StartTime <= startTime && es.EndTime >= startTime) ||
-                            (es.StartTime <= endTime && es.EndTime >= endTime) ||
-                            (es.StartTime >= startTime && es.EndTime <= endTime))
-                     .ToListAsync();
-        }
     }
 }
