@@ -83,7 +83,6 @@ namespace Events.Business.Services
 						{
 							var ticketEntity = _mapper.Map<Ticket>(ticketDetail);
 							ticketEntity.Id = Guid.NewGuid().ToString();
-							ticketEntity.Price = request.TotalAmount / request.Tickets.Count;
 							ticketEntity.IsCheckIn = IsCheckin.No;
 							ticketEntity.OrdersId = orderEntity.Id;
 							var ticketInfo = _mapper.Map<QrCodeDTO>(ticketEntity);
@@ -185,15 +184,17 @@ namespace Events.Business.Services
 											var ticketBought = await _ticketService.GetTicketFilter(isBought: true, orderId: orderFromDb.Id, includeProps: "Orders");
 											if (ticketBought.Any())
 											{
-												var ticketBoughtCount = ticketBought.Count();
-												var ticketEventId = ticketBought.First().EventId;
-												bool isSuccess = await _eventService.UpdateTicketQuantity(ticketEventId, ticketBoughtCount);
+												var eventTicketQuantities = ticketBought
+														.GroupBy(ticket => ticket.EventId)
+														.ToDictionary(group => group.Key, group => group.Count());
+										
+												bool isSuccess = await _eventService.UpdateTicketQuantity(eventTicketQuantities);
 												if (!isSuccess)
 												{
 													return new BaseResponse
 													{
 														StatusCode = StatusCodes.Status500InternalServerError,
-														Message = "There was an error when updating ticket quantity!!",
+														Message = "There was an error when updating ticket quantities!!",
 														IsSuccess = false
 													};
 												}

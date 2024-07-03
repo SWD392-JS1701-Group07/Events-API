@@ -17,6 +17,7 @@ using Events.Models.DTOs.Response;
 using Events.Utils.Helper;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace Events.Business.Services
 {
@@ -378,15 +379,27 @@ namespace Events.Business.Services
             return total;
         }
 
-        public async Task<bool> UpdateTicketQuantity(int eventId, int quantity)
+        public async Task<bool> UpdateTicketQuantity(Dictionary<int, int> eventTicketQuantities)
         {
-            var eventEntity = await _eventRepository.GetEventById(eventId);
-            if (eventEntity == null)
-            {
-                throw new KeyNotFoundException("Event not found");
-            }
-            return await _eventRepository.UpdateTicketQuantity(eventEntity, quantity);
-        }
+			foreach (var entry in eventTicketQuantities)
+			{
+				var eventId = entry.Key;
+				var ticketCount = entry.Value;
+
+                var eventEntity = await _eventRepository.GetEventByIdAsync(eventId);
+				if (eventEntity == null)
+				{
+					throw new KeyNotFoundException("Event not found");
+				}
+
+				bool isSuccess = await _eventRepository.UpdateTicketQuantity(eventEntity, ticketCount);
+                if (!isSuccess)
+                {
+                    return false;
+                }
+			}
+            return true;
+		}
 
         public async Task<BaseResponse> GetEventByCollaboratorId(int id)
         {

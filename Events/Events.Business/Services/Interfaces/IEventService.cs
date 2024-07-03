@@ -24,7 +24,7 @@ namespace Events.Business.Services.Interfaces
         Task<IEnumerable<EventDTO>> SearchEventsByNameAsync(string eventName);
         Task<string> GetEventNameByIdAsync(int eventId);
 		Task<double> GetTotalPriceTicketOfEvent(List<TicketDetail> tickets);
-		Task<bool> UpdateTicketQuantity(int eventId, int quantity);
+		Task<bool> UpdateTicketQuantity(Dictionary<int, int> eventTicketQuantities);
         Task<BaseResponse> GetEventByCollaboratorId(int id);
 	}
 }
