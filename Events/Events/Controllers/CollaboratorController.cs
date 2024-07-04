@@ -25,7 +25,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "4, 5")]
+        [Authorize(Roles = "2, 4, 5")]
         public async Task<IActionResult> GetAllCollaborators()
         {
             var collaborators = await _collaboratorService.GetAllCollaborators();
@@ -33,7 +33,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "4, 5")]
+        [Authorize(Roles = "2, 4, 5")]
         public async Task<IActionResult> GetCollaboratorById(int id)
         {
             var collaborator = await _collaboratorService.GetCollaboratorById(id);
@@ -45,7 +45,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("search")]
-        [Authorize(Roles = "4, 5")]
+        [Authorize(Roles = "2,  4, 5")]
         public async Task<IActionResult> SearchCollaborators(int? accountId, int? eventId, string? collabStatus)
         {
             Enums.CollaboratorStatus? status = null;
@@ -123,7 +123,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}/event")]
-        [Authorize(Roles = "5")]
+        [Authorize(Roles = "2, 4, 5")]
         public async Task<IActionResult> GetAllCollaboratorsByEvent(int id)
         {
             var collaboratorList = await _collaboratorService.GetAllCollaboratorsByEventId(id);
