@@ -90,9 +90,9 @@ namespace Events.API.Controllers
         /// <returns></returns>
         [HttpPut("update-profile/{id}")]
         [Authorize(Roles = "1,2,3,4,5")]
-        public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfile updateProfile)
+        public async Task<IActionResult> UpdateProfile(int id, [FromForm] UpdateProfile updateProfile, IFormFile? avatarFile)
         {
-            var account = await _accountService.UpdateProfile(id, updateProfile);
+            var account = await _accountService.UpdateProfile(id, updateProfile, avatarFile);
             return StatusCode(account.StatusCode, account);
         }
     }

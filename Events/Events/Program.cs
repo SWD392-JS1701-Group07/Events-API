@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using Events.Utils.Helpers;
+using Events.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,8 +75,10 @@ builder.Services.AddSwaggerGen(c =>
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
-}); 
+});
 
+//CLoudinary
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
 //Authentication
 builder.Services.AddAuthentication(options => 
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).
@@ -138,6 +141,7 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<CloudinaryHelper>();
 
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder =>

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using static Events.Utils.Enums;
 using Events.Utils.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Events.Business.Services
 {
@@ -25,13 +26,15 @@ namespace Events.Business.Services
         private readonly IMapper _mapper;
         private readonly ISponsorRepository _sponsorRepository;
         private readonly EmailHelper _emailHelper;
+        private readonly CloudinaryHelper _cloudinaryHelper;
 
-        public AccountService(IAccountRepository accountRepository, IMapper mapper, ISponsorRepository sponsorRepository, EmailHelper emailHelper)
+        public AccountService(IAccountRepository accountRepository, IMapper mapper, ISponsorRepository sponsorRepository, EmailHelper emailHelper, CloudinaryHelper cloudinaryHelper)
         {
             _accountRepository = accountRepository;
             _mapper = mapper;
             _sponsorRepository = sponsorRepository;
             _emailHelper = emailHelper;
+            _cloudinaryHelper = cloudinaryHelper;
         }
 
         public async Task<BaseResponse> BanAccount(int id)
@@ -281,7 +284,7 @@ namespace Events.Business.Services
                 AccountDTO account = new AccountDTO
                 {
                     Email = registerAccountDTO.Email,
-                    Name = "John",
+                    Name = "",
                     Username = registerAccountDTO.Username,
                     Password = registerAccountDTO.Password,
                     Dob = DateTime.UtcNow,
@@ -326,7 +329,7 @@ namespace Events.Business.Services
                     StatusCode = 404,
                     Data = null,
                     IsSuccess = false,
-                    Message = "Can;t found this account"
+                    Message = "Can't found this account"
                 };
             }
             else
@@ -362,7 +365,7 @@ namespace Events.Business.Services
             }
         }
 
-        public async Task<BaseResponse> UpdateProfile(int id, UpdateProfile updateProfile)
+        public async Task<BaseResponse> UpdateProfile(int id, UpdateProfile updateProfile, IFormFile avatarFile)
         {
             var account = await _accountRepository.GetAccountById(id);
 
@@ -384,7 +387,17 @@ namespace Events.Business.Services
                 account.PhoneNumber = updateProfile.PhoneNumber;
                 account.Dob = DateOnly.FromDateTime(updateProfile.Dob);
                 account.Gender = Enum.Parse<Gender>(updateProfile.Gender);
-                account.AvatarUrl = updateProfile.AvatarUrl;
+
+                if (avatarFile != null)
+                {
+                    var imageUrl = await _cloudinaryHelper.UploadImageAsync(avatarFile);
+                    account.AvatarUrl = imageUrl;
+                }
+                else
+                {
+                    account.AvatarUrl = account.AvatarUrl;
+                }
+
                 account.SubjectId = updateProfile.SubjectId;
 
                 var result = await _accountRepository.UpdateAccount(account);

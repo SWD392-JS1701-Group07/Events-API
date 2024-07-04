@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,6 @@ namespace Events.Models.DTOs.Request
         public string? StudentId { get; set; }
         public DateTime Dob { get; set; }
         public string Gender { get; set; }
-        public string? AvatarUrl { get; set; }
         public int? SubjectId { get; set; }
     }
 }
