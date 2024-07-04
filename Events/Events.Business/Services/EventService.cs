@@ -403,6 +403,7 @@ namespace Events.Business.Services
             }
             else
             {
+                var collaborator = _mapper.Map<AccountDTO>(collaboratorId);
                 List<EventDTO> eventList = new List<EventDTO>();
                 var eventIdList = await _collaboratorRepository.GetAllEventIdByCollaboratorId(id);
                 foreach(var eventId in eventIdList)
@@ -412,11 +413,24 @@ namespace Events.Business.Services
                     eventList.Add(eventMapper);
                 }
 
+                List<EventWithCollaborators> eventWithCollaboratorList = new List<EventWithCollaborators>();
+
+                foreach (var c in eventList)
+                {
+                    EventWithCollaborators entity = new EventWithCollaborators
+                    {
+                        eventDTO = c,
+                        collaboratorDTO = collaborator
+                    };
+
+                    eventWithCollaboratorList.Add(entity);
+                }
+
                 return new BaseResponse
                 {
                     StatusCode = 200,
                     IsSuccess = true,
-                    Data = eventList,
+                    Data = eventWithCollaboratorList,
                     Message = null
                 };
             }
