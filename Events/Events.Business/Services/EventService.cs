@@ -403,13 +403,29 @@ namespace Events.Business.Services
             }
             else
             {
-                var collaborator = _mapper.Map<AccountDTO>(collaboratorId);
+                //                var collaborator = _mapper.Map<AccountDTO>(collaboratorId);
                 List<EventDTO> eventList = new List<EventDTO>();
                 var eventIdList = await _collaboratorRepository.GetAllEventIdByCollaboratorId(id);
                 foreach(var eventId in eventIdList)
                 {
                     var eventEntity = await _eventRepository.GetEventByIdAsync(eventId);
-                    var eventMapper = _mapper.Map<EventDTO>(eventEntity);
+                    var eventSchedule = await _eventScheduleRepository.GetEventScheduleById(eventId);
+                    EventDTO eventMapper = new EventDTO
+                    {
+                        Id = eventId,
+                        Name = eventEntity.Name,
+                        StartSellDate = eventEntity.StartSellDate,
+                        EndSellDate = eventEntity.EndSellDate,
+                        Price = eventEntity.Price,
+                        Quantity = eventEntity.Quantity,
+                        Remaining = eventEntity.Remaining,
+                        AvatarUrl = eventEntity.AvatarUrl,
+                        Description = eventEntity.Description,
+                        EventStatus = eventEntity.EventStatus.ToString(),
+                        OwnerId = eventEntity.OwnerId,
+                        SubjectId = eventEntity.SubjectId,
+                        ScheduleList = _mapper.Map<List<EventScheduleDTO>>(eventSchedule)
+                    };
                     eventList.Add(eventMapper);
                 }
 
@@ -417,12 +433,12 @@ namespace Events.Business.Services
 
                 foreach (var c in eventList)
                 {
+                    var collaborator = await _collaboratorRepository.GetCollaboratorByEventAndAccount(c.Id, id);
                     EventWithCollaborators entity = new EventWithCollaborators
                     {
                         eventDTO = c,
-                        collaboratorDTO = collaborator
+                        collaboratorDTO = _mapper.Map<CollaboratorDTO>(collaborator)
                     };
-
                     eventWithCollaboratorList.Add(entity);
                 }
 

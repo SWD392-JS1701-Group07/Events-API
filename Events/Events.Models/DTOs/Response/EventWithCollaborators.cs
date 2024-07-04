@@ -10,6 +10,6 @@ namespace Events.Models.DTOs.Response
     {
         public EventDTO eventDTO{ get; set; }
 
-        public AccountDTO collaboratorDTO { get; set; }
+        public CollaboratorDTO collaboratorDTO { get; set; }
     }
 }
