@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Events.Models.DTOs
@@ -24,13 +25,11 @@ namespace Events.Models.DTOs
 
 		public double Price { get; set; }
 
-		public string IsCheckIn { get; set; }
+		public string IsCheckIn { get; set; } = string.Empty;
 
 		public string OrdersId { get; set; } = null!;
-
-		public string EventName { get; set; } = null!;
-
-		public List<EventScheduleDTO> EventSchedules { get; set; } = new List<EventScheduleDTO> { };
+		public  EventDTO Event { get; set; } = null!;
+		public OrderDTO Order { get; set; } = null!;
 	}
 
 

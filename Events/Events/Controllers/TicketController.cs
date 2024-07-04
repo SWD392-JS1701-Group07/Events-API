@@ -39,5 +39,12 @@ namespace Events.API.Controllers
 					IsSuccess = true
 				});
 		}
+
+		[HttpGet("{id}", Name = nameof(GetTicketById))]
+		public async Task<IActionResult> GetTicketById([FromRoute] string id)
+		{
+			var response = await _ticketService.GetTicketById(id);
+			return StatusCode(response.StatusCode, response);
+		}
 	}
 }

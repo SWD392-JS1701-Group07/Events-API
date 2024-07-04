@@ -1,6 +1,7 @@
 ﻿using Events.Utils;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Events.Models.Models;
 
@@ -37,6 +38,5 @@ public partial class Event
     public virtual Account Owner { get; set; } = null!;
 
     public virtual ICollection<Sponsorship> Sponsorships { get; set; } = new List<Sponsorship>();
-
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }
