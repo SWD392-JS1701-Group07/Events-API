@@ -20,8 +20,7 @@ namespace Events.Business.Mapping
             .ReverseMap()
             .ForMember(d => d.EventStatus, o => o.MapFrom(src => Enum.Parse<EventStatus>(src.EventStatus)));
 
-            CreateMap<CreateEventDTO, Event>()
-                .ForMember(d => d.EventStatus, o => o.MapFrom(src => Enum.Parse<EventStatus>(src.EventStatus)));
+            CreateMap<CreateEventDTO, Event>().ForMember(d => d.EventStatus, o => o.Ignore());
 
             CreateMap<EventSchedule, EventScheduleDTO>().ReverseMap();
             CreateMap<CreateEventScheduleDTO, EventSchedule>();

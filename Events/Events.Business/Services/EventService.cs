@@ -112,6 +112,9 @@ namespace Events.Business.Services
             var newEvent = _mapper.Map<Event>(createEventDTO);
             newEvent.Remaining = createEventDTO.Quantity;
 
+            // Set the EventStatus to Pending
+            newEvent.EventStatus = EventStatus.Pending;
+
             // Check for overlapping events at the same place and time
             foreach (var scheduleDTO in createEventDTO.ScheduleList)
             {
