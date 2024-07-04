@@ -2,6 +2,7 @@
 using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
 using Events.Models.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,6 @@ namespace Events.Business.Services.Interfaces
         Task<BaseResponse> RegisterAccount(RegisterAccountDTO registerAccountDTO);
         Task<BaseResponse> BanAccount(int id);
         Task<BaseResponse> UpdateAccount(int id, UpdateAccountDTO updateAccountDTO);
-        Task<BaseResponse> UpdateProfile(int id, UpdateProfile updateProfile);
+        Task<BaseResponse> UpdateProfile(int id, UpdateProfile updateProfile, IFormFile avatarFile);
     }
 }

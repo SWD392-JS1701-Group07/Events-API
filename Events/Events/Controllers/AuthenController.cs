@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Events.Data.DTOs.Request;
 using Events.Models.DTOs;
+using Events.Utils.Helpers;
 
 namespace Events.API.Controllers
 {
