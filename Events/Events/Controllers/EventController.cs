@@ -103,7 +103,7 @@ namespace Events.API.Controllers
             return Ok(eventToUpdate);
         }
         /// <summary>
-        /// Reject event and set status to Rejected
+        /// Reject event 
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
