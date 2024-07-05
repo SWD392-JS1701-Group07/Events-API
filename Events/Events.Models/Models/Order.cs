@@ -1,6 +1,7 @@
 ﻿using Events.Utils;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Events.Models.Models;
 

@@ -17,6 +17,7 @@ namespace Events.Business.Mapping
         {
             CreateMap<Event, EventDTO>()
             .ForMember(d => d.EventStatus, o => o.MapFrom(src => src.EventStatus.ToString()))
+            .ForMember(dest => dest.ScheduleList, opt => opt.MapFrom(src => src.EventSchedules))
             .ReverseMap()
             .ForMember(d => d.EventStatus, o => o.MapFrom(src => Enum.Parse<EventStatus>(src.EventStatus)));
 
@@ -47,21 +48,33 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.Dob)));
 
             CreateMap<Ticket, TicketDTO>()
-                .ForMember(dest => dest.IsCheckIn, o => o.MapFrom(src => src.IsCheckIn.ToString()));
+                .ForMember(dest => dest.IsCheckIn, o => o.MapFrom(src => src.IsCheckIn.ToString()))
+                .ForMember(dest => dest.Order, o => o.MapFrom(src => src.Orders))
+                .ForMember(dest => dest.Event, o => o.MapFrom(src => src.Event));
 
-            CreateMap<TicketDTO, Ticket>()
-                .ForMember(dest => dest.IsCheckIn, o => o.MapFrom(src => Enum.Parse<IsCheckin>(src.IsCheckIn)));
+
+            //CreateMap<TicketDTO, Ticket>()
+            //    .ForMember(dest => dest.IsCheckIn, o => o.MapFrom(src => Enum.Parse<IsCheckin>(src.IsCheckIn)));
 
             CreateMap<Order, OrderDTO>()
-                //      .ForMember(dest => dest.PaymentMethod, o => o.MapFrom(src => src.PaymentMethod.ToString()))
-                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()));
+                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
+                .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets))
+                .ForMember(dest => dest.Transactions, opt => opt.MapFrom(src => src.Transactions));
 
-            CreateMap<OrderDTO, Order>()
-         //       .ForMember(dest => dest.PaymentMethod, o => o.MapFrom(src => Enum.Parse<PaymentMethod>(src.PaymentMethod)))
-                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)))
-                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.OrderDate)));
+            CreateMap<Ticket, SimpleTicketDTO>()
+                .ForMember(dest => dest.IsCheckIn, opt => opt.MapFrom(src => src.IsCheckIn.ToString()));
 
-            CreateMap<Customer, CustomerDTO>().ReverseMap();
+			CreateMap<Transaction, SimpleTransactionDTO>()
+			   .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus.ToString()));
+
+			//.ReverseMap()
+			//   .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)));
+
+			//CreateMap<OrderDTO, Order>()
+			//             .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)))
+			//             .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.OrderDate)));
+
+			CreateMap<Customer, CustomerDTO>().ReverseMap();
             CreateMap<UpdateCustomerDTO, Customer>();
 
             CreateMap<Sponsorship, SponsorshipDTO>().ReverseMap();
@@ -74,9 +87,6 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.EventId, opt => opt.Ignore())
                 .ForMember(dest => dest.SponsorId, opt => opt.Ignore());
 
-            CreateMap<Ticket, TicketDTO>()
-                .ForMember(dest => dest.EventName, otp => otp.MapFrom(src => src.Event.Name))
-                .ForMember(dest => dest.EventSchedules, otp => otp.MapFrom(src => src.Event.EventSchedules));
 
             CreateMap<Subject, SubjectDTO>().ReverseMap();
 
@@ -100,6 +110,9 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.TicketId, otp => otp.MapFrom(src => src.Id))
                 .ForMember(dest => dest.EventName, otp => otp.Ignore());
 
+            CreateMap<Transaction, TransactionDTO>()
+                .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus.ToString()));
+                //.ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Order));
 		}
 
     }

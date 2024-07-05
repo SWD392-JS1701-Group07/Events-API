@@ -14,5 +14,6 @@ namespace Events.Business.Services.Interfaces
 	{
 		Task<BaseResponse> CreateOrderAndPayment(CreateOrderRequest request, HttpContext context);
 		Task<BaseResponse> HandlePaymentCallback(IQueryCollection query);
+		Task<BaseResponse> GetOrderByOrderId(string id);
 	}
 }

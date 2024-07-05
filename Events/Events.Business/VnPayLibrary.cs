@@ -27,6 +27,7 @@ public class VnPayLibrary
         var refId = Convert.ToInt64(GetResponseData("vnp_TxnRef"));
         var vnPayTranId = Convert.ToInt64(GetResponseData("vnp_TransactionNo"));
         var payDate = GetResponseData("vnp_PayDate");
+        var amount = Convert.ToInt64(GetResponseData("vnp_Amount")) / 100;
         var vnpResponseCode = GetResponseData("vnp_ResponseCode");
         var vnpSecureHash =
             collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value; //hash HmacSHA256 của dữ liệu trả về
@@ -44,6 +45,7 @@ public class VnPayLibrary
         return new PaymentResponseModel()
         {
             Success = true,
+			Amount = amount.ToString(),
             PaymentMethod = "VnPay",
             OrderDescription = orderInfo,
             RefId = refId.ToString(),

@@ -32,10 +32,10 @@ namespace Events.Utils.Helpers
             smtp.Disconnect(true);
         }
 
-		public void SendEmailToBuyTicketSuccess(string to, string base64Image)
+		public void SendEmailToBuyTicketSuccess(string to, string filePath)
 		{
 			//Create format
-			string body = CreateEmailBodyForTicket(base64Image);
+			string body = CreateEmailBodyForTicket(filePath);
 
 			var email = new MimeMessage();
 			email.From.Add(MailboxAddress.Parse("vngo6790@gmail.com"));
@@ -54,15 +54,14 @@ namespace Events.Utils.Helpers
 			smtp.Disconnect(true);
 		}
 
-		private string CreateEmailBodyForTicket(string base64Image)
+		private string CreateEmailBodyForTicket(string filePath)
 		{
-            string path = $"data:image/png;base64,{base64Image}";
 			return $@"
             <html>
             <body>
                 <p>Thank you for participating in our event</p>
                 <p>Your Qrcode:</p>
-                <img height=""224"" width=""225"" src=""{path}"" />
+                <img height=""224"" width=""225"" src=""{filePath}"" />
 
 			</body>
             </html>";

@@ -13,5 +13,7 @@ namespace Events.Data.Repositories.Interfaces
 		Task<Order> GetOrderByIdAsync(string id);
 		Task<bool> UpdateOrderStatusAsync(Order order);
 		Task CreateOrders(Order order);
+
+		//Task<IEnumerable<Order>> GetAllOrdersFitlter(Account account, bool? isBought = null, string? searchTerm = null);
 	}
 }
