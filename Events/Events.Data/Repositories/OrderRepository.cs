@@ -23,9 +23,26 @@ namespace Events.Data.Repositories
 			await _context.Orders.AddAsync(order);
 		}
 
+		//public Task<IEnumerable<Order>> GetAllOrdersFitlter(Account account, bool? isBought = null, string? searchTerm = null)
+		//{
+		//	IQueryable<Order> query = _context.Orders.Include(o => o.Customer);
+		//	var roleName = account.Role.Name;
+		//	if (string.Equals(roleName, "Visistor", StringComparison.OrdinalIgnoreCase))
+		//	{
+		//		query = query.Where(o => o.Customer != null && o.Customer.Id == account.Id);
+		//	}
+		//	else if (string.Equals(roleName, "Event operator", StringComparison.OrdinalIgnoreCase))
+		//	{
+		//		query = query.Where(t => t.Event != null && t.Event.OwnerId.Equals(account.Id));
+		//	}
+		//}
+
 		public async Task<Order> GetOrderByIdAsync(string id)
 		{
-			return await _context.Orders.Include(o => o.Tickets).FirstOrDefaultAsync(o => o.Id == id) ?? throw new KeyNotFoundException("Order not found !!");
+			return await _context.Orders.Include(o => o.Tickets)
+											.Include(o => o.Transactions)
+											.FirstOrDefaultAsync(o => o.Id == id)
+											?? throw new KeyNotFoundException("Order not found !!");
 		}
 
 		public async Task<bool> UpdateOrderStatusAsync(Order order)

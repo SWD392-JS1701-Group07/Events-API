@@ -29,9 +29,8 @@ namespace Events.Models.DTOs
 
         public int CustomerId { get; set; }
 		public virtual CustomerDTO? Customer { get; set; }
-        [JsonIgnore]
-		public virtual List<TicketDTO> Tickets { get; set; } = new List<TicketDTO>();
-		public virtual List<TransactionDTO> Transactions { get; set; } = new List<TransactionDTO>();
+		public virtual List<SimpleTicketDTO> Tickets { get; set; } = new List<SimpleTicketDTO>();
+		public virtual List<SimpleTransactionDTO> Transactions { get; set; } = new List<SimpleTransactionDTO>();
 
 	}
 }
