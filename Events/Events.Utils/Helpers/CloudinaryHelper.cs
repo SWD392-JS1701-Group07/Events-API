@@ -43,7 +43,26 @@ namespace Events.Utils.Helpers
                 throw new Exception(uploadResult.Error.Message);
             }
         }
-    }
+
+		public async Task<string> UploadImageForQrCodeAsync(Stream imageStream, string fileName)
+		{
+			var uploadParams = new ImageUploadParams()
+			{
+				File = new FileDescription(fileName, imageStream)
+			};
+
+			var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+			if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+			{
+				return uploadResult.Url.ToString();
+			}
+			else
+			{
+				throw new Exception(uploadResult.Error.Message);
+			}
+		}
+	}
 
 
     public class CloudinarySettings
