@@ -142,6 +142,7 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<CloudinaryHelper>();
+builder.Services.AddScoped<QrHelper>();
 
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder =>

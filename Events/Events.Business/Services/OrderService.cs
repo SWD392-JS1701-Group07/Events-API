@@ -35,8 +35,9 @@ namespace Events.Business.Services
 		private readonly EventsDbContext _dbContext;
 		private readonly ITransactionRepository _transactionRepository;
 		private readonly EmailHelper _emailHelper;
+		private readonly QrHelper _qrHelper;
 
-		public OrderService(IOrderRepository orderRepository, ITicketRepository ticketRepository, ITicketService ticketService, IEventService eventService, IVNPayPaymentService vnPayPaymentService, IMapper mapper, EventsDbContext dbContext, ITransactionRepository transactionRepository, EmailHelper emailHelper)
+		public OrderService(IOrderRepository orderRepository, ITicketRepository ticketRepository, ITicketService ticketService, IEventService eventService, IVNPayPaymentService vnPayPaymentService, IMapper mapper, EventsDbContext dbContext, ITransactionRepository transactionRepository, EmailHelper emailHelper, QrHelper qrHelper)
 		{
 			_orderRepository=orderRepository;
 			_ticketRepository=ticketRepository;
@@ -47,6 +48,7 @@ namespace Events.Business.Services
 			_dbContext=dbContext;
 			_transactionRepository=transactionRepository;
 			_emailHelper=emailHelper;
+			_qrHelper=qrHelper;
 		}
 
 		public async Task<BaseResponse> CreateOrderAndPayment(CreateOrderRequest request, HttpContext context)
@@ -89,7 +91,7 @@ namespace Events.Business.Services
 							var ticketInfo = _mapper.Map<QrCodeDTO>(ticketEntity);
 							ticketInfo.Price = ticketEntity.Price;
 							ticketInfo.EventName = await _eventService.GetEventNameByIdAsync(ticketDetail.EventId);
-							ticketEntity.Qrcode = QrHelper.GenerateQr(JsonSerializer.Serialize(ticketInfo));
+							ticketEntity.Qrcode = await _qrHelper.GenerateQr(JsonSerializer.Serialize(ticketInfo), fileName: $"{ticketInfo.TicketId}.png");
 							await _ticketRepository.CreateTicket(ticketEntity);
 						}
 
