@@ -57,15 +57,24 @@ namespace Events.Business.Mapping
             //    .ForMember(dest => dest.IsCheckIn, o => o.MapFrom(src => Enum.Parse<IsCheckin>(src.IsCheckIn)));
 
             CreateMap<Order, OrderDTO>()
-                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()));
-				//.ReverseMap()
-			 //   .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)));
+                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
+                .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets))
+                .ForMember(dest => dest.Transactions, opt => opt.MapFrom(src => src.Transactions));
+
+            CreateMap<Ticket, SimpleTicketDTO>()
+                .ForMember(dest => dest.IsCheckIn, opt => opt.MapFrom(src => src.IsCheckIn.ToString()));
+
+			CreateMap<Transaction, SimpleTransactionDTO>()
+			   .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus.ToString()));
+
+			//.ReverseMap()
+			//   .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)));
 
 			//CreateMap<OrderDTO, Order>()
-   //             .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)))
-   //             .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.OrderDate)));
+			//             .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)))
+			//             .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.OrderDate)));
 
-            CreateMap<Customer, CustomerDTO>().ReverseMap();
+			CreateMap<Customer, CustomerDTO>().ReverseMap();
             CreateMap<UpdateCustomerDTO, Customer>();
 
             CreateMap<Sponsorship, SponsorshipDTO>().ReverseMap();
