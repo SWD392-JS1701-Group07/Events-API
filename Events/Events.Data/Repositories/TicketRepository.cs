@@ -39,6 +39,13 @@ namespace Events.Data.Repositories
 			await _context.Tickets.AddAsync(ticket);
 		}
 
+		public async Task<Ticket> GetTicketById(string ticketId)
+		{
+			return await _context.Tickets.Include(t => t.Event)
+											.ThenInclude(e => e.EventSchedules)
+										 .Include(t => t.Orders).FirstOrDefaultAsync(t => t.Id == ticketId) ?? throw new KeyNotFoundException("Ticket not found");
+		}
+
 		public async Task<IEnumerable<Ticket>> GetTicketFilter(Account account, bool? isBought = null, string? orderId = null,
 																string? searchTern = null, string? includeProps = null)
 		{

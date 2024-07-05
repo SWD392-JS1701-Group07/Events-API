@@ -1,15 +1,12 @@
-
-﻿using Events.Models.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Events.Models.DTOs
 {
-	public class TicketDTO
+	public class SimpleTicketDTO
 	{
 		public string Id { get; set; } = string.Empty;
 
@@ -28,9 +25,5 @@ namespace Events.Models.DTOs
 		public string IsCheckIn { get; set; } = string.Empty;
 
 		public string OrdersId { get; set; } = null!;
-		public  EventDTO Event { get; set; } = null!;
-		public OrderDTO Order { get; set; } = null!;
 	}
-
-
 }

@@ -42,14 +42,12 @@ namespace Events.Utils
         public enum OrderStatus
         {
             Failed,
-            Success,
-            Pending
+            Success
         }
 
         public enum PaymentStatus {
             Failed, 
-            Success, 
-            Pending 
+            Success
         }
         
         public enum IsCheckin

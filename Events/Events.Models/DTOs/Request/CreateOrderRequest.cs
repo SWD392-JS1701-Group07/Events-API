@@ -34,6 +34,9 @@ namespace Events.Models.DTOs.Request
 		[Required(ErrorMessage = "Email is required")]
 		[EmailAddress(ErrorMessage = "Invalid Email Address")]
 		public string Email { get; set; } = string.Empty;
+		[Required(ErrorMessage = "Price is required")]
+		[RegularExpression(RegexBase.MustNumberRegex, ErrorMessage = "Price must be a number")]
+		public double Price { get; set; }
 		[Required(ErrorMessage = "EventId is required")]
 		public int EventId { get; set; }
 	}

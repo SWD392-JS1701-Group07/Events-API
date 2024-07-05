@@ -10,6 +10,7 @@ using Events.Utils;
 using Events.Utils.Helpers;
 using MailKit.Search;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.X509;
 using System;
@@ -76,14 +77,13 @@ namespace Events.Business.Services
 						var orderEntity = _mapper.Map<Order>(request);
 						orderEntity.Id = Guid.NewGuid().ToString();
 						orderEntity.OrderDate = DateTime.Now;
-						orderEntity.OrderStatus = request.TotalAmount == 0 ? OrderStatus.Success : OrderStatus.Pending;
+						orderEntity.OrderStatus = request.TotalAmount == 0 ? OrderStatus.Success : OrderStatus.Failed;
 						await _orderRepository.CreateOrders(orderEntity);
 						// Loop for list of ticket in request
 						foreach (var ticketDetail in request.Tickets)
 						{
 							var ticketEntity = _mapper.Map<Ticket>(ticketDetail);
 							ticketEntity.Id = Guid.NewGuid().ToString();
-							ticketEntity.Price = request.TotalAmount / request.Tickets.Count;
 							ticketEntity.IsCheckIn = IsCheckin.No;
 							ticketEntity.OrdersId = orderEntity.Id;
 							var ticketInfo = _mapper.Map<QrCodeDTO>(ticketEntity);
@@ -101,7 +101,7 @@ namespace Events.Business.Services
 								Id = Guid.NewGuid().ToString(),
 								OrderId = orderEntity.Id,
 								Amount = request.TotalAmount,
-								PaymentStatus = PaymentStatus.Pending, // Pending
+								PaymentStatus = PaymentStatus.Failed,
 							};
 							await _transactionRepository.AddTransaction(transactionEntry);
 						}
@@ -119,12 +119,12 @@ namespace Events.Business.Services
 						var listTicket = orderFromDb.Tickets.ToList();
 						if (listTicket != null)
 						{
-							foreach(var ticket in listTicket)
+							foreach (var ticket in listTicket)
 							{
 								_emailHelper.SendEmailToBuyTicketSuccess(ticket.Email, ticket.Qrcode);
 							}
 						}
-						return new BaseResponse { StatusCode = StatusCodes.Status200OK , IsSuccess = true, Message = "Order created successfully. No payment needed!!" };
+						return new BaseResponse { StatusCode = StatusCodes.Status200OK, IsSuccess = true, Message = "Order created successfully. No payment needed!!" };
 
 					}
 					catch (Exception)
@@ -146,6 +146,39 @@ namespace Events.Business.Services
 			}
 		}
 
+		public async Task<BaseResponse> GetOrderByOrderId(string id)
+		{
+			try
+			{
+				var orderFromDb = await _orderRepository.GetOrderByIdAsync(id);
+
+				return new BaseResponse
+				{
+					StatusCode = StatusCodes.Status200OK,
+					Message = "Get Order detail successfully",
+					Data = _mapper.Map<OrderDTO>(orderFromDb),
+				};
+			}
+			catch (KeyNotFoundException ex)
+			{
+				return new BaseResponse
+				{
+					StatusCode = StatusCodes.Status404NotFound,
+					Message = ex.Message,
+					IsSuccess = false,
+				};
+			}
+			catch (Exception ex)
+			{
+				return new BaseResponse
+				{
+					StatusCode = StatusCodes.Status500InternalServerError,
+					Message = ex.Message,
+					IsSuccess = false,
+				};
+			}
+		}
+
 		public async Task<BaseResponse> HandlePaymentCallback(IQueryCollection query)
 		{
 			try
@@ -159,109 +192,90 @@ namespace Events.Business.Services
 					{
 						orderId = parts[1].Trim();
 					}
+					response.OrderId = orderId;
 					var orderFromDb = await _orderRepository.GetOrderByIdAsync(orderId);
-					var transaction = await _transactionRepository.GetTransactionFilter(t => t.OrderId == orderId && t.PaymentStatus == PaymentStatus.Pending,
+					var transaction = await _transactionRepository.GetTransactionFilter(t => t.OrderId == orderId && t.PaymentStatus == PaymentStatus.Failed,
 																									t => t.TransactionDate);
 					if (orderFromDb != null)
 					{
-						if (orderFromDb.OrderStatus == OrderStatus.Pending)
+						if (response.VnPayResponseCode == "00")
 						{
-							if (response.VnPayResponseCode == "00")
-							{
-								using (var transactionDb = _dbContext.Database.BeginTransaction())
-									try
-									{
-										{
-											if (transaction != null)
-											{
-												_mapper.Map(response, transaction);
-												transaction.ResponseMessage = "Payment success!";
-												await _transactionRepository.UpdateTransactionAsync(transaction);
-											}
-
-											orderFromDb.OrderStatus = OrderStatus.Success;
-											await _orderRepository.UpdateOrderStatusAsync(orderFromDb);
-
-											var ticketBought = await _ticketService.GetTicketFilter(isBought: true, orderId: orderFromDb.Id, includeProps: "Orders");
-											if (ticketBought.Any())
-											{
-												var ticketBoughtCount = ticketBought.Count();
-												var ticketEventId = ticketBought.First().EventId;
-												bool isSuccess = await _eventService.UpdateTicketQuantity(ticketEventId, ticketBoughtCount);
-												if (!isSuccess)
-												{
-													return new BaseResponse
-													{
-														StatusCode = StatusCodes.Status500InternalServerError,
-														Message = "There was an error when updating ticket quantity!!",
-														IsSuccess = false
-													};
-												}
-											}
-											await transactionDb.CommitAsync();
-
-											//Send Email
-											var listTicket = orderFromDb.Tickets.ToList();
-											if (listTicket != null)
-											{
-												foreach (var ticket in listTicket)
-												{
-													_emailHelper.SendEmailToBuyTicketSuccess(ticket.Email, ticket.Qrcode);
-												}
-											}
-
-											return new BaseResponse
-											{
-												StatusCode = StatusCodes.Status200OK,
-												Message = "Payment callback handled successfully!!",
-												IsSuccess = true,
-												Data = response
-											};
-										}
-									}
-									catch (Exception)
-									{
-										await transactionDb.RollbackAsync();
-										throw;
-									}
-
-							}
-							else
-							{
-								using(var transactionDb = _dbContext.Database.BeginTransaction())
+							using (var transactionDb = _dbContext.Database.BeginTransaction())
+								try
 								{
-									try
 									{
 										if (transaction != null)
 										{
 											_mapper.Map(response, transaction);
-											transaction.ResponseMessage = "Payment failed!";
+											transaction.ResponseMessage = "Payment success!";
+											transaction.PaymentStatus = PaymentStatus.Success;
 											await _transactionRepository.UpdateTransactionAsync(transaction);
 										}
-										orderFromDb.OrderStatus = OrderStatus.Failed;
+
+										orderFromDb.OrderStatus = OrderStatus.Success;
 										await _orderRepository.UpdateOrderStatusAsync(orderFromDb);
+
+										var ticketBought = await _ticketService.GetTicketFilter(isBought: true, orderId: orderFromDb.Id, includeProps: "Orders");
+										if (ticketBought.Any())
+										{
+											var eventTicketQuantities = ticketBought
+													.GroupBy(ticket => ticket.EventId)
+													.ToDictionary(group => group.Key, group => group.Count());
+
+											bool isSuccess = await _eventService.UpdateTicketQuantity(eventTicketQuantities);
+											if (!isSuccess)
+											{
+												return new BaseResponse
+												{
+													StatusCode = StatusCodes.Status500InternalServerError,
+													Message = "There was an error when updating ticket quantities!!",
+													IsSuccess = false
+												};
+											}
+										}
+										await transactionDb.CommitAsync();
+
+										//Send Email
+										var listTicket = orderFromDb.Tickets.ToList();
+										if (listTicket != null)
+										{
+											foreach (var ticket in listTicket)
+											{
+												_emailHelper.SendEmailToBuyTicketSuccess(ticket.Email, ticket.Qrcode);
+											}
+										}
+
 										return new BaseResponse
 										{
-											StatusCode = StatusCodes.Status400BadRequest,
-											Message = "Payment failed",
-											IsSuccess = false,
+											StatusCode = StatusCodes.Status200OK,
+											Message = "Payment callback handled successfully!!",
+											IsSuccess = true,
 											Data = response
 										};
 									}
-									catch (Exception) { 
-										await transactionDb.RollbackAsync();
-										throw;
-									}
 								}
-							}
+								catch (Exception)
+								{
+									await transactionDb.RollbackAsync();
+									throw;
+								}
+
 						}
 						else
 						{
+							if (transaction != null)
+							{
+								_mapper.Map(response, transaction);
+								transaction.ResponseMessage = "Payment failed!";
+								await _transactionRepository.UpdateTransactionAsync(transaction);
+							}
+
 							return new BaseResponse
 							{
 								StatusCode = StatusCodes.Status400BadRequest,
-								Message = "Order status is not pending",
-								IsSuccess = false
+								Message = "Payment failed",
+								IsSuccess = false,
+								Data = response
 							};
 						}
 					}
@@ -321,10 +335,10 @@ namespace Events.Business.Services
 					}
 				}
 				var eventResponse = await _eventService.GetEventById(ticketDetail.EventId);
-				if(!eventResponse.IsSuccess)
+				if (!eventResponse.IsSuccess)
 				{
 					var key = $"{ticketDetail.EventId}";
-					if(!errors.ContainsKey(key))
+					if (!errors.ContainsKey(key))
 					{
 						errors.Add(key, $"Not found Event with event id '{ticketDetail.EventId}'");
 					}

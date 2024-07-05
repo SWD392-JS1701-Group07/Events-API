@@ -8,6 +8,7 @@ namespace Events.Data.Repositories.Interfaces
         Task CreateTicket(Ticket ticket);
         Task<IEnumerable<Ticket>> GetTicketFilter(Account account, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null);
         Task<bool> CheckTicketExist(string email, string phoneNumber, int eventId);
+        Task<Ticket> GetTicketById(string ticketId);
 	}
 }
     

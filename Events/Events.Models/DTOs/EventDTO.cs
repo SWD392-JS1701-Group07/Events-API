@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Events.Models.DTOs
@@ -23,7 +24,8 @@ namespace Events.Models.DTOs
         public int OwnerId { get; set; }
         public int? SubjectId { get; set; }
         public List<EventScheduleDTO> ScheduleList { get; set; }
-        public virtual ICollection<EventSchedule> Schedule { get; set; }
+
+		public virtual ICollection<EventScheduleDTO> Schedule { get; set; }
     }
 }
 
