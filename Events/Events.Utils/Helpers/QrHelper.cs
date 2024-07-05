@@ -9,13 +9,19 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace Events.Utils.Helpers
 {
 	public class QrHelper
 	{
-		public static string GenerateQr(string data)
+		private readonly CloudinaryHelper _cloudinaryHelper;
+		public QrHelper(CloudinaryHelper cloudinaryHelper)
+		{
+			_cloudinaryHelper = cloudinaryHelper;
+		}
+		public async Task<string> GenerateQr(string data, string fileName)
 		{
 			using (var qrGenerator = new QRCodeGenerator())
 			{
@@ -23,17 +29,21 @@ namespace Events.Utils.Helpers
 				var qrCode = new BitmapByteQRCode(qrCodeData);
 				byte[] qrCodeByte = qrCode.GetGraphic(20);
 				// Convert byte[] to ImageSharp
-				using(Image<Rgba32> qrCodeImage = Image.Load<Rgba32>(qrCodeByte))
+				using (Image<Rgba32> qrCodeImage = Image.Load<Rgba32>(qrCodeByte))
 				{
 					qrCodeImage.Mutate(x => x.Resize(245, 245));
 					// Save for format Png to Memory Stream
-					using(MemoryStream ms = new MemoryStream())
+					using (MemoryStream ms = new MemoryStream())
 					{
 						qrCodeImage.Save(ms, new PngEncoder());
-						return Convert.ToBase64String(ms.ToArray());
+						ms.Position = 0;
+						var qrUrl = await _cloudinaryHelper.UploadImageForQrCodeAsync(ms, $"{fileName}");
+						return qrUrl;
 					}
 				}
 			}
 		}
 	}
 }
+
+
