@@ -25,7 +25,7 @@ namespace Events.Models.DTOs
         public int? SubjectId { get; set; }
         public List<EventScheduleDTO> ScheduleList { get; set; }
 
-		public virtual ICollection<EventScheduleDTO> Schedule { get; set; }
+		//public virtual ICollection<EventScheduleDTO> Schedule { get; set; }
     }
 }
 

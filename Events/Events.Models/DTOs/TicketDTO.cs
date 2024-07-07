@@ -29,7 +29,6 @@ namespace Events.Models.DTOs
 
 		public string OrdersId { get; set; } = null!;
 		public  EventDTO Event { get; set; } = null!;
-		public OrderDTO Order { get; set; } = null!;
 	}
 
 

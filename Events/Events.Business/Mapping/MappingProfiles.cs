@@ -49,7 +49,6 @@ namespace Events.Business.Mapping
 
             CreateMap<Ticket, TicketDTO>()
                 .ForMember(dest => dest.IsCheckIn, o => o.MapFrom(src => src.IsCheckIn.ToString()))
-                .ForMember(dest => dest.Order, o => o.MapFrom(src => src.Orders))
                 .ForMember(dest => dest.Event, o => o.MapFrom(src => src.Event));
 
 
@@ -60,6 +59,11 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
                 .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets))
                 .ForMember(dest => dest.Transactions, opt => opt.MapFrom(src => src.Transactions));
+            CreateMap<Order, SimpleOrderDTO>()
+                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
+				.ForMember(dest => dest.Customer, o => o.MapFrom(src => src.Customer));
+			CreateMap<Customer, SimpleCustomerDTO>();
+
 
             CreateMap<Ticket, SimpleTicketDTO>()
                 .ForMember(dest => dest.IsCheckIn, opt => opt.MapFrom(src => src.IsCheckIn.ToString()));
