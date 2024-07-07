@@ -10,7 +10,6 @@ namespace Events.Utils
     {
         public enum EventStatus
         {
-            Planning,
             Pending,
             Ongoing,
             Completed,

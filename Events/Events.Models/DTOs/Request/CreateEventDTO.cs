@@ -38,9 +38,6 @@ namespace Events.Models.DTOs.Request
 
 
         [Required]
-        public string EventStatus { get; set; }
-
-        [Required]
         public int OwnerId { get; set; }
 
         public int? SubjectId { get; set; }
