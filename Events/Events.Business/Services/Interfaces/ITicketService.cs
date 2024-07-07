@@ -13,7 +13,7 @@ namespace Events.Business.Services.Interfaces
 {
     public interface ITicketService
     {
-		Task<IEnumerable<TicketDTO>> GetTicketFilter(int accountId = 1, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null);
+		Task<IEnumerable<SimpleTicketDTO>> GetTicketFilter(int accountId = 1, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null);
         Task<BaseResponse> GetTicketById(string ticketId);
   }
 }

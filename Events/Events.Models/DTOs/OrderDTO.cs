@@ -28,7 +28,7 @@ namespace Events.Models.DTOs
         public string PhoneNumber { get; set; } = null!;
 
         public int CustomerId { get; set; }
-		public virtual CustomerDTO? Customer { get; set; }
+		public virtual SimpleCustomerDTO? Customer { get; set; }
 		public virtual List<SimpleTicketDTO> Tickets { get; set; } = new List<SimpleTicketDTO>();
 		public virtual List<SimpleTransactionDTO> Transactions { get; set; } = new List<SimpleTransactionDTO>();
 

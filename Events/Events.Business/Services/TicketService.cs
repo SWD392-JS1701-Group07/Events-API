@@ -30,6 +30,8 @@ namespace Events.Business.Services
 			try
 			{
 				var ticketFromDb = await _ticketRepository.GetTicketById(ticketId);
+				var ownerOfEvebt = await _accountRepository.GetAccountById(ticketFromDb.Event.Id) ?? throw new KeyNotFoundException("Owner not found");
+				ticketFromDb.Event.Owner = ownerOfEvebt;
 
 				return new BaseResponse
 				{
@@ -58,10 +60,10 @@ namespace Events.Business.Services
 			}
 		}
 
-		public async Task<IEnumerable<TicketDTO>> GetTicketFilter(int accountId = 1, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null)
+		public async Task<IEnumerable<SimpleTicketDTO>> GetTicketFilter(int accountId = 1, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null)
 		{
 			var accountFromDb = await _accountRepository.GetAccountById(accountId)??throw new KeyNotFoundException("Not found account from DB");
-			return _mapper.Map<IEnumerable<TicketDTO>>
+			return _mapper.Map<IEnumerable<SimpleTicketDTO>>
 				(await _ticketRepository.GetTicketFilter(accountFromDb, isBought, orderId, searchTern, includeProps));
 		}
 	}
