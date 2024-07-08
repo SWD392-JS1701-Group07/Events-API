@@ -25,7 +25,5 @@ namespace Events.Models.DTOs
 		public string PhoneNumber { get; set; } = null!;
 
 		public int? CustomerId { get; set; }
-
-		public virtual SimpleCustomerDTO? Customer { get; set; }
 	}
 }

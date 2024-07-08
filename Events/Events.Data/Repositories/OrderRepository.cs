@@ -40,7 +40,8 @@ namespace Events.Data.Repositories
 		public async Task<Order> GetOrderByIdAsync(string id)
 		{
 			return await _context.Orders.Include(o => o.Tickets)
-											.Include(o => o.Transactions)
+										.Include(o => o.Transactions)
+										.Include(o => o.Customer)
 											.FirstOrDefaultAsync(o => o.Id == id)
 											?? throw new KeyNotFoundException("Order not found !!");
 		}

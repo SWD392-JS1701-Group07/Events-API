@@ -30,8 +30,6 @@ namespace Events.Business.Services
 			try
 			{
 				var ticketFromDb = await _ticketRepository.GetTicketById(ticketId);
-				var ownerOfEvebt = await _accountRepository.GetAccountById(ticketFromDb.Event.Id) ?? throw new KeyNotFoundException("Owner not found");
-				ticketFromDb.Event.Owner = ownerOfEvebt;
 
 				return new BaseResponse
 				{
