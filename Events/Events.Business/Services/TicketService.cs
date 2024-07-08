@@ -6,6 +6,7 @@ using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
 using Events.Models.Models;
+using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 
 namespace Events.Business.Services
@@ -14,15 +15,15 @@ namespace Events.Business.Services
 	{
 		private readonly ITicketRepository _ticketRepository;
 		private readonly IAccountRepository _accountRepository;
+		private readonly ICustomerRepository _customerRepository;
 		private readonly IMapper _mapper;
-		public TicketService(ITicketRepository ticketRepository,
-			IMapper mapper,
-			IAccountRepository accountRepository)
-		{
-			_ticketRepository = ticketRepository;
-			_mapper = mapper;
-			_accountRepository = accountRepository;
 
+		public TicketService(ITicketRepository ticketRepository, IAccountRepository accountRepository, ICustomerRepository customerRepository, IMapper mapper)
+		{
+			_ticketRepository=ticketRepository;
+			_accountRepository=accountRepository;
+			_customerRepository=customerRepository;
+			_mapper=mapper;
 		}
 
 		public async Task<BaseResponse> GetTicketById(string ticketId)
@@ -58,11 +59,52 @@ namespace Events.Business.Services
 			}
 		}
 
-		public async Task<IEnumerable<SimpleTicketDTO>> GetTicketFilter(int accountId = 1, bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null)
+		public async Task<BaseResponse> GetTicketFilter(string email = "john@example.com", bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null)
 		{
-			var accountFromDb = await _accountRepository.GetAccountById(accountId)??throw new KeyNotFoundException("Not found account from DB");
-			return _mapper.Map<IEnumerable<SimpleTicketDTO>>
-				(await _ticketRepository.GetTicketFilter(accountFromDb, isBought, orderId, searchTern, includeProps));
+			try
+			{
+				var accountFromDb = await _accountRepository.GetAccountByEmail(email);
+				if (accountFromDb == null)
+				{
+					return new BaseResponse
+					{
+						StatusCode = StatusCodes.Status404NotFound,
+						IsSuccess = false,
+						Message = "Account not found!!"
+					};
+				}
+				int? customerId = null;
+				if (accountFromDb.RoleId != 1 && accountFromDb.RoleId != 4)
+				{
+					customerId = (await _customerRepository.GetCustomerByEmail(email)).Id;
+				}
+				var tickets = await _ticketRepository.GetTicketFilter(accountFromDb, customerId, isBought, orderId, searchTern, includeProps);
+				if(!tickets.Any())
+				{
+					return new BaseResponse
+					{
+						IsSuccess = false,
+						StatusCode = StatusCodes.Status404NotFound,
+						Message = "Not found any ticket !!",
+					};
+				}
+				return new BaseResponse
+				{
+					IsSuccess = true,
+					StatusCode = StatusCodes.Status200OK,
+					Message = "Get ticket succesfull !!",
+					Data = _mapper.Map<IEnumerable<SimpleTicketDTO>>(tickets)
+				};
+			}
+			catch (Exception ex)
+			{
+				return new BaseResponse
+				{
+					StatusCode = StatusCodes.Status500InternalServerError,
+					IsSuccess = false,
+					Message = ex.Message
+				};
+			}
 		}
 	}
 }

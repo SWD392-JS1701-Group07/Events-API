@@ -46,7 +46,7 @@ namespace Events.Data.Repositories
 										 .FirstOrDefaultAsync(t => t.Id == ticketId) ?? throw new KeyNotFoundException("Ticket not found");
 		}
 
-		public async Task<IEnumerable<Ticket>> GetTicketFilter(Account account, bool? isBought = null, string? orderId = null,
+		public async Task<IEnumerable<Ticket>> GetTicketFilter(Account account, int? customerId, bool? isBought = null, string? orderId = null,
 																string? searchTern = null, string? includeProps = null)
 		{
 			IQueryable<Ticket> query = _context.Tickets;
@@ -57,14 +57,18 @@ namespace Events.Data.Repositories
 					query = query.Include(includePro);
 				}
 			}
-			var roleName = account.Role.Name;
-			if (string.Equals(roleName, "Visistor", StringComparison.OrdinalIgnoreCase))
+			if (account.RoleId == 2)
 			{
-				query = query.Where(t => t.Orders != null && t.Orders.CustomerId.Equals(account.Id));
+				query = query.Where(t => t.Orders != null && t.Orders.CustomerId.Equals(customerId));
 			}
-			else if (string.Equals(roleName, "Event operator", StringComparison.OrdinalIgnoreCase))
+			else if (account.RoleId == 5)
 			{
 				query = query.Where(t => t.Event != null && t.Event.OwnerId.Equals(account.Id));
+			}
+			else if(account.RoleId == 1 || account.RoleId == 4) { }
+			else
+			{
+				return new List<Ticket>();
 			}
 			if (!string.IsNullOrEmpty(searchTern))
 			{

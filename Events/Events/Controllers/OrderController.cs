@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Events.Business.Services;
 using Events.Business.Services.Interfaces;
 using Events.Data.Repositories.Interfaces;
 using Events.Models.DTOs;
@@ -79,6 +80,15 @@ namespace Events.API.Controllers
 		public async Task<IActionResult> GetOrderById([FromRoute] string id) 
 		{
 			var response = await _orderService.GetOrderByOrderId(id);
+			return StatusCode(response.StatusCode, response);
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetAllOrder([FromQuery] bool? isBought = null,
+													[FromQuery] string? searchTerm = null,
+													[FromQuery] string email = "john@example.com")
+		{
+			var response = await _orderService.GetOrderFilter(email, isBought, searchTerm, includeProps: "Customer,Tickets,Transactions");
 			return StatusCode(response.StatusCode, response);
 		}
 	}
