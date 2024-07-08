@@ -11,6 +11,9 @@ namespace Events.Models.DTOs.Request
 	public class CreateOrderRequest
 	{
 		public string OrderNotes { get; set; } = string.Empty;
+		[Required(ErrorMessage = "Name is required")]
+		[RegularExpression(RegexBase.SingleSpaceCharacterRegex, ErrorMessage = $"Name {RegexBase.ErrorMessageSingleSpaceCharacterRegex}")]
+		public string Name { get; set; } = string.Empty;
 		[Required(ErrorMessage = "Email is required")]
 		[EmailAddress(ErrorMessage = "Invalid Email Address")]
 		public string Email { get; set; } = string.Empty;
@@ -20,7 +23,6 @@ namespace Events.Models.DTOs.Request
 		[Required(ErrorMessage = "TotalAmount is required")]
 		[RegularExpression(RegexBase.MustNumberRegex, ErrorMessage = "TotalAmount must be a number")]
 		public double TotalAmount { get; set; }
-		public int? CustomerId { get; set; }
 		public List<TicketDetail> Tickets { get; set; } = new List<TicketDetail>();
 	}
 	public class TicketDetail

@@ -59,12 +59,12 @@ namespace Events.Business.Services
 		{
 			try
 			{
-				//check ticket exist
 				var validationResponse = await ValidateRequest(request);
 				if (!validationResponse.IsSuccess)
 				{
 					return validationResponse;
 				}
+
 				//Get total price from db
 				var totalPriceFromDb = await _eventService.GetTotalPriceTicketOfEvent(request.Tickets);
 				if (request.TotalAmount != totalPriceFromDb)
@@ -80,9 +80,20 @@ namespace Events.Business.Services
 				{
 					try
 					{
+						// create customer record
+						var customer = new Customer
+						{
+							Name = request.Name,
+							PhoneNumber = request.PhoneNumber,
+							Email = request.Email,
+						};
+						await _customerRepository.CreateCustomer(customer);
+
+						// create order record
 						var orderEntity = _mapper.Map<Order>(request);
 						orderEntity.Id = Guid.NewGuid().ToString();
 						orderEntity.OrderDate = DateTime.Now;
+						orderEntity.CustomerId = customer.Id;
 						orderEntity.OrderStatus = request.TotalAmount == 0 ? OrderStatus.Success : OrderStatus.Failed;
 						await _orderRepository.CreateOrders(orderEntity);
 						// Loop for list of ticket in request
@@ -412,6 +423,11 @@ namespace Events.Business.Services
 						errors.Add(key, $"Not found Event with event id '{ticketDetail.EventId}'");
 					}
 				}
+			}
+			var customerExist = await _customerRepository.CheckCustomerExist(request.Email, request.PhoneNumber);
+			if(customerExist)
+			{
+				errors.Add($"{request.Email}-{request.PhoneNumber}", $"A customer with email '{request.Email}' and phone number '{request.PhoneNumber}' already exists");
 			}
 			if (errors.Count!=0)
 			{

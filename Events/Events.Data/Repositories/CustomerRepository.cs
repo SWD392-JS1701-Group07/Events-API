@@ -23,6 +23,8 @@ namespace Events.Data.Repositories
             return customer != null;
         }
 
+
+
         public async Task<bool> CreateCustomer(Customer customer)
         {
             var result = await _context.Customers.AddAsync(customer);

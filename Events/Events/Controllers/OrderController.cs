@@ -76,14 +76,14 @@ namespace Events.API.Controllers
 			return Redirect(url);
         }
 
-		[HttpGet("{id}", Name = nameof(GetOrderById))]
+		[HttpGet("orders/{id}", Name = nameof(GetOrderById))]
 		public async Task<IActionResult> GetOrderById([FromRoute] string id) 
 		{
 			var response = await _orderService.GetOrderByOrderId(id);
 			return StatusCode(response.StatusCode, response);
 		}
 
-		[HttpGet]
+		[HttpGet("/orders")]
 		public async Task<IActionResult> GetAllOrder([FromQuery] bool? isBought = null,
 													[FromQuery] string? searchTerm = null,
 													[FromQuery] string email = "john@example.com")
