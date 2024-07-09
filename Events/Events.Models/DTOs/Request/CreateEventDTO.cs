@@ -15,10 +15,6 @@ namespace Events.Models.DTOs.Request
         public string Name { get; set; } = null!;
 
         [Required]
-        public string Place { get; set; } = null!;
-
-
-        [Required]
         public DateTime StartSellDate { get; set; }
 
         [Required]
@@ -32,7 +28,7 @@ namespace Events.Models.DTOs.Request
         [Range(0, int.MaxValue)]
         public int Quantity { get; set; }
 
-        public string? AvatarUrl { get; set; }
+  //      public IFormFile? AvatarUrl { get; set; }
 
         public string? Description { get; set; }
 

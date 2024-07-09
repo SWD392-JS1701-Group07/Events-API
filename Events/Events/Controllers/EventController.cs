@@ -41,7 +41,7 @@ namespace Events.API.Controllers
       //  [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDTO createEventDTO)
+        public async Task<IActionResult> CreateEvent([FromForm] CreateEventDTO createEventDTO, IFormFile? avatarFile)
         {
             if (!ModelState.IsValid)
             {
@@ -49,7 +49,7 @@ namespace Events.API.Controllers
             }
 
             // Create the event
-            var response = await _eventService.CreateEvent(createEventDTO);
+            var response = await _eventService.CreateEvent(createEventDTO, avatarFile);
 
             if (!response.IsSuccess)
             {
@@ -138,7 +138,7 @@ namespace Events.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateEventDetails(int id, [FromBody] CreateEventDTO updateEventDTO)
+        public async Task<IActionResult> UpdateEventDetails(int id, [FromForm] CreateEventDTO updateEventDTO, IFormFile? avatarFile)
         {
             if (!ModelState.IsValid)
             {
@@ -153,7 +153,7 @@ namespace Events.API.Controllers
 
             try
             {
-                await _eventService.UpdateEventDetails(id, updateEventDTO);
+                await _eventService.UpdateEventDetails(id, updateEventDTO, avatarFile);
             }
             catch (KeyNotFoundException)
             {

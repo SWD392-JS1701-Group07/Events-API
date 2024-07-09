@@ -18,6 +18,8 @@ using Events.Utils.Helper;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Events.Utils.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Events.Business.Services
 {
@@ -30,6 +32,7 @@ namespace Events.Business.Services
         private readonly IAccountRepository _accountRepository;
         private readonly ISubjectRepository _subjectRepository;
         private readonly ICollaboratorRepository _collaboratorRepository;
+        private readonly CloudinaryHelper _cloudinaryHelper;
         private readonly IMapper _mapper;
 
         public EventService(
@@ -40,6 +43,7 @@ namespace Events.Business.Services
             IAccountRepository accountRepository,
             ISubjectRepository subjectRepository,
             ICollaboratorRepository collaboratorRepository,
+            CloudinaryHelper cloudinaryHelper,
             IMapper mapper)
         {
             _eventRepository = eventRepository;
@@ -49,6 +53,7 @@ namespace Events.Business.Services
             _accountRepository = accountRepository;
             _subjectRepository = subjectRepository;
             _collaboratorRepository = collaboratorRepository;
+            _cloudinaryHelper = cloudinaryHelper;
             _mapper = mapper;
         }
 
@@ -85,7 +90,7 @@ namespace Events.Business.Services
             return result;
         }
 
-        public async Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO)
+        public async Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO, IFormFile? avatarFile)
         {
             // Check if ScheduleList is not empty
             if (createEventDTO.ScheduleList == null || !createEventDTO.ScheduleList.Any())
@@ -112,6 +117,16 @@ namespace Events.Business.Services
             // Map the DTO to the Event entity
             var newEvent = _mapper.Map<Event>(createEventDTO);
             newEvent.Remaining = createEventDTO.Quantity;
+
+            if (avatarFile != null)
+            {
+                var imageUrl = await _cloudinaryHelper.UploadImageAsync(avatarFile);
+                newEvent.AvatarUrl = imageUrl;
+            }
+            else
+            {
+                newEvent.AvatarUrl = null;
+            }
 
             // Set the EventStatus to Pending
             newEvent.EventStatus = EventStatus.Pending;
@@ -158,7 +173,6 @@ namespace Events.Business.Services
                     };
                 }
             }
-
             // Add the event to the repository and save changes to generate EventId
             await _eventRepository.Add(newEvent);
 
@@ -315,7 +329,7 @@ namespace Events.Business.Services
             }
         }
 
-        public async Task UpdateEventDetails(int id, CreateEventDTO updateEventDTO)
+        public async Task UpdateEventDetails(int id, CreateEventDTO updateEventDTO, IFormFile? avatarFile)
         {
             var eventEntity = await _eventRepository.GetEventById(id);
             if (eventEntity == null)
@@ -323,9 +337,24 @@ namespace Events.Business.Services
                 throw new KeyNotFoundException("Event not found");
             }
 
-            // Use AutoMapper or similar tool to map properties from DTO to entity
-            _mapper.Map(updateEventDTO, eventEntity);
-            eventEntity.Id = id; // Ensure the ID is set correctly
+            eventEntity.Name = updateEventDTO.Name;
+            eventEntity.StartSellDate = updateEventDTO.StartSellDate;
+            eventEntity.EndSellDate = updateEventDTO.EndSellDate;
+            eventEntity.Price = updateEventDTO.Price;
+            eventEntity.Quantity = updateEventDTO.Quantity;
+            eventEntity.Description = updateEventDTO.Description;
+
+            if (avatarFile != null)
+            {
+
+                if (!string.IsNullOrEmpty(eventEntity.AvatarUrl))
+                {
+                    await _cloudinaryHelper.DeleteImageAsync(eventEntity.AvatarUrl);
+                }
+
+                var imageUrl = await _cloudinaryHelper.UploadImageAsync(avatarFile);
+                eventEntity.AvatarUrl = imageUrl;
+            }
 
             await _eventRepository.UpdateEvent(eventEntity);
         }
