@@ -1,4 +1,3 @@
-
 using AutoMapper;
 using Events.Business.Services.Interfaces;
 using Events.Data.Repositories.Interfaces;
