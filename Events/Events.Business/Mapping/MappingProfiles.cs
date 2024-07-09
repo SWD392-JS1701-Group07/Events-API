@@ -58,10 +58,10 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
                 .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets))
                 .ForMember(dest => dest.Transactions, opt => opt.MapFrom(src => src.Transactions));
-            CreateMap<Order, SimpleOrderDTO>()
-                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
-				.ForMember(dest => dest.Customer, o => o.MapFrom(src => src.Customer));
-			CreateMap<Customer, SimpleCustomerDTO>();
+       //     CreateMap<Order, SimpleOrderDTO>()
+        //        .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
+		//		.ForMember(dest => dest.Customer, o => o.MapFrom(src => src.Customer));
+		//	CreateMap<Customer, SimpleCustomerDTO>();
 
 
             CreateMap<Ticket, SimpleTicketDTO>()

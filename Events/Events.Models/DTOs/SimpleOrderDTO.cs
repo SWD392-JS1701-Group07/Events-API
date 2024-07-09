@@ -26,6 +26,6 @@ namespace Events.Models.DTOs
 
 		public int? CustomerId { get; set; }
 
-		public virtual SimpleCustomerDTO? Customer { get; set; }
+	//	public virtual SimpleCustomerDTO? Customer { get; set; }
 	}
 }
