@@ -58,11 +58,9 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
                 .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets))
                 .ForMember(dest => dest.Transactions, opt => opt.MapFrom(src => src.Transactions));
-       //     CreateMap<Order, SimpleOrderDTO>()
-        //        .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()))
-		//		.ForMember(dest => dest.Customer, o => o.MapFrom(src => src.Customer));
-		//	CreateMap<Customer, SimpleCustomerDTO>();
 
+            CreateMap<Order, SimpleOrderDTO>()
+                .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => src.OrderStatus.ToString()));
 
             CreateMap<Ticket, SimpleTicketDTO>()
                 .ForMember(dest => dest.IsCheckIn, opt => opt.MapFrom(src => src.IsCheckIn.ToString()));
@@ -78,6 +76,7 @@ namespace Events.Business.Mapping
 			//             .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.OrderDate)));
 
 			CreateMap<Customer, CustomerDTO>().ReverseMap();
+            CreateMap<Customer, SimpleCustomerDTO>();
             CreateMap<UpdateCustomerDTO, Customer>();
 
             CreateMap<Sponsorship, SponsorshipDTO>().ReverseMap();

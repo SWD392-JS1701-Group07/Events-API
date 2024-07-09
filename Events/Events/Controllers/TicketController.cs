@@ -22,22 +22,23 @@ namespace Events.API.Controllers
 		public async Task<IActionResult> GetAllTicket([FromQuery] bool? isBought = null,
 													[FromQuery] string? searchTerm = null,
 													[FromQuery] string? orderId = null,
-													[FromQuery] int accountId = 1)
+													[FromQuery] string email = "john@example.com")
 		{
-			var ticketDtos = await _ticketService.GetTicketFilter(accountId, isBought, orderId: orderId, searchTerm, includeProps: "Orders,Event");
-			return !ticketDtos.Any()
-				? NotFound(new BaseResponse
-				{
-					StatusCode = StatusCodes.Status404NotFound,
-					Message = "Not found any Ticket !!!",
-					IsSuccess = false
-				})
-				: Ok(new BaseResponse	
-				{
-					StatusCode = StatusCodes.Status200OK,
-					Data = ticketDtos,
-					IsSuccess = true
-				});
+			var response = await _ticketService.GetTicketFilter(email, isBought, orderId: orderId, searchTerm, includeProps: "Orders,Event");
+			return StatusCode(response.StatusCode, response);
+			//return !ticketDtos.Any()
+			//	? NotFound(new BaseResponse
+			//	{
+			//		StatusCode = StatusCodes.Status404NotFound,
+			//		Message = "Not found any Ticket !!!",
+			//		IsSuccess = false
+			//	})
+			//	: Ok(new BaseResponse	
+			//	{
+			//		StatusCode = StatusCodes.Status200OK,
+			//		Data = ticketDtos,
+			//		IsSuccess = true
+			//	});
 		}
 
 		[HttpGet("{id}", Name = nameof(GetTicketById))]

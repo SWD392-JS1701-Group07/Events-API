@@ -33,11 +33,13 @@ namespace Events.Business.Services
 		private readonly IVNPayPaymentService _vnPayPaymentService;
 		private readonly IMapper _mapper;
 		private readonly EventsDbContext _dbContext;
+		private readonly ICustomerRepository _customerRepository;
 		private readonly ITransactionRepository _transactionRepository;
+		private readonly IAccountRepository _accountRepository;
 		private readonly EmailHelper _emailHelper;
 		private readonly QrHelper _qrHelper;
 
-		public OrderService(IOrderRepository orderRepository, ITicketRepository ticketRepository, ITicketService ticketService, IEventService eventService, IVNPayPaymentService vnPayPaymentService, IMapper mapper, EventsDbContext dbContext, ITransactionRepository transactionRepository, EmailHelper emailHelper, QrHelper qrHelper)
+		public OrderService(IOrderRepository orderRepository, ITicketRepository ticketRepository, ITicketService ticketService, IEventService eventService, IVNPayPaymentService vnPayPaymentService, IMapper mapper, EventsDbContext dbContext, ICustomerRepository customerRepository, ITransactionRepository transactionRepository, IAccountRepository accountRepository, EmailHelper emailHelper, QrHelper qrHelper)
 		{
 			_orderRepository=orderRepository;
 			_ticketRepository=ticketRepository;
@@ -46,7 +48,9 @@ namespace Events.Business.Services
 			_vnPayPaymentService=vnPayPaymentService;
 			_mapper=mapper;
 			_dbContext=dbContext;
+			_customerRepository=customerRepository;
 			_transactionRepository=transactionRepository;
+			_accountRepository=accountRepository;
 			_emailHelper=emailHelper;
 			_qrHelper=qrHelper;
 		}
@@ -55,12 +59,12 @@ namespace Events.Business.Services
 		{
 			try
 			{
-				//check ticket exist
 				var validationResponse = await ValidateRequest(request);
 				if (!validationResponse.IsSuccess)
 				{
 					return validationResponse;
 				}
+
 				//Get total price from db
 				var totalPriceFromDb = await _eventService.GetTotalPriceTicketOfEvent(request.Tickets);
 				if (request.TotalAmount != totalPriceFromDb)
@@ -76,9 +80,20 @@ namespace Events.Business.Services
 				{
 					try
 					{
+						// create customer record
+						var customer = new Customer
+						{
+							Name = request.Name,
+							PhoneNumber = request.PhoneNumber,
+							Email = request.Email,
+						};
+						await _customerRepository.CreateCustomer(customer);
+
+						// create order record
 						var orderEntity = _mapper.Map<Order>(request);
 						orderEntity.Id = Guid.NewGuid().ToString();
 						orderEntity.OrderDate = DateTime.Now;
+						orderEntity.CustomerId = customer.Id;
 						orderEntity.OrderStatus = request.TotalAmount == 0 ? OrderStatus.Success : OrderStatus.Failed;
 						await _orderRepository.CreateOrders(orderEntity);
 						// Loop for list of ticket in request
@@ -181,6 +196,66 @@ namespace Events.Business.Services
 			}
 		}
 
+		public async Task<BaseResponse> GetOrderFilter(string email = "john@example.com", bool? isBought = null, string? searchTern = null, string? includeProps = null)
+		{
+			try
+			{
+				//var accountFromDb = await _accountRepository.GetAccountById(accountId)??throw new KeyNotFoundException("Not found account");
+				var accountFromDb = await _accountRepository.GetAccountByEmail(email);
+				if (accountFromDb == null)
+				{
+					return new BaseResponse
+					{
+						StatusCode = StatusCodes.Status404NotFound,
+						IsSuccess = false,
+						Message = "Account not found!!"
+					};
+				}
+				int? customerId = null;
+				if (accountFromDb.RoleId != 1 && accountFromDb.RoleId != 4)
+				{
+					customerId = (await _customerRepository.GetCustomerByEmail(email)).Id;
+				}
+
+				var orderDto = await _orderRepository.GetAllOrdersFitlter(accountFromDb, customerId, isBought, searchTern, includeProps);
+				if(!orderDto.Any())
+				{
+					return new BaseResponse
+					{
+						StatusCode = StatusCodes.Status404NotFound,
+						IsSuccess = false,
+						Message = "Not found any order"
+					};
+				}
+				return new BaseResponse
+				{
+					StatusCode = StatusCodes.Status200OK,
+					IsSuccess = true,
+					Data = _mapper.Map<IEnumerable<SimpleOrderDTO>>
+							(orderDto)
+				};
+
+			}
+			catch (KeyNotFoundException ex)
+			{
+				return new BaseResponse
+				{
+					IsSuccess = false,
+					StatusCode = StatusCodes.Status404NotFound,
+					Message = ex.Message,
+				};
+			}
+			catch (Exception ex)
+			{
+				return new BaseResponse
+				{
+					IsSuccess = false,
+					StatusCode= StatusCodes.Status500InternalServerError,
+					Message = ex.Message,
+				};
+			}
+		}
+
 		public async Task<BaseResponse> HandlePaymentCallback(IQueryCollection query)
 		{
 			try
@@ -217,22 +292,25 @@ namespace Events.Business.Services
 										orderFromDb.OrderStatus = OrderStatus.Success;
 										await _orderRepository.UpdateOrderStatusAsync(orderFromDb);
 
-										var ticketBought = await _ticketService.GetTicketFilter(isBought: true, orderId: orderFromDb.Id, includeProps: "Orders");
-										if (ticketBought.Any())
+										var responseTicketBought = await _ticketService.GetTicketFilter(isBought: true, orderId: orderFromDb.Id, includeProps: "Orders");
+										if(responseTicketBought.IsSuccess)
 										{
-											var eventTicketQuantities = ticketBought
+											var ticketBought = responseTicketBought.Data as IEnumerable<SimpleTicketDTO>;
+											if(ticketBought!.Any())
+											{
+												var eventTicketQuantities = ticketBought!
 													.GroupBy(ticket => ticket.EventId)
 													.ToDictionary(group => group.Key, group => group.Count());
-
-											bool isSuccess = await _eventService.UpdateTicketQuantity(eventTicketQuantities);
-											if (!isSuccess)
-											{
-												return new BaseResponse
+												bool isSuccess = await _eventService.UpdateTicketQuantity(eventTicketQuantities);
+												if (!isSuccess)
 												{
-													StatusCode = StatusCodes.Status500InternalServerError,
-													Message = "There was an error when updating ticket quantities!!",
-													IsSuccess = false
-												};
+													return new BaseResponse
+													{
+														StatusCode = StatusCodes.Status500InternalServerError,
+														Message = "There was an error when updating ticket quantities!!",
+														IsSuccess = false
+													};
+												}
 											}
 										}
 										await transactionDb.CommitAsync();
@@ -345,6 +423,11 @@ namespace Events.Business.Services
 						errors.Add(key, $"Not found Event with event id '{ticketDetail.EventId}'");
 					}
 				}
+			}
+			var customerExist = await _customerRepository.CheckCustomerExist(request.Email, request.PhoneNumber);
+			if(customerExist)
+			{
+				errors.Add($"{request.Email}-{request.PhoneNumber}", $"A customer with email '{request.Email}' and phone number '{request.PhoneNumber}' already exists");
 			}
 			if (errors.Count!=0)
 			{

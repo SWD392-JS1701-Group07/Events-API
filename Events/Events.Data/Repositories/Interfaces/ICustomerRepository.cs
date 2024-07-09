@@ -10,7 +10,7 @@ namespace Events.Data.Repositories.Interfaces
     public interface ICustomerRepository
     {
         Task<bool> CheckCustomerExist(string email, string phoneNumber);
-        Task<bool> CreateCustomer(Customer customer);
+		Task<bool> CreateCustomer(Customer customer);
         Task<Customer> GetCustomerByEmail(string email);
         Task<Customer> GetCustomerByPhoneNumber(string phoneNumber);
         Task<List<Customer>> GetAllCustomersAsync();
