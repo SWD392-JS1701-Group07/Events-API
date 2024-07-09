@@ -49,7 +49,9 @@ namespace Events.Business.Services
                 AccountId = c.AccountId,
                 EventId = c.EventId,
                 EventName = c.Event.Name,
-                CollabStatus = c.CollabStatus.ToString() 
+                CollabStatus = c.CollabStatus.ToString(),
+                Task = c.Task,
+                Description = c.Description
             }).ToList();
         }
 
@@ -69,7 +71,9 @@ namespace Events.Business.Services
                 AccountId = c.AccountId,
                 EventId = c.EventId,
                 EventName = c.Event.Name, 
-                CollabStatus = c.CollabStatus.ToString()
+                CollabStatus = c.CollabStatus.ToString(),
+                Task = c.Task,
+                Description = c.Description
             }).ToList();
         }
 
@@ -158,7 +162,7 @@ namespace Events.Business.Services
                 return null;
             }
 
-            collaborator.CollabStatus = Enums.CollaboratorStatus.Completed;
+            collaborator.CollabStatus = Enums.CollaboratorStatus.Rejected;
             await _collaboratorRepository.UpdateAsync(collaborator);
 
             return new CollaboratorDTO
@@ -323,7 +327,9 @@ namespace Events.Business.Services
                                     AccountId = c.AccountId,
                                     EventId = c.EventId,
                                     EventName = e.Name,
-                                    CollabStatus = c.CollabStatus.ToString()
+                                    CollabStatus = c.CollabStatus.ToString(),
+                                    Task = c.Task,
+                                    Description = c.Description
                                 });
                             }                            
                         }

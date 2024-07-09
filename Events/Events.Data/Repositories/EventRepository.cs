@@ -89,11 +89,8 @@ namespace Events.Data.Repositories
             var local = _context.Set<Event>().Local.FirstOrDefault(entry => entry.Id.Equals(eventEntity.Id));
             if (local != null)
             {
-                // Detach the local instance if it exists
                 _context.Entry(local).State = EntityState.Detached;
             }
-
-            // Update the entity
             _context.Events.Update(eventEntity);
             await _context.SaveChangesAsync();
         }

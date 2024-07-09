@@ -44,26 +44,41 @@ namespace Events.Utils.Helpers
             }
         }
 
-		public async Task<string> UploadImageForQrCodeAsync(Stream imageStream, string fileName)
-		{
-			var uploadParams = new ImageUploadParams()
-			{
-				File = new FileDescription(fileName, imageStream)
-			};
+        public async Task<string> UploadImageForQrCodeAsync(Stream imageStream, string fileName)
+        {
+            var uploadParams = new ImageUploadParams()
+            {
+                File = new FileDescription(fileName, imageStream)
+            };
 
-			var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
-			if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
-			{
-				return uploadResult.Url.ToString();
-			}
-			else
-			{
-				throw new Exception(uploadResult.Error.Message);
-			}
-		}
-	}
+            if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return uploadResult.Url.ToString();
+            }
+            else
+            {
+                throw new Exception(uploadResult.Error.Message);
+            }
+        }
 
+        public async Task<bool> DeleteImageAsync(string publicId)
+        {
+            var deletionParams = new DeletionParams(publicId);
+
+            var result = await _cloudinary.DestroyAsync(deletionParams);
+
+            if (result.StatusCode == System.Net.HttpStatusCode.OK && result.Result == "Ok")
+            {
+                return true;
+            }
+            else
+            {
+                throw new Exception(result.Error.Message);
+            }
+        }
+    }
 
     public class CloudinarySettings
     {

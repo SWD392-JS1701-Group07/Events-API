@@ -16,7 +16,6 @@ namespace Events.Models.DTOs
         public string EventName { get; set; }
         public string CollabStatus { get; set; }
         public string? Task { get; set; }
-
         public string? Description { get; set; }
     }
 }

@@ -390,12 +390,14 @@ namespace Events.Business.Services
 
                 if (avatarFile != null)
                 {
+
+                    if (!string.IsNullOrEmpty(account.AvatarUrl))
+                    {
+                        await _cloudinaryHelper.DeleteImageAsync(account.AvatarUrl);
+                    }
+
                     var imageUrl = await _cloudinaryHelper.UploadImageAsync(avatarFile);
                     account.AvatarUrl = imageUrl;
-                }
-                else
-                {
-                    account.AvatarUrl = account.AvatarUrl;
                 }
 
                 account.SubjectId = updateProfile.SubjectId;
