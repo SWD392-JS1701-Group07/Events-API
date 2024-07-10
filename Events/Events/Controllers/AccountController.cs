@@ -21,7 +21,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
-      //  [Authorize(Roles ="1")]
+        [Authorize(Roles ="1")]
         public async Task<IActionResult> GetAllAccounts()
         {
             var accounts = await _accountService.GetAllAccounts();
@@ -48,7 +48,7 @@ namespace Events.API.Controllers
         }
 
         [HttpPost]
-      //  [Authorize(Roles = "1")]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> CreateAccount([FromBody] CreateAccountDTO account)
         {
             var accountCreate = await _accountService.CreateAccount(account);

@@ -38,10 +38,10 @@ namespace Events.API.Controllers
             }
         }
         [HttpPost]
-      //  [Authorize(Roles = "5")]
+        [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateEvent([FromForm] CreateEventDTO createEventDTO, IFormFile? avatarFile)
+        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDTO createEventDTO, IFormFile? avatarFile)
         {
             if (!ModelState.IsValid)
             {
@@ -66,7 +66,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPatch("events/{id}/approve")]
-        // [Authorize(Roles = "4")]
+        [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateEventStatusToOngoing(int id)
@@ -108,7 +108,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPatch("events/{id}/reject")]
-        // [Authorize(Roles = "4")]
+        [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateEventStatusToRejected(int id)
@@ -125,7 +125,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("needing-approval")]
-      //  [Authorize(Roles = "4")]
+        [Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetEventsNeedingApproval()
         {   
@@ -134,7 +134,7 @@ namespace Events.API.Controllers
             return Ok(events);
         }
         [HttpPut("{id}/update-details")]
-      //  [Authorize(Roles = "5")]
+        [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -168,7 +168,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-         [Authorize(Roles = "5")]
+        [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteEvent(int id)
@@ -246,6 +246,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("collaborators/{id}")]
+        [Authorize(Roles = "2,3,45")]
         public async Task<IActionResult> GetEventByCollaboratorsId(int id)
         {
             var eventExist = await _eventService.GetEventByCollaboratorId(id);

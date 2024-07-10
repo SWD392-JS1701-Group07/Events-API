@@ -31,10 +31,19 @@ namespace Events.Data.Repositories
             return await _context.Accounts.FirstOrDefaultAsync(e => e.Email == email);
         }
 
-        public async Task<bool> CreateAccount(Account account)
+        public async Task<Account> CreateAccount(Account account)
         {
-            _context.Accounts.AddAsync(account);
-            return await _context.SaveChangesAsync() > 0;   
+            await _context.Accounts.AddAsync(account);
+            var result = await _context.SaveChangesAsync();
+
+            if (result > 0)
+            {
+                return account;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Account> GetAccount(string username, string password)

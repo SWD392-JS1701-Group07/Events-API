@@ -20,6 +20,7 @@ using System.Security.Claims;
 using System.Text;
 using Events.Utils.Helpers;
 using Events.Utils;
+using static Events.Utils.Helpers.CloudinaryHelper;
 
 var builder = WebApplication.CreateBuilder(args);
 
