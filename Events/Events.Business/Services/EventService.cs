@@ -59,7 +59,7 @@ namespace Events.Business.Services
 
         public async Task<List<EventDTO>> GetAllEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var events = await _eventRepository.GetAllEvents(searchTerm, sortColumn, sortOrder, 1, 10);
+            var events = await _eventRepository.GetAllEvents(searchTerm, sortColumn, sortOrder, page, pageSize);
 
             List<EventDTO> result = new List<EventDTO>();
 

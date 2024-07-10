@@ -37,7 +37,7 @@ namespace Events.Data.Repositories
                     "quantity" => e => e.Quantity,
                     "startselldate" => e => e.StartSellDate,
                     "endselldate" => e => e.EndSellDate,
-                    _ => e => e.Id, // Default sorting
+                    _ => e => e.Id, 
                 };
 
                 eventQuery = sortOrder.ToLower() switch

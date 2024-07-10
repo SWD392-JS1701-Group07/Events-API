@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Events.Models;
 using Events.Utils;
+using System.Linq.Expressions;
 
 namespace Events.Data.Repositories
 {
@@ -20,9 +21,38 @@ namespace Events.Data.Repositories
             _context = eventsDbContext;
         }
 
-        public async Task<IEnumerable<Collaborator>> GetAllCollaboratorsAsync()
+        public async Task<IEnumerable<Collaborator>> GetAllCollaboratorsAsync(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            return await _context.Collaborators.Include(c => c.Event).ToListAsync();
+            IQueryable<Collaborator> query = _context.Collaborators.Include(c => c.Event).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(p => p.Event.Name.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortColumn) && !string.IsNullOrWhiteSpace(sortOrder))
+            {
+                Expression<Func<Collaborator, object>> keySelector = sortColumn switch
+                {
+                    "eventName" => e => e.Event.Name,
+                    _ => e => e.Id,
+                };
+
+                query = sortOrder.ToLower() switch
+                {
+                    "asc" => query.OrderBy(keySelector),
+                    "desc" => query.OrderByDescending(keySelector),
+                    _ => query.OrderBy(keySelector)
+                };
+            }
+            else
+            {
+                query = query.OrderBy(e => e.Id);
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var events = await query.ToListAsync();
+            return events;
         }
 
 
@@ -77,9 +107,38 @@ namespace Events.Data.Repositories
             return eventList;
         }
 
-        public async Task<List<Collaborator>> GetAllCollaboratorsByEventId(int id)
+        public async Task<List<Collaborator>> GetAllCollaboratorsByEventId(int id, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            return await _context.Collaborators.Where(e => e.EventId == id).ToListAsync();
+            IQueryable<Collaborator> query = _context.Collaborators.Where(e => e.EventId == id).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(p => p.Event.Name.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortColumn) && !string.IsNullOrWhiteSpace(sortOrder))
+            {
+                Expression<Func<Collaborator, object>> keySelector = sortColumn switch
+                {
+                    "eventName" => e => e.Event.Name,
+                    _ => e => e.Id,
+                };
+
+                query = sortOrder.ToLower() switch
+                {
+                    "asc" => query.OrderBy(keySelector),
+                    "desc" => query.OrderByDescending(keySelector),
+                    _ => query.OrderBy(keySelector)
+                };
+            }
+            else
+            {
+                query = query.OrderBy(e => e.Id);
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var events = await query.ToListAsync();
+            return events;
         }
 
         public async Task<Collaborator> GetCollaboratorByEventAndAccount(int eventId, int accountId)
