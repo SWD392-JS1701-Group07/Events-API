@@ -33,6 +33,7 @@ namespace Events.Utils.Helpers
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+       
 
             if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -63,27 +64,74 @@ namespace Events.Utils.Helpers
             }
         }
 
+        public async Task<bool> ImageExistsAsync(string imageUrl)
+        {
+            try
+            {
+                var publicId = ExtractPublicIdFromUrl(imageUrl);
+                if (string.IsNullOrEmpty(publicId))
+                {
+                    return false;
+                }
+
+                var getResult = await _cloudinary.GetResourceAsync(new GetResourceParams(publicId));
+                return getResult.StatusCode == System.Net.HttpStatusCode.OK;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> DeleteImageAsync(string publicId)
         {
-            var deletionParams = new DeletionParams(publicId);
-
-            var result = await _cloudinary.DestroyAsync(deletionParams);
-
-            if (result.StatusCode == System.Net.HttpStatusCode.OK && result.Result == "Ok")
+            if (await ImageExistsAsync(publicId))
             {
-                return true;
+                var deletionParams = new DeletionParams(publicId);
+                var result = await _cloudinary.DestroyAsync(deletionParams);
+
+                if (result.StatusCode == System.Net.HttpStatusCode.OK && result.Result == "ok")
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new Exception(result.Error.Message);
+                }
             }
             else
             {
-                throw new Exception(result.Error.Message);
+                return false;
             }
         }
-    }
 
-    public class CloudinarySettings
-    {
-        public string CloudName { get; set; }
-        public string ApiKey { get; set; }
-        public string ApiSecret { get; set; }
+        private string ExtractPublicIdFromUrl(string url)
+        {
+            try
+            {
+                var uri = new Uri(url);
+                var pathSegments = uri.AbsolutePath.Split('/');
+
+                if (pathSegments.Length > 2 && pathSegments.Contains("upload"))
+                {
+                    var index = Array.IndexOf(pathSegments, "upload");
+                    var publicIdWithFormat = pathSegments[index + 1]; 
+                    var publicId = publicIdWithFormat.Substring(0, publicIdWithFormat.LastIndexOf('.'));
+                    return publicId;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public class CloudinarySettings
+        {
+            public string CloudName { get; set; }
+            public string ApiKey { get; set; }
+            public string ApiSecret { get; set; }
+        }
     }
 }

@@ -27,11 +27,7 @@ namespace Events.Models.DTOs.Request
         [Required]
         [Range(0, int.MaxValue)]
         public int Quantity { get; set; }
-
-  //      public IFormFile? AvatarUrl { get; set; }
-
         public string? Description { get; set; }
-
 
         [Required]
         public int OwnerId { get; set; }

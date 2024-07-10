@@ -13,7 +13,7 @@ namespace Events.Data.Repositories.Interfaces
         Task<List<Account>> GetAllAccounts();
         Task<Account> GetAccountById(int id);
         Task<List<Account>> GetAccountByRole(int roleId);
-        Task<bool> CreateAccount(Account account);
+        Task<Account> CreateAccount(Account account);
         Task<bool> RegisterAccount(Account account);
         Task<bool> BanAccount(int id);
         Task<bool> UpdateAccount(Account account);

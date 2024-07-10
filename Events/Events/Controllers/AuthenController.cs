@@ -49,12 +49,21 @@ namespace Events.API.Controllers
 
         [HttpPost("logout")]
         [Authorize]
-        public async Task<IActionResult> Logout([FromHeader(Name = "Authorization")] string authorizationHeader)
+        public Task<IActionResult> Logout([FromHeader(Name = "Authorization")] string authorizationHeader)
         {
+            if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+            {
+                return Task.FromResult<IActionResult>(BadRequest(new { message = "Invalid authorization header" }));
+            }
+
             string token = authorizationHeader.Substring("Bearer ".Length).Trim();
+
             JWTGenerator.InvalidateToken(token);
-            return Ok(new { message = "Logout successfully" });
+
+            return Task.FromResult<IActionResult>(Ok(new { message = "Logout successfully" }));
         }
+
+
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterAccountDTO registerAccount)

@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Hosting;
 using static Events.Utils.Enums;
 using Events.Utils.Helpers;
 using Microsoft.AspNetCore.Http;
+using Events.Utils;
+using System.Text.RegularExpressions;
 
 namespace Events.Business.Services
 {
@@ -28,7 +30,11 @@ namespace Events.Business.Services
         private readonly EmailHelper _emailHelper;
         private readonly CloudinaryHelper _cloudinaryHelper;
 
-        public AccountService(IAccountRepository accountRepository, IMapper mapper, ISponsorRepository sponsorRepository, EmailHelper emailHelper, CloudinaryHelper cloudinaryHelper)
+        public AccountService(IAccountRepository accountRepository, 
+            IMapper mapper, 
+            ISponsorRepository sponsorRepository, 
+            EmailHelper emailHelper, 
+            CloudinaryHelper cloudinaryHelper)
         {
             _accountRepository = accountRepository;
             _mapper = mapper;
@@ -86,91 +92,128 @@ namespace Events.Business.Services
 
         public async Task<BaseResponse> CreateAccount(CreateAccountDTO createAccountDTO)
         {
-            var email = await _accountRepository.GetAccountByEmail(createAccountDTO.Email);
-            var phoneNumber = await _accountRepository.GetAccountByPhoneNumber(createAccountDTO.PhoneNumber);
-            var username = await _accountRepository.GetAccountByUsername(createAccountDTO.Username);
-
-            if (email != null)
+            if (!Regex.IsMatch(createAccountDTO.PhoneNumber, RegexBase.PhoneNumberRegex))
             {
                 return new BaseResponse
                 {
-                    StatusCode = 400,
+                    StatusCode = 500,
                     Data = null,
                     IsSuccess = false,
-                    Message = "This email is already existed"
+                    Message = "The phone number is not in a correct format"
                 };
             }
-            else if (phoneNumber != null)
+            else if (!Regex.IsMatch(createAccountDTO.Email, RegexBase.GmailRegex))
             {
                 return new BaseResponse
                 {
-                    StatusCode = 400,
+                    StatusCode = 500,
                     Data = null,
                     IsSuccess = false,
-                    Message = "This phone number is already existed"
-                };
-            }
-            else if (username != null)
-            {
-                return new BaseResponse
-                {
-                    StatusCode = 400,
-                    Data = null,
-                    IsSuccess = false,
-                    Message = "This username is already existed"
+                    Message = "The email is not in a correct format"
                 };
             }
             else
             {
-                string examplePassword;
-                if(createAccountDTO.Password == null)
-                {
-                    examplePassword = GenerateRandomPassword(8);
-                }
-                else
-                {
-                    examplePassword = createAccountDTO.Password;
-                }
+                var email = await _accountRepository.GetAccountByEmail(createAccountDTO.Email);
+                var phoneNumber = await _accountRepository.GetAccountByPhoneNumber(createAccountDTO.PhoneNumber);
+                var username = await _accountRepository.GetAccountByUsername(createAccountDTO.Username);
 
-                var account = new AccountDTO
-                {
-                    Name = createAccountDTO.Name,
-                    Email = createAccountDTO.Email,
-                    Username = createAccountDTO.Username,
-                    Password = examplePassword,
-                    StudentId = createAccountDTO.StudentId,
-                    PhoneNumber = createAccountDTO.PhoneNumber,
-                    Dob = createAccountDTO.Dob,
-                    Gender = createAccountDTO.Gender,
-                    AvatarUrl = createAccountDTO.AvatarUrl,
-                    AccountStatus = "Active",
-                    RoleId = createAccountDTO.RoleId,
-                    SubjectId = createAccountDTO.SubjectId
-                };
-
-                _emailHelper.SendEmailToNewAccount(createAccountDTO.Email, createAccountDTO.Username, examplePassword);
-
-                var accountCreate =  await _accountRepository.CreateAccount(_mapper.Map<Account>(account));
-
-                if(accountCreate)
-                {
-                    return new BaseResponse
-                    {
-                        StatusCode = 200,
-                        Data = account,
-                        IsSuccess = true,
-                        Message = "Craeted successfully"
-                    };
-                }
-                else
+                if (email != null)
                 {
                     return new BaseResponse
                     {
                         StatusCode = 500,
                         Data = null,
                         IsSuccess = false,
-                        Message = "Something went wrong"
+                        Message = "This email is already existed"
                     };
+                }
+                else if (phoneNumber != null)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 500,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "This phone number is already existed"
+                    };
+                }
+                else if (username != null)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 400,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "This username is already existed"
+                    };
+                }
+                else
+                {
+                    string examplePassword;
+                    if (createAccountDTO.Password == null)
+                    {
+                        examplePassword = GenerateRandomPassword(8);
+                    }
+                    else
+                    {
+                        examplePassword = createAccountDTO.Password;
+                    }
+
+                    var account = new AccountDTO
+                    {
+                        Name = createAccountDTO.Name,
+                        Email = createAccountDTO.Email,
+                        Username = createAccountDTO.Username,
+                        Password = examplePassword,
+                        StudentId = createAccountDTO.StudentId,
+                        PhoneNumber = createAccountDTO.PhoneNumber,
+                        Dob = createAccountDTO.Dob,
+                        Gender = createAccountDTO.Gender,
+                        AvatarUrl = createAccountDTO.AvatarUrl,
+                        AccountStatus = "Active",
+                        RoleId = createAccountDTO.RoleId,
+                        SubjectId = createAccountDTO.SubjectId
+                    };
+
+                    _emailHelper.SendEmailToNewAccount(createAccountDTO.Email, createAccountDTO.Username, examplePassword);
+
+                    var accountCreate = await _accountRepository.CreateAccount(_mapper.Map<Account>(account));
+
+                    if (accountCreate != null)
+                    {
+                        if (createAccountDTO.RoleId == 3)
+                        {
+                            Sponsor sponsor = new Sponsor
+                            {
+                                Name = createAccountDTO.Name,
+                                Email = createAccountDTO.Email,
+                                PhoneNumber = createAccountDTO.PhoneNumber,
+                                AvatarUrl = null,
+                                AccountId = accountCreate.Id
+                            };
+
+                            await _sponsorRepository.AddSponsorAsync(sponsor);
+                        }
+
+                        return new BaseResponse
+                        {
+                            StatusCode = 200,
+                            Data = accountCreate,
+                            IsSuccess = true,
+                            Message = "Created successfully"
+                        };
+                    }
+                    else
+                    {
+                        return new BaseResponse
+                        {
+                            StatusCode = 500,
+                            Data = null,
+                            IsSuccess = false,
+                            Message = "Something went wrong"
+                        };
+                    }
                 }
             }
         }
@@ -376,7 +419,7 @@ namespace Events.Business.Services
                     StatusCode = 404,
                     Data = null,
                     IsSuccess = false,
-                    Message = "Can;t found this account"
+                    Message = "Can't found this account"
                 };
             }
             else
@@ -391,10 +434,14 @@ namespace Events.Business.Services
                 if (avatarFile != null)
                 {
 
-                    if (!string.IsNullOrEmpty(account.AvatarUrl))
+                /*    if (!string.IsNullOrEmpty(account.AvatarUrl))
                     {
-                        await _cloudinaryHelper.DeleteImageAsync(account.AvatarUrl);
-                    }
+                        var imageExists = await _cloudinaryHelper.ImageExistsAsync(account.AvatarUrl);
+                        if (imageExists)
+                        {
+                            await _cloudinaryHelper.DeleteImageAsync(account.AvatarUrl);
+                        }
+                    } */
 
                     var imageUrl = await _cloudinaryHelper.UploadImageAsync(avatarFile);
                     account.AvatarUrl = imageUrl;
@@ -413,12 +460,25 @@ namespace Events.Business.Services
                         IsSuccess = false
                     };
                 }
-                return new BaseResponse
+                else
                 {
-                    StatusCode = 200,
-                    IsSuccess = true,
-                    Data = _mapper.Map<AccountDTO>(account)
-                };
+                    if (account.RoleId == 3)
+                    {
+                        var sponsorEntity = await _sponsorRepository.GetSponsorByEmailAsync(account.Email);
+                        sponsorEntity.Name = account.Name;
+                        sponsorEntity.Email = account.Email;
+                        sponsorEntity.PhoneNumber = account.PhoneNumber;
+                        sponsorEntity.AvatarUrl = account.AvatarUrl;
+                        await _sponsorRepository.UpdateSponsorAsync(sponsorEntity);
+                    }
+
+                    return new BaseResponse
+                    {
+                        StatusCode = 200,
+                        IsSuccess = true,
+                        Data = _mapper.Map<AccountDTO>(account)
+                    };
+                }
             }
         }
 
