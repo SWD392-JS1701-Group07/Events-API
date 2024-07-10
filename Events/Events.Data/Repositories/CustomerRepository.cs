@@ -19,7 +19,7 @@ namespace Events.Data.Repositories
         }
         public async Task<bool> CheckCustomerExist(string email, string phoneNumber)
         {
-            var customer = await _context.Customers.FirstOrDefaultAsync(e => e.Email == email && e.PhoneNumber == phoneNumber);
+            var customer = await _context.Customers.FirstOrDefaultAsync(e => e.Email == email || e.PhoneNumber == phoneNumber);
             return customer != null;
         }
 
