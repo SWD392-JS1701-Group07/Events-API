@@ -25,9 +25,9 @@ namespace Events.Data.Repositories
 
 		public async Task<bool> CheckTicketExist(string email, string phoneNumber, int eventId)
 		{
-			var existingTicket = await _context.Tickets
-			.AnyAsync(t => t.Email == email
-						&& t.PhoneNumber == phoneNumber
+			var existingTicket = await _context.Tickets.Include(t => t.Orders)
+			.AnyAsync(t => (t.Email == email
+						|| t.PhoneNumber == phoneNumber)
 						&& t.EventId == eventId
 						&& t.Orders.OrderStatus == Enums.OrderStatus.Success);
 

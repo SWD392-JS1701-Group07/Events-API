@@ -80,20 +80,31 @@ namespace Events.Business.Services
 				{
 					try
 					{
-						// create customer record
-						var customer = new Customer
+						// Check if customer already exists
+						var customerExist = await _customerRepository.CheckCustomerExist(request.Email, request.PhoneNumber);
+						Customer customer;
+						if(customerExist)
 						{
-							Name = request.Name,
-							PhoneNumber = request.PhoneNumber,
-							Email = request.Email,
-						};
-						await _customerRepository.CreateCustomer(customer);
+							customer = await _customerRepository.GetCustomerByEmail(request.Email);
+						}
+						else
+						{
+							customer = new Customer
+							{
+								Name = request.Name,
+								PhoneNumber = request.PhoneNumber,
+								Email = request.Email,
+							};
+							await _customerRepository.CreateCustomer(customer);
+						}
 
 						// create order record
 						var orderEntity = _mapper.Map<Order>(request);
 						orderEntity.Id = Guid.NewGuid().ToString();
 						orderEntity.OrderDate = DateTime.Now;
 						orderEntity.CustomerId = customer.Id;
+						orderEntity.Email = customer.Email;
+						orderEntity.PhoneNumber = customer.PhoneNumber;
 						orderEntity.OrderStatus = request.TotalAmount == 0 ? OrderStatus.Success : OrderStatus.Failed;
 						await _orderRepository.CreateOrders(orderEntity);
 						// Loop for list of ticket in request
@@ -411,7 +422,7 @@ namespace Events.Business.Services
 					var key = $"{ticketDetail.Email}-{ticketDetail.PhoneNumber}";
 					if (!errors.ContainsKey(key))
 					{
-						errors.Add(key, $"A ticket with phone number '{ticketDetail.PhoneNumber}' and email '{ticketDetail.Email}' already exists for event '{ticketDetail.EventId}'");
+						errors.Add(key, $"A ticket with either phone number '{ticketDetail.PhoneNumber}' or email '{ticketDetail.Email}' already exists for event '{ticketDetail.EventId}'");
 					}
 				}
 				var eventResponse = await _eventService.GetEventById(ticketDetail.EventId);
@@ -423,11 +434,6 @@ namespace Events.Business.Services
 						errors.Add(key, $"Not found Event with event id '{ticketDetail.EventId}'");
 					}
 				}
-			}
-			var customerExist = await _customerRepository.CheckCustomerExist(request.Email, request.PhoneNumber);
-			if(customerExist)
-			{
-				errors.Add($"{request.Email}-{request.PhoneNumber}", $"A customer with email '{request.Email}' and phone number '{request.PhoneNumber}' already exists");
 			}
 			if (errors.Count!=0)
 			{

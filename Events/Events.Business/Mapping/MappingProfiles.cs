@@ -95,9 +95,11 @@ namespace Events.Business.Mapping
             CreateMap<CreateOrderRequest, Order>()
                 .ForMember(dest => dest.Notes, otp => otp.MapFrom(src => src.OrderNotes))
                 .ForMember(dest => dest.TotalPrice, otp => otp.MapFrom(src => src.TotalAmount))
-                .ForMember(dest => dest.Tickets, otp => otp.Ignore());
+                .ForMember(dest => dest.Tickets, otp => otp.Ignore())
+                .ForMember(dest => dest.Email, opt => opt.Ignore())
+                .ForMember(dest => dest.PhoneNumber, opt => opt.Ignore());
 
-            CreateMap<TicketDetail, Ticket>();
+			CreateMap<TicketDetail, Ticket>();
 
             CreateMap<PaymentResponseModel, Transaction>()
                 .ForMember(dest => dest.Description, otp => otp.MapFrom(src => src.OrderDescription))
