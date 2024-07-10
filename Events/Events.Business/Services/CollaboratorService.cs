@@ -39,9 +39,9 @@ namespace Events.Business.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CollaboratorDTO>> GetAllCollaborators()
+        public async Task<IEnumerable<CollaboratorDTO>> GetAllCollaborators(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var collaborators = await _collaboratorRepository.GetAllCollaboratorsAsync();
+            var collaborators = await _collaboratorRepository.GetAllCollaboratorsAsync(searchTerm, sortColumn, sortOrder, page, pageSize);
             return collaborators.Select(c => new CollaboratorDTO
             {
                 Id = c.Id,
@@ -197,7 +197,8 @@ namespace Events.Business.Services
             };
         }
 
-        public async Task<BaseResponse> GetAllCollaboratorsByEventId(int id)
+        public async Task<BaseResponse> GetAllCollaboratorsByEventId(int id, string? searchTerm, string? sortColumn, 
+                                                                        string? sortOrder, int page, int pageSize)
         {
             var eventEntity = await _eventRepository.GetEventByIdAsync(id);
 
@@ -214,7 +215,7 @@ namespace Events.Business.Services
             else
             {
                 List<CollaboratorsResponseDTO> accountList = new List<CollaboratorsResponseDTO>();
-                var accountIdList = await _collaboratorRepository.GetAllCollaboratorsByEventId(id);
+                var accountIdList = await _collaboratorRepository.GetAllCollaboratorsByEventId(id, searchTerm, sortColumn, sortOrder, page, pageSize);
                 foreach(var e in accountIdList)
                 {
                     var account = await _accountRepository.GetAccountById(e.AccountId);
@@ -315,7 +316,7 @@ namespace Events.Business.Services
                 {
                     foreach (var e in eventId)
                     {
-                        var collaborator = await _collaboratorRepository.GetAllCollaboratorsByEventId(e.Id);
+                        var collaborator = await _collaboratorRepository.GetAllCollaboratorsByEventId(e.Id, null, null, null, 10, 10);
                         if (collaborator != null)
                         {
                             foreach(var c in collaborator)

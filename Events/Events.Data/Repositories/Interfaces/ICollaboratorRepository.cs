@@ -11,14 +11,14 @@ namespace Events.Data.Repositories.Interfaces
 {
     public interface ICollaboratorRepository
     {
-        Task<IEnumerable<Collaborator>> GetAllCollaboratorsAsync();
+        Task<IEnumerable<Collaborator>> GetAllCollaboratorsAsync(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<Collaborator> GetCollaboratorById(int id);
         Task<IEnumerable<Collaborator>> SearchCollaborators(int? accountId, int? eventId, Enums.CollaboratorStatus? collabStatus);
         Task<Collaborator> AddAsync(Collaborator collaborator);
         Task<Collaborator> GetByIdAsync(int id);
         Task UpdateAsync(Collaborator collaborator);
         Task<List<int>> GetAllEventIdByCollaboratorId(int id);
-        Task<List<Collaborator>> GetAllCollaboratorsByEventId(int id);
+        Task<List<Collaborator>> GetAllCollaboratorsByEventId(int id, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
 
         Task<Collaborator> GetCollaboratorByEventAndAccount(int eventId, int accountId);
         Task<List<Event>> GetEventsByCollaboratorAccount(int accountId);

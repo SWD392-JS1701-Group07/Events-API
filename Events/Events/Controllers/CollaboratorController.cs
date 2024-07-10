@@ -26,9 +26,9 @@ namespace Events.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "2, 4, 5")]
-        public async Task<IActionResult> GetAllCollaborators()
+        public async Task<IActionResult> GetAllCollaborators([FromQuery] string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var collaborators = await _collaboratorService.GetAllCollaborators();
+            var collaborators = await _collaboratorService.GetAllCollaborators(searchTerm, sortColumn, sortOrder, page, pageSize);
             return Ok(collaborators);
         }
 
@@ -124,9 +124,9 @@ namespace Events.API.Controllers
         /// <returns></returns>
         [HttpGet("{id}/event")]
         [Authorize(Roles = "2, 4, 5")]
-        public async Task<IActionResult> GetAllCollaboratorsByEvent(int id)
+        public async Task<IActionResult> GetAllCollaboratorsByEvent(int id, [FromQuery] string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var collaboratorList = await _collaboratorService.GetAllCollaboratorsByEventId(id);
+            var collaboratorList = await _collaboratorService.GetAllCollaboratorsByEventId(id, searchTerm, sortColumn, sortOrder, page, pageSize);
             return StatusCode(collaboratorList.StatusCode, collaboratorList);
         }
 
