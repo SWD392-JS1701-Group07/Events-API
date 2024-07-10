@@ -5,6 +5,7 @@ using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
 using Events.Models.Models;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -130,6 +131,73 @@ namespace Events.Business.Services
                     IsSuccess = true,
                     Message = "Return successfully"
                 };
+            }  
+        }
+
+        public async Task<BaseResponse> UpdateSponsorship(int id, CreateSponsorshipDTO createSponsorshipDTO)
+        {
+            if (createSponsorshipDTO.Title.Trim().IsNullOrEmpty())
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "The title can't be empty"
+                };
+            } else if (createSponsorshipDTO.Type.Trim().IsNullOrEmpty())
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "The type can't be empty"
+                };
+            }
+            else
+            {
+                var sponsorshipExist = await _sponsorshipRepository.GetSponsorshipById(id);
+                if (sponsorshipExist == null)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 404,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "Unfound"
+                    };
+                }
+                else
+                {
+                    sponsorshipExist.Title = createSponsorshipDTO.Title;
+                    sponsorshipExist.Sum = createSponsorshipDTO.Sum;
+                    sponsorshipExist.Description = createSponsorshipDTO.Description;
+                    sponsorshipExist.Type = createSponsorshipDTO.Type;
+
+                    var result = await _sponsorshipRepository.UpdateSponsorship(sponsorshipExist);
+
+                    if (result)
+                    {
+                        return new BaseResponse
+                        {
+                            StatusCode = 200,
+                            Data = null,
+                            IsSuccess = true,
+                            Message = "Updated successfully"
+                        };
+                    }
+                    else
+                    {
+                        return new BaseResponse
+                        {
+                            StatusCode = 500,
+                            Data = null,
+                            IsSuccess = true,
+                            Message = "Something went wrong"
+                        };
+                    }
+                }
             }  
         }
     }

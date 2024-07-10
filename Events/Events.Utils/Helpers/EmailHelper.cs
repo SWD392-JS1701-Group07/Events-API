@@ -27,7 +27,7 @@ namespace Events.Utils.Helpers
 
             using var smtp = new SmtpClient();
             smtp.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-            smtp.Authenticate("happycodingmice@gmail.com", "hlif fept gogz uihx");
+            smtp.Authenticate("vngo6790@gmail.com", "zsty sdbt azoc guoz");
             smtp.Send(email);
             smtp.Disconnect(true);
         }

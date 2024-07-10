@@ -98,5 +98,9 @@ namespace Events.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Sponsor> GetSponsorByAccountId(int id)
+        {
+            return await _context.Sponsors.FirstOrDefaultAsync(e => e.AccountId == id);
+        }
     }
 }
