@@ -101,15 +101,15 @@ namespace Events.Data.Repositories
         {
             return await _context.Accounts.Where(e => e.RoleId == roleId).ToListAsync();
         }
-
-        public async
-            
-            
-            
-            Task<bool> RegisterAccount(Account account)
+        public async Task<bool> RegisterAccount(Account account)
         {
             _context.Accounts.AddAsync(account);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Account> GetAccountByStudentId(string studentId)
+        {
+            return await _context.Accounts.FirstOrDefaultAsync(e => e.StudentId == studentId);
         }
     }
 }

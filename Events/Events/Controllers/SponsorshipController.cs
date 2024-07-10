@@ -1,5 +1,6 @@
 ﻿using Events.Business.Services.Interfaces;
 using Events.Models.DTOs.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -34,9 +35,18 @@ namespace Events.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "3, 5")]
         public async Task<IActionResult> CreateSponsorship(CreateSponsorshipDTO createSponsorshipDTO)
         {
             var result = await _sponsorshipService.CreateSponsorship(createSponsorshipDTO);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "3, 5")]
+        public async Task<IActionResult> UpdateSponsorship(int id, [FromBody] CreateSponsorshipDTO createSponsorshipDTO)
+        {
+            var result = await _sponsorshipService.UpdateSponsorship(id, createSponsorshipDTO);
             return StatusCode(result.StatusCode, result);
         }
     }

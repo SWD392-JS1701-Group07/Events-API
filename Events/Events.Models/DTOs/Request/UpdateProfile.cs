@@ -9,12 +9,12 @@ namespace Events.Models.DTOs.Request
 {
     public class UpdateProfile
     {
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string? PhoneNumber { get; set; }
+        public string Name { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!;
         public string? StudentId { get; set; }
         public DateTime Dob { get; set; }
-        public string Gender { get; set; }
+        public string Gender { get; set; } = null!;
         public int? SubjectId { get; set; }
     }
 }
