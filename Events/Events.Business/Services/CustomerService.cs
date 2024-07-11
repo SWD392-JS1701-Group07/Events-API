@@ -5,6 +5,7 @@ using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
 using Events.Models.Models;
+using Events.Utils.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +43,21 @@ namespace Events.Business.Services
                 return false;
             }
 
+            // Validate that no properties contain only whitespace
+            ValidationUtils.ValidateNoWhitespaceOnly(updateCustomerDto);
+
+            // Check if email is in a valid format
+            if (!ValidationUtils.IsValidEmail(updateCustomerDto.Email))
+            {
+                throw new Exception("Invalid email format.");
+            }
+
+            // Check if phone number contains only digits
+            if (!ValidationUtils.IsPhoneNumber(updateCustomerDto.PhoneNumber))
+            {
+                throw new Exception("Phone number should contain only digits.");
+            }
+
             var existingCustomerByEmail = await _customerRepository.GetCustomerByEmail(updateCustomerDto.Email);
             if (existingCustomerByEmail != null && existingCustomerByEmail.Id != id)
             {
@@ -69,20 +85,34 @@ namespace Events.Business.Services
         }
         public async Task<CustomerDTO> CreateCustomerAsync(UpdateCustomerDTO createCustomerDto)
         {
-            var existingCustomerByEmail = await _customerRepository.GetCustomerByEmail(createCustomerDto.Email);
-            if (existingCustomerByEmail != null)
+            // Validate that no properties contain only whitespace
+            ValidationUtils.ValidateNoWhitespaceOnly(createCustomerDto);
+
+            // Check if email is in a valid format
+            if (!ValidationUtils.IsValidEmail(createCustomerDto.Email))
             {
-                throw new Exception("Email is already in use.");
+                throw new Exception("Invalid email format.");
             }
 
-            var existingCustomerByPhone = await _customerRepository.GetCustomerByPhoneNumber(createCustomerDto.PhoneNumber);
-            if (existingCustomerByPhone != null)
+            // Check if phone number contains only digits
+            if (!ValidationUtils.IsPhoneNumber(createCustomerDto.PhoneNumber))
             {
-                throw new Exception("Phone number is already in use.");
+                throw new Exception("Phone number should contain only digits.");
+            }
+
+            var customerExists = await _customerRepository.CheckCustomerExist(createCustomerDto.Email, createCustomerDto.PhoneNumber);
+            if (customerExists)
+            {
+                throw new Exception("Email or phone number is already in use.");
             }
 
             var customer = _mapper.Map<Customer>(createCustomerDto);
-            await _customerRepository.CreateCustomer(customer);
+            var createResult = await _customerRepository.CreateCustomer(customer);
+
+            if (!createResult)
+            {
+                throw new Exception("Failed to create customer.");
+            }
 
             return _mapper.Map<CustomerDTO>(customer);
         }

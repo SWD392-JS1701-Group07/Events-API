@@ -38,10 +38,10 @@ namespace Events.API.Controllers
             }
         }
         [HttpPost]
-        [Authorize(Roles = "5")]
+      //  [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDTO createEventDTO, IFormFile? avatarFile)
+        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDTO createEventDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -49,7 +49,7 @@ namespace Events.API.Controllers
             }
 
             // Create the event
-            var response = await _eventService.CreateEvent(createEventDTO, avatarFile);
+            var response = await _eventService.CreateEvent(createEventDTO);
 
             if (!response.IsSuccess)
             {
