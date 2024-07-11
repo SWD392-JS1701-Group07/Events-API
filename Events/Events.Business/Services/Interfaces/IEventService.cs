@@ -16,10 +16,10 @@ namespace Events.Business.Services.Interfaces
     public interface IEventService
     {
         Task<List<EventDTO>> GetAllEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
-        Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO, IFormFile? avatarFile);
+        Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO);
         Task<BaseResponse> GetEventById(int id);
         Task UpdateStatus(int id, EventStatus newStatus);
-        Task UpdateEventDetails(int id, CreateEventDTO updateEventDTO, IFormFile? avatarFile);
+        Task<BaseResponse> UpdateEventDetails(int id, CreateEventDTO updateEventDTO, IFormFile? avatarFile);
         Task<List<EventDTO>> GetEventsByStatus(EventStatus status);
         Task DeleteEvent(int id);
         Task<IEnumerable<EventDTO>> SearchEventsByNameAsync(string eventName);
