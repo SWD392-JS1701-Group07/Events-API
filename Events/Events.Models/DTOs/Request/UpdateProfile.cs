@@ -10,7 +10,6 @@ namespace Events.Models.DTOs.Request
     public class UpdateProfile
     {
         public string Name { get; set; } = null!;
-        public string Email { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string? StudentId { get; set; }
         public DateTime Dob { get; set; }

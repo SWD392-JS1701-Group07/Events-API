@@ -22,9 +22,9 @@ namespace Events.API.Controllers
 
         [HttpGet]
         [Authorize(Roles ="1")]
-        public async Task<IActionResult> GetAllAccounts()
+        public async Task<IActionResult> GetAllAccounts([FromQuery] string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var accounts = await _accountService.GetAllAccounts();
+            var accounts = await _accountService.GetAllAccounts(searchTerm, sortColumn, sortOrder, page, pageSize);
 
             return StatusCode(accounts.StatusCode, accounts);
         }

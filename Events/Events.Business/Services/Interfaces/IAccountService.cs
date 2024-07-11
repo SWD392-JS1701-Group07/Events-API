@@ -14,7 +14,7 @@ namespace Events.Business.Services.Interfaces
     public interface IAccountService
     {
         Task<AccountDTO> CheckLogin(string username, string password);
-        Task<BaseResponse> GetAllAccounts();
+        Task<BaseResponse> GetAllAccounts(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<BaseResponse> GetAccountById(int id);
         Task<BaseResponse> GetAccountByRole(int roleId, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<BaseResponse> CreateAccount(CreateAccountDTO createAccountDTO);
