@@ -15,6 +15,7 @@ namespace Events.Data.Repositories.Interfaces
         Task<bool> AddSponsorAsync(Sponsor sponsor);
         Task<bool> DeleteSponsorAsync(Sponsor sponsor);
         Task<Sponsor> GetSponsorByEmailAsync(string email);
+        Task<Sponsor> GetSponsorByPhoneNumberAsync(string phoneNumber);
         Task<Sponsor> GetSponsorByAccountId(int id);
         Task<int> SaveChangesAsync();
         Task DeleteSponsorsWithNullAccountIdAsync();

@@ -89,6 +89,45 @@ namespace Events.Business.Services
             }
         }
 
+        public async Task<BaseResponse> DeleteSponsorship(int id)
+        {
+            var sponsorships = await _sponsorshipRepository.GetSponsorshipById(id);
+            if(sponsorships == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "Sponsorship unfound"
+                };
+            }
+            else
+            {
+                var result = await _sponsorshipRepository.DeleteSponsorship(id);
+                if (result)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 200,
+                        Data = null,
+                        IsSuccess = true,
+                        Message = "Delete successfully"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 500,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "Something went wrong"
+                    };
+                }
+            }
+        }
+
         public async Task<BaseResponse> GetAllSponsorship()
         {
             var sponsorships = await _sponsorshipRepository.GetAllSponsorships();
