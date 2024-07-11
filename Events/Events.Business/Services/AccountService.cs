@@ -276,9 +276,9 @@ namespace Events.Business.Services
             }
         }
 
-        public async Task<BaseResponse> GetAccountByRole(int roleId)
+        public async Task<BaseResponse> GetAccountByRole(int roleId, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var accounts = await _accountRepository.GetAccountByRole(roleId);
+            var accounts = await _accountRepository.GetAccountByRole(roleId, searchTerm, sortColumn, sortOrder, page, pageSize);
 
             var results = _mapper.Map<List<AccountDTO>>(accounts);
 

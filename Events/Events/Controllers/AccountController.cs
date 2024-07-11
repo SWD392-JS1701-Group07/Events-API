@@ -40,9 +40,9 @@ namespace Events.API.Controllers
 
         [HttpGet("role/{id}")]
         [Authorize(Roles = "1")]
-        public async Task<IActionResult> GetAccountByRoleId(int id)
+        public async Task<IActionResult> GetAccountByRoleId(int id, [FromQuery] string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var account = await _accountService.GetAccountByRole(id);
+            var account = await _accountService.GetAccountByRole(id, searchTerm, sortColumn, sortOrder, page, pageSize);
 
             return StatusCode(account.StatusCode, account);
         }
