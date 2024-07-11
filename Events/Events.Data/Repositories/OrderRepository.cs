@@ -60,8 +60,12 @@ namespace Events.Data.Repositories
 			return await query.ToListAsync();
 		}
 
+        public async Task<List<Order>> GetOrderByCustomerId(int customerId)
+        {
+            return await _context.Orders.Where(e => e.CustomerId == customerId).ToListAsync();
+        }
 
-		public async Task<Order> GetOrderByIdAsync(string id)
+        public async Task<Order> GetOrderByIdAsync(string id)
 		{
 			return await _context.Orders.Include(o => o.Tickets)
 										.Include(o => o.Transactions)

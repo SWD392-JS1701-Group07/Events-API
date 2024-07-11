@@ -46,7 +46,12 @@ namespace Events.Data.Repositories
 										 .FirstOrDefaultAsync(t => t.Id == ticketId) ?? throw new KeyNotFoundException("Ticket not found");
 		}
 
-		public async Task<IEnumerable<Ticket>> GetTicketFilter(Account account, int? customerId, bool? isBought = null, string? orderId = null,
+        public async Task<IEnumerable<Ticket>> GetTicketByOrderId(string id)
+        {
+            return await _context.Tickets.Where(e => e.OrdersId == id).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Ticket>> GetTicketFilter(Account account, int? customerId, bool? isBought = null, string? orderId = null,
 																string? searchTern = null, string? includeProps = null)
 		{
 			IQueryable<Ticket> query = _context.Tickets;
@@ -103,5 +108,18 @@ namespace Events.Data.Repositories
 			}
 			return await query.ToListAsync();
 		}
-	}
+
+        public async Task<bool> UpdateTicket(Ticket ticket)
+        {
+            try
+            {
+                _context.Entry(ticket).State = EntityState.Modified;
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
 }

@@ -14,7 +14,6 @@ namespace Events.Models.DTOs.Request
         public string? StudentId { get; set; }
         public DateTime Dob { get; set; }
         public string Gender { get; set; } = null!;
-        public string? AvatarUrl { get; set; }
         public string AccountStatus { get; set; } = null!;
         public int? SubjectId { get; set; }
     }

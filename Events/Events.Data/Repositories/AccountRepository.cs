@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Events.Utils;
 using System.Linq.Expressions;
+using CloudinaryDotNet.Actions;
 
 namespace Events.Data.Repositories
 {
@@ -57,9 +58,39 @@ namespace Events.Data.Repositories
             return await _context.Accounts.Include(a => a.Role).FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public async Task<List<Account>> GetAllAccounts()
+        public async Task<List<Account>> GetAllAccounts(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            return await _context.Accounts.Where(e => e.AccountStatus == Enums.AccountStatus.Active).ToListAsync();
+            IQueryable<Account> query = _context.Accounts.Where(e => e.AccountStatus == Enums.AccountStatus.Active);
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(p => p.Name.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortColumn) && !string.IsNullOrWhiteSpace(sortOrder))
+            {
+                Expression<Func<Account, object>> keySelector = sortColumn switch
+                {
+                    "name" => e => e.Name,
+                    "email" => e => e.Email,
+                    _ => e => e.Id,
+                };
+
+                query = sortOrder.ToLower() switch
+                {
+                    "asc" => query.OrderBy(keySelector),
+                    "desc" => query.OrderByDescending(keySelector),
+                    _ => query.OrderBy(keySelector)
+                };
+            }
+            else
+            {
+                query = query.OrderBy(e => e.Id);
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var events = await query.ToListAsync();
+            return events;
         }
 
         public async Task<bool> BanAccount(int id)

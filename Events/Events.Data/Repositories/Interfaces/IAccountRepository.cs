@@ -10,7 +10,7 @@ namespace Events.Data.Repositories.Interfaces
     public interface IAccountRepository
     {
         Task<Account> GetAccount(string username, string password);
-        Task<List<Account>> GetAllAccounts();
+        Task<List<Account>> GetAllAccounts(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<Account> GetAccountById(int id);
         Task<List<Account>> GetAccountByRole(int roleId, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<Account> CreateAccount(Account account);
