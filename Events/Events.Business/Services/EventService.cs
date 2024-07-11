@@ -720,5 +720,46 @@ namespace Events.Business.Services
                 };
             }
         }
+
+        public async Task<BaseResponse> UploadImageForEvent(int id, IFormFile? file)
+        {
+            var eventEntity = await _eventRepository.GetEventById(id);
+            if(eventEntity == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 400,
+                    IsSuccess = true,
+                    Data = null,
+                    Message = "Event unfound"
+                };
+            }
+            else
+            {
+                if (file != null)
+                {
+                    if (!string.IsNullOrEmpty(eventEntity.AvatarUrl))
+                    {
+                        await _cloudinaryHelper.DeleteImageAsync(eventEntity.AvatarUrl);
+                    }
+
+                    var imageUrl = await _cloudinaryHelper.UploadImageAsync(file);
+                    eventEntity.AvatarUrl = imageUrl;
+                }
+                else
+                {
+                    eventEntity.AvatarUrl = eventEntity.AvatarUrl;
+                }
+
+                await _eventRepository.UpdateEvent(eventEntity);
+                return new BaseResponse
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Data = eventEntity,
+                    Message = "Upload successfully"
+                };
+            }
+        }
     }
 }

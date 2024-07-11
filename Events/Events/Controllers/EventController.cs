@@ -7,6 +7,7 @@ using Events.Models.DTOs.Request;
 using Events.Models.Models;
 using Events.Business.Services.Interfaces;
 using static Events.Utils.Enums;
+using Events.Business.Services;
 
 namespace Events.API.Controllers
 {
@@ -38,7 +39,7 @@ namespace Events.API.Controllers
             }
         }
         [HttpPost]
-      //  [Authorize(Roles = "5")]
+        [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateEvent([FromBody] CreateEventDTO createEventDTO)
@@ -59,6 +60,15 @@ namespace Events.API.Controllers
             var createdEvent = response.Data as EventDTO;
 
             return CreatedAtAction(nameof(CreateEvent), new { id = createdEvent.Id }, createdEvent);
+        }
+
+        [HttpPatch("image")]
+        [Authorize(Roles = "5")]
+        public async Task<IActionResult> UploadImageForEvent([FromForm] int id, IFormFile avatarProfile)
+        {
+            var eventCreate = await _eventService.UploadImageForEvent(id, avatarProfile);
+
+            return StatusCode(eventCreate.StatusCode, eventCreate);
         }
         /// <summary>
         /// Approve event

@@ -12,7 +12,7 @@ namespace Events.Data.Repositories.Interfaces
         Task<Account> GetAccount(string username, string password);
         Task<List<Account>> GetAllAccounts();
         Task<Account> GetAccountById(int id);
-        Task<List<Account>> GetAccountByRole(int roleId);
+        Task<List<Account>> GetAccountByRole(int roleId, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<Account> CreateAccount(Account account);
         Task<bool> RegisterAccount(Account account);
         Task<bool> BanAccount(int id);

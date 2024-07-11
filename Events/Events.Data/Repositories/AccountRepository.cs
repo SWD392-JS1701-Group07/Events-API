@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Events.Utils;
+using System.Linq.Expressions;
 
 namespace Events.Data.Repositories
 {
@@ -97,9 +98,39 @@ namespace Events.Data.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<List<Account>> GetAccountByRole(int roleId)
+        public async Task<List<Account>> GetAccountByRole(int roleId, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            return await _context.Accounts.Where(e => e.RoleId == roleId).ToListAsync();
+            IQueryable<Account> query = _context.Accounts.Where(e => e.RoleId == roleId);
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(p => p.Name.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortColumn) && !string.IsNullOrWhiteSpace(sortOrder))
+            {
+                Expression<Func<Account, object>> keySelector = sortColumn switch
+                {
+                    "name" => e => e.Name,
+                    "email" => e => e.Email,
+                    _ => e => e.Id,
+                };
+
+                query = sortOrder.ToLower() switch
+                {
+                    "asc" => query.OrderBy(keySelector),
+                    "desc" => query.OrderByDescending(keySelector),
+                    _ => query.OrderBy(keySelector)
+                };
+            }
+            else
+            {
+                query = query.OrderBy(e => e.Id);
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var events = await query.ToListAsync();
+            return events;
         }
         public async Task<bool> RegisterAccount(Account account)
         {

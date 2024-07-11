@@ -27,5 +27,6 @@ namespace Events.Business.Services.Interfaces
 		Task<double> GetTotalPriceTicketOfEvent(List<TicketDetail> tickets);
 		Task<bool> UpdateTicketQuantity(Dictionary<int, int> eventTicketQuantities);
         Task<BaseResponse> GetEventByCollaboratorId(int id);
+        Task<BaseResponse> UploadImageForEvent(int id, IFormFile? file);
 	}
 }

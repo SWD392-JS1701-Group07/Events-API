@@ -16,7 +16,7 @@ namespace Events.Business.Services.Interfaces
         Task<AccountDTO> CheckLogin(string username, string password);
         Task<BaseResponse> GetAllAccounts();
         Task<BaseResponse> GetAccountById(int id);
-        Task<BaseResponse> GetAccountByRole(int roleId);
+        Task<BaseResponse> GetAccountByRole(int roleId, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<BaseResponse> CreateAccount(CreateAccountDTO createAccountDTO);
         Task<BaseResponse> RegisterAccount(RegisterAccountDTO registerAccountDTO);
         Task<BaseResponse> BanAccount(int id);
