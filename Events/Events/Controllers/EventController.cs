@@ -144,11 +144,11 @@ namespace Events.API.Controllers
             return Ok(events);
         }
         [HttpPut("{id}/update-details")]
-        [Authorize(Roles = "5")]
+        //[Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateEventDetails(int id, [FromForm] CreateEventDTO updateEventDTO, IFormFile? avatarFile)
+        public async Task<IActionResult> UpdateEventDetails(int id, [FromBody] UpdateEventDTO updateEventDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -161,16 +161,13 @@ namespace Events.API.Controllers
                 return NotFound();
             }
 
-            try
+            var updateResult = await _eventService.UpdateEventDetails(id, updateEventDTO);
+            if (!updateResult.IsSuccess)
             {
-                await _eventService.UpdateEventDetails(id, updateEventDTO, avatarFile);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
+                return StatusCode(updateResult.StatusCode, updateResult.Message);
             }
 
-            return Ok(updateEventDTO);
+            return Ok(updateResult);
         }
         /// <summary>
         /// delete-event

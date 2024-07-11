@@ -34,6 +34,7 @@ namespace Events.Business.Services
         private readonly ISubjectRepository _subjectRepository;
         private readonly ICollaboratorRepository _collaboratorRepository;
         private readonly CloudinaryHelper _cloudinaryHelper;
+        private readonly EmailHelper _emailHelper;
         private readonly IMapper _mapper;
 
         public EventService(
@@ -45,6 +46,7 @@ namespace Events.Business.Services
             ISubjectRepository subjectRepository,
             ICollaboratorRepository collaboratorRepository,
             CloudinaryHelper cloudinaryHelper,
+            EmailHelper emailHelper,
             IMapper mapper)
         {
             _eventRepository = eventRepository;
@@ -55,6 +57,7 @@ namespace Events.Business.Services
             _subjectRepository = subjectRepository;
             _collaboratorRepository = collaboratorRepository;
             _cloudinaryHelper = cloudinaryHelper;
+            _emailHelper = emailHelper;
             _mapper = mapper;
         }
 
@@ -93,9 +96,9 @@ namespace Events.Business.Services
 
         public async Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO)
         {
-            // Check for fields that contain only whitespace
             try
             {
+                // Validate DTO for whitespace-only fields
                 ValidationUtils.ValidateNoWhitespaceOnly(createEventDTO);
             }
             catch (ArgumentException ex)
@@ -107,7 +110,6 @@ namespace Events.Business.Services
                     IsSuccess = false
                 };
             }
-            Console.WriteLine(JsonConvert.SerializeObject(createEventDTO));
 
             // Check if ScheduleList is not empty
             if (createEventDTO.ScheduleList == null || !createEventDTO.ScheduleList.Any())
@@ -258,60 +260,75 @@ namespace Events.Business.Services
                                 IsSuccess = false
                             };
                         }
-                    }
 
-                    var existingSponsor = await _sponsorRepository.GetSponsorByEmailAsync(sponsorDTO.Email);
+                        var existingAccountsByEmail = await _accountRepository.GetAccountsByEmailList(sponsorDTO.Email);
+                        var existingAccountsByPhone = await _accountRepository.GetAccountsByPhoneNumberList(sponsorDTO.PhoneNumber);
 
-                    if (existingSponsor == null)
-                    {
-                        // Check if the account already exists by email
-                        var existingAccount = await _accountRepository.GetAccountByEmail(sponsorDTO.Email);
-                        if (existingAccount == null)
+                        int accountId = 0;
+                        var matchedAccount = existingAccountsByEmail.FirstOrDefault(e => existingAccountsByPhone.Any(p => p.Id == e.Id));
+
+
+                        // Check if account exists by both email and phone
+                        if (matchedAccount != null)
                         {
-                            // Creating new account for sponsor
-                            var newAccount = new Account
-                            {
-                                Name = sponsorDTO.Email.Split('@')[0],
-                                Email = sponsorDTO.Email,
-                                Username = sponsorDTO.Email,
-                                Password = "1",
-                                PhoneNumber = sponsorDTO.PhoneNumber,
-                                Dob = DateOnly.FromDateTime(DateTime.Now),
-                                Gender = Gender.Others,
-                                AvatarUrl = null,
-                                RoleId = 3,
-                                SubjectId = null
-                            };
-                            await _accountRepository.CreateAccount(newAccount);
-                            sponsorDTO.AccountId = newAccount.Id;
+                            accountId = matchedAccount.Id;
                         }
                         else
                         {
-                            sponsorDTO.AccountId = existingAccount.Id;
+                            var accountDTO = new AccountDTO
+                            {
+                                Name = sponsorDTO.Name,
+                                Email = sponsorDTO.Email,
+                                Username = sponsorDTO.Email,
+                                Password = "1", // Default password
+                                StudentId = "", // Or any default/required value
+                                PhoneNumber = sponsorDTO.PhoneNumber,
+                                Dob = DateTime.Now,
+                                Gender = "Others", // Or set appropriately
+                                AvatarUrl = null,
+                                AccountStatus = "Active",
+                                RoleId = 3, // Sponsor role
+                                SubjectId = null
+                            };
+
+                            _emailHelper.SendEmailToNewAccount(accountDTO.Email, accountDTO.Username, accountDTO.Password);
+
+                            var accountCreate = _mapper.Map<Account>(accountDTO);
+                            var createdAccount = await _accountRepository.CreateAccount(accountCreate);
+
+                            if (createdAccount != null)
+                            {
+                                accountId = createdAccount.Id;
+                            }
+                            else
+                            {
+                                return new BaseResponse
+                                {
+                                    StatusCode = 500,
+                                    Message = "Account creation failed",
+                                    IsSuccess = false
+                                };
+                            }
                         }
 
                         var newSponsor = _mapper.Map<Sponsor>(sponsorDTO);
-
-                        newSponsor.AccountId = sponsorDTO.AccountId;
-
+                        newSponsor.AccountId = accountId;
+                        newSponsor.AvatarUrl = null; // Manually set AvatarUrl to null
                         await _sponsorRepository.AddSponsorAsync(newSponsor);
 
-                        existingSponsor = newSponsor;
+                        var sponsorship = new Sponsorship
+                        {
+                            EventId = newEvent.Id,
+                            SponsorId = newSponsor.Id,
+                            Description = sponsorshipDTO.Description,
+                            Type = sponsorshipDTO.Type,
+                            Title = sponsorshipDTO.Title,
+                            Sum = sponsorshipDTO.Sum
+                        };
+
+                        // Add the sponsorship to the repository
+                        await _sponsorshipRepository.CreateSponsorship(sponsorship);
                     }
-
-                    // Create the sponsorship with the existing or new sponsor ID, and the new EventId
-                    var sponsorship = new Sponsorship
-                    {
-                        EventId = newEvent.Id,
-                        SponsorId = existingSponsor.Id,
-                        Description = sponsorshipDTO.Description,
-                        Type = sponsorshipDTO.Type,
-                        Title = sponsorshipDTO.Title,
-                        Sum = sponsorshipDTO.Sum
-                    };
-
-                    // Add the sponsorship to the repository
-                    await _sponsorshipRepository.CreateSponsorship(sponsorship);
                 }
             }
 
@@ -324,6 +341,7 @@ namespace Events.Business.Services
                 Data = eventDTO
             };
         }
+
 
 
 
@@ -396,7 +414,7 @@ namespace Events.Business.Services
             }
         }
 
-        public async Task<BaseResponse> UpdateEventDetails(int id, CreateEventDTO updateEventDTO, IFormFile? avatarFile)
+        public async Task<BaseResponse> UpdateEventDetails(int id, UpdateEventDTO updateEventDTO)
         {
             // Validate that no properties contain only whitespace
             try
@@ -413,6 +431,17 @@ namespace Events.Business.Services
                 };
             }
 
+            // Check if ScheduleList is not empty
+            if (updateEventDTO.ScheduleList == null || !updateEventDTO.ScheduleList.Any())
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 400,
+                    Message = "ScheduleList cannot be empty",
+                    IsSuccess = false
+                };
+            }
+
             // Validation: StartSellDate < EndSellDate
             if (updateEventDTO.StartSellDate >= updateEventDTO.EndSellDate)
             {
@@ -422,6 +451,85 @@ namespace Events.Business.Services
                     Message = "StartSellDate must be before EndSellDate",
                     IsSuccess = false
                 };
+            }
+
+            // Check for duplicate schedules within the list
+            var scheduleTimes = new HashSet<(string Place, DateTime StartTime, DateTime EndTime)>();
+            foreach (var schedule in updateEventDTO.ScheduleList)
+            {
+                if (!scheduleTimes.Add((schedule.Place, schedule.StartTime, schedule.EndTime)))
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 400,
+                        Message = "Duplicate schedules are not allowed",
+                        IsSuccess = false
+                    };
+                }
+            }
+
+            // Check for overlapping schedules within the user's input list
+            for (int i = 0; i < updateEventDTO.ScheduleList.Count; i++)
+            {
+                for (int j = i + 1; j < updateEventDTO.ScheduleList.Count; j++)
+                {
+                    var schedule1 = updateEventDTO.ScheduleList[i];
+                    var schedule2 = updateEventDTO.ScheduleList[j];
+                    if (schedule1.Place == schedule2.Place &&
+                        schedule1.StartTime < schedule2.EndTime &&
+                        schedule1.EndTime > schedule2.StartTime)
+                    {
+                        return new BaseResponse
+                        {
+                            StatusCode = 400,
+                            Message = "Schedules within the list overlap",
+                            IsSuccess = false
+                        };
+                    }
+                }
+            }
+
+            // Check for overlapping events at the same place and time in the database
+            foreach (var scheduleDTO in updateEventDTO.ScheduleList)
+            {
+                // Validation: EndSellDate < StartTime
+                if (updateEventDTO.EndSellDate >= scheduleDTO.StartTime)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 400,
+                        Message = "EndSellDate must be before StartTime",
+                        IsSuccess = false
+                    };
+                }
+
+                // Validation: StartTime < EndTime
+                if (scheduleDTO.StartTime >= scheduleDTO.EndTime)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 400,
+                        Message = "StartTime must be before EndTime",
+                        IsSuccess = false
+                    };
+                }
+
+                // Check if there are overlapping events at the same place and time
+                var overlappingEvents = await _eventScheduleRepository.GetOverlappingSchedulesAsync(
+                    scheduleDTO.Place,
+                    scheduleDTO.StartTime,
+                    scheduleDTO.EndTime
+                );
+
+                if (overlappingEvents.Any())
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 400,
+                        Message = "There is an overlapping event at the same place and time",
+                        IsSuccess = false
+                    };
+                }
             }
 
             var eventEntity = await _eventRepository.GetEventById(id);
@@ -441,64 +549,15 @@ namespace Events.Business.Services
             eventEntity.EndSellDate = updateEventDTO.EndSellDate;
             eventEntity.Price = updateEventDTO.Price;
             eventEntity.Quantity = updateEventDTO.Quantity;
+            eventEntity.Remaining = updateEventDTO.Remaining;
             eventEntity.Description = updateEventDTO.Description;
-
-            if (avatarFile != null)
-            {
-                if (!string.IsNullOrEmpty(eventEntity.AvatarUrl))
-                {
-                    await _cloudinaryHelper.DeleteImageAsync(eventEntity.AvatarUrl);
-                }
-
-                var imageUrl = await _cloudinaryHelper.UploadImageAsync(avatarFile);
-                eventEntity.AvatarUrl = imageUrl;
-            }
+            eventEntity.OwnerId = updateEventDTO.OwnerId;
+            eventEntity.SubjectId = updateEventDTO.SubjectId;
+            eventEntity.AvatarUrl = updateEventDTO.AvatarUrl;
+            eventEntity.EventStatus = Enum.Parse<EventStatus>(updateEventDTO.EventStatus);
 
             if (updateEventDTO.ScheduleList != null && updateEventDTO.ScheduleList.Any())
             {
-                // Check for overlapping events at the same place and time
-                foreach (var scheduleDTO in updateEventDTO.ScheduleList)
-                {
-                    // Validation: EndSellDate < StartTime
-                    if (updateEventDTO.EndSellDate >= scheduleDTO.StartTime)
-                    {
-                        return new BaseResponse
-                        {
-                            StatusCode = 400,
-                            Message = "EndSellDate must be before StartTime",
-                            IsSuccess = false
-                        };
-                    }
-
-                    // Validation: StartTime < EndTime
-                    if (scheduleDTO.StartTime >= scheduleDTO.EndTime)
-                    {
-                        return new BaseResponse
-                        {
-                            StatusCode = 400,
-                            Message = "StartTime must be before EndTime",
-                            IsSuccess = false
-                        };
-                    }
-
-                    // Check if there are overlapping events at the same place and time
-                    var overlappingEvents = await _eventScheduleRepository.GetOverlappingSchedulesAsync(
-                        scheduleDTO.Place,
-                        scheduleDTO.StartTime,
-                        scheduleDTO.EndTime
-                    );
-
-                    if (overlappingEvents.Any())
-                    {
-                        return new BaseResponse
-                        {
-                            StatusCode = 400,
-                            Message = "There is an overlapping event at the same place and time",
-                            IsSuccess = false
-                        };
-                    }
-                }
-
                 // Update event schedules
                 await _eventScheduleRepository.DeleteSchedulesByEventId(eventEntity.Id);
                 foreach (var scheduleDTO in updateEventDTO.ScheduleList)
@@ -506,70 +565,6 @@ namespace Events.Business.Services
                     var newEventSchedule = _mapper.Map<EventSchedule>(scheduleDTO);
                     newEventSchedule.EventId = eventEntity.Id;
                     await _eventScheduleRepository.AddEventScheduleAsync(newEventSchedule);
-                }
-            }
-
-            // Validate and update sponsorships
-            if (updateEventDTO.Sponsorships != null && updateEventDTO.Sponsorships.Any())
-            {
-                var sponsorEmails = new HashSet<string>();
-
-                foreach (var sponsorshipDTO in updateEventDTO.Sponsorships)
-                {
-                    var sponsorDTO = sponsorshipDTO.Sponsor;
-
-                    // Only validate email and phone number if sponsor object is present
-                    if (sponsorDTO != null)
-                    {
-                        // Validate email format
-                        if (!ValidationUtils.IsValidEmail(sponsorDTO.Email))
-                        {
-                            return new BaseResponse
-                            {
-                                StatusCode = 400,
-                                Message = "Invalid email format",
-                                IsSuccess = false
-                            };
-                        }
-
-                        // Validate phone number format
-                        if (!ValidationUtils.IsPhoneNumber(sponsorDTO.PhoneNumber))
-                        {
-                            return new BaseResponse
-                            {
-                                StatusCode = 400,
-                                Message = "Phone number should contain only digits",
-                                IsSuccess = false
-                            };
-                        }
-
-                        
-
-                        var existingSponsor = await _sponsorRepository.GetSponsorByEmailAsync(sponsorDTO.Email);
-                        if (existingSponsor == null)
-                        {
-                            return new BaseResponse
-                            {
-                                StatusCode = 400,
-                                Message = $"Sponsor with email {sponsorDTO.Email} does not exist",
-                                IsSuccess = false
-                            };
-                        }
-
-                        // Create the sponsorship with the existing sponsor ID, and the event ID
-                        var sponsorship = new Sponsorship
-                        {
-                            EventId = eventEntity.Id,
-                            SponsorId = existingSponsor.Id,
-                            Description = sponsorshipDTO.Description,
-                            Type = sponsorshipDTO.Type,
-                            Title = sponsorshipDTO.Title,
-                            Sum = sponsorshipDTO.Sum
-                        };
-
-                        // Add the sponsorship to the repository
-                        await _sponsorshipRepository.CreateSponsorship(sponsorship);
-                    }
                 }
             }
 
@@ -582,7 +577,6 @@ namespace Events.Business.Services
                 IsSuccess = true
             };
         }
-
         public async Task<List<EventDTO>> GetEventsByStatus(EventStatus status)
         {
             var events = await _eventRepository.GetEventsByStatus(status);

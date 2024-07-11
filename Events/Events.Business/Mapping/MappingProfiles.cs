@@ -21,7 +21,11 @@ namespace Events.Business.Mapping
             .ReverseMap()
             .ForMember(d => d.EventStatus, o => o.MapFrom(src => Enum.Parse<EventStatus>(src.EventStatus)));
 
-            CreateMap<CreateEventDTO, Event>().ForMember(d => d.EventStatus, o => o.Ignore());
+            CreateMap<CreateEventDTO, Event>()
+                .ForMember(d => d.EventStatus, o => o.Ignore());
+
+            CreateMap<UpdateEventDTO, Event>()
+                .ForMember(d => d.EventStatus, o => o.Ignore());
 
             CreateMap<EventSchedule, EventScheduleDTO>().ReverseMap();
             CreateMap<CreateEventScheduleDTO, EventSchedule>();
@@ -31,7 +35,7 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
 
             CreateMap<CreateSponsorEventDTO, Sponsor>()
-           .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl));
+            .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
             CreateMap<UpdateSponsorDTO, Sponsor>()
                 .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
 
