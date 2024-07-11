@@ -21,10 +21,12 @@ namespace Events.API.Controllers
     public class OrderController : ControllerBase
     {
 		private readonly IOrderService _orderService;
+		private readonly IConfiguration _configuration;
 
-		public OrderController(IOrderService orderService)
+		public OrderController(IOrderService orderService, IConfiguration configuration)
 		{
 			_orderService=orderService;
+			_configuration=configuration;
 		}
 
 		[HttpPost("create")]
@@ -48,7 +50,7 @@ namespace Events.API.Controllers
         {
             var response = await _orderService.HandlePaymentCallback(Request.Query);
 			string? message;
-			var url = "http://localhost:5173/callback";
+			var url = $"{_configuration["AppFrontend"]}/callback";
 			if(response.IsSuccess)
 			{
 				var data = response.Data as PaymentResponseModel;
