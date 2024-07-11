@@ -35,7 +35,7 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
 
             CreateMap<CreateSponsorEventDTO, Sponsor>()
-           .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl));
+            .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
             CreateMap<UpdateSponsorDTO, Sponsor>()
                 .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
 

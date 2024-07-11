@@ -111,5 +111,14 @@ namespace Events.Data.Repositories
         {
             return await _context.Accounts.FirstOrDefaultAsync(e => e.StudentId == studentId);
         }
+        public async Task<List<Account>> GetAccountsByEmailList(string email)
+        {
+            return await _context.Accounts.Where(e => e.Email == email).ToListAsync();
+        }
+
+        public async Task<List<Account>> GetAccountsByPhoneNumberList(string phoneNumber)
+        {
+            return await _context.Accounts.Where(e => e.PhoneNumber == phoneNumber).ToListAsync();
+        }
     }
 }

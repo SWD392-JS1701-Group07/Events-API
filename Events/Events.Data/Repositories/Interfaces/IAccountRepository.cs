@@ -21,6 +21,8 @@ namespace Events.Data.Repositories.Interfaces
         Task<Account> GetAccountByUsername(string username);
         Task<Account> GetAccountByPhoneNumber(string phoneNumber);
         Task<Account> GetAccountByEmail(string email);
-        Task<Account> GetAccountByStudentId(string studentId);  
+        Task<Account> GetAccountByStudentId(string studentId);
+        Task<List<Account>> GetAccountsByEmailList(string email);
+        Task<List<Account>> GetAccountsByPhoneNumberList(string phoneNumber);
     }
 }
