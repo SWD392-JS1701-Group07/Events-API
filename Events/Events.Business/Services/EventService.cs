@@ -17,6 +17,8 @@ using Events.Models.DTOs.Response;
 using Events.Utils.Helper;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
+using Events.Utils.Helpers;
 
 namespace Events.Business.Services
 {
@@ -86,6 +88,22 @@ namespace Events.Business.Services
 
         public async Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO)
         {
+            // Check for fields that contain only whitespace
+            try
+            {
+                ValidationUtils.ValidateNoWhitespaceOnly(createEventDTO);
+            }
+            catch (ArgumentException ex)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 400,
+                    Message = ex.Message,
+                    IsSuccess = false
+                };
+            }
+            Console.WriteLine(JsonConvert.SerializeObject(createEventDTO));
+
             // Check if ScheduleList is not empty
             if (createEventDTO.ScheduleList == null || !createEventDTO.ScheduleList.Any())
             {
@@ -108,14 +126,43 @@ namespace Events.Business.Services
                 };
             }
 
-            // Map the DTO to the Event entity
-            var newEvent = _mapper.Map<Event>(createEventDTO);
-            newEvent.Remaining = createEventDTO.Quantity;
+            // Check for duplicate schedules within the list
+            var scheduleTimes = new HashSet<(string Place, DateTime StartTime, DateTime EndTime)>();
+            foreach (var schedule in createEventDTO.ScheduleList)
+            {
+                if (!scheduleTimes.Add((schedule.Place, schedule.StartTime, schedule.EndTime)))
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 400,
+                        Message = "Duplicate schedules are not allowed",
+                        IsSuccess = false
+                    };
+                }
+            }
 
-            // Set the EventStatus to Pending
-            newEvent.EventStatus = EventStatus.Pending;
+            // Check for overlapping schedules within the user's input list
+            for (int i = 0; i < createEventDTO.ScheduleList.Count; i++)
+            {
+                for (int j = i + 1; j < createEventDTO.ScheduleList.Count; j++)
+                {
+                    var schedule1 = createEventDTO.ScheduleList[i];
+                    var schedule2 = createEventDTO.ScheduleList[j];
+                    if (schedule1.Place == schedule2.Place &&
+                        schedule1.StartTime < schedule2.EndTime &&
+                        schedule1.EndTime > schedule2.StartTime)
+                    {
+                        return new BaseResponse
+                        {
+                            StatusCode = 400,
+                            Message = "Schedules within the list overlap",
+                            IsSuccess = false
+                        };
+                    }
+                }
+            }
 
-            // Check for overlapping events at the same place and time
+            // Check for overlapping events at the same place and time in the database
             foreach (var scheduleDTO in createEventDTO.ScheduleList)
             {
                 // Validation: EndSellDate < StartTime
@@ -158,6 +205,13 @@ namespace Events.Business.Services
                 }
             }
 
+            // Map the DTO to the Event entity
+            var newEvent = _mapper.Map<Event>(createEventDTO);
+            newEvent.Remaining = createEventDTO.Quantity;
+
+            // Set the EventStatus to Pending
+            newEvent.EventStatus = EventStatus.Pending;
+
             // Add the event to the repository and save changes to generate EventId
             await _eventRepository.Add(newEvent);
 
@@ -173,10 +227,33 @@ namespace Events.Business.Services
 
             if (createEventDTO.Sponsorships != null)
             {
-                // Validate Sponsorships and Sponsors as pairs
                 foreach (var sponsorshipDTO in createEventDTO.Sponsorships)
                 {
                     var sponsorDTO = sponsorshipDTO.Sponsor;
+                    if (sponsorDTO != null)
+                    {
+                        // Validate email format
+                        if (!ValidationUtils.IsValidEmail(sponsorDTO.Email))
+                        {
+                            return new BaseResponse
+                            {
+                                StatusCode = 400,
+                                Message = "Invalid email format",
+                                IsSuccess = false
+                            };
+                        }
+
+                        // Validate phone number format
+                        if (!ValidationUtils.IsPhoneNumber(sponsorDTO.PhoneNumber))
+                        {
+                            return new BaseResponse
+                            {
+                                StatusCode = 400,
+                                Message = "Phone number should contain only digits",
+                                IsSuccess = false
+                            };
+                        }
+                    }
 
                     var existingSponsor = await _sponsorRepository.GetSponsorByEmailAsync(sponsorDTO.Email);
 
@@ -242,6 +319,7 @@ namespace Events.Business.Services
                 Data = eventDTO
             };
         }
+
 
 
 
