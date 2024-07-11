@@ -19,7 +19,7 @@ namespace Events.Business.Services.Interfaces
         Task<BaseResponse> CreateEvent(CreateEventDTO createEventDTO);
         Task<BaseResponse> GetEventById(int id);
         Task UpdateStatus(int id, EventStatus newStatus);
-        Task<BaseResponse> UpdateEventDetails(int id, CreateEventDTO updateEventDTO, IFormFile? avatarFile);
+        Task<BaseResponse> UpdateEventDetails(int id, UpdateEventDTO updateEventDTO);
         Task<List<EventDTO>> GetEventsByStatus(EventStatus status);
         Task DeleteEvent(int id);
         Task<IEnumerable<EventDTO>> SearchEventsByNameAsync(string eventName);

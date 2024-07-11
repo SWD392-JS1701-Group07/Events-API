@@ -28,15 +28,16 @@ namespace Events.Utils.Helpers
 
         public static void ValidateNoWhitespaceOnly(object dto)
         {
-            var stringProperties = dto.GetType().GetProperties()
-                .Where(p => p.PropertyType == typeof(string))
-                .Select(p => new { p.Name, Value = p.GetValue(dto) as string });
-
-            foreach (var prop in stringProperties)
+            var properties = dto.GetType().GetProperties();
+            foreach (var property in properties)
             {
-                if (string.IsNullOrWhiteSpace(prop.Value))
+                if (property.PropertyType == typeof(string))
                 {
-                    throw new Exception($"{prop.Name} should not be empty or contain only whitespace.");
+                    var value = property.GetValue(dto) as string;
+                    if (property.Name != "AvatarUrl" && string.IsNullOrWhiteSpace(value))
+                    {
+                        throw new Exception($"{property.Name} should not be empty or contain only whitespace.");
+                    }
                 }
             }
         }
