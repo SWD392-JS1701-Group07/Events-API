@@ -102,5 +102,10 @@ namespace Events.Data.Repositories
         {
             return await _context.Sponsors.FirstOrDefaultAsync(e => e.AccountId == id);
         }
+
+        public async Task<Sponsor> GetSponsorByPhoneNumberAsync(string phoneNumber)
+        {
+            return await _context.Sponsors.FirstOrDefaultAsync(e => e.PhoneNumber == phoneNumber);
+        }
     }
 }

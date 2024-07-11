@@ -14,5 +14,6 @@ namespace Events.Business.Services.Interfaces
         Task<BaseResponse> GetSponsorshipById(int id);
         Task<BaseResponse> CreateSponsorship(CreateSponsorshipDTO createSponsorshipDTO);
         Task<BaseResponse> UpdateSponsorship(int id, CreateSponsorshipDTO createSponsorshipDTO);
+        Task<BaseResponse> DeleteSponsorship(int id);
     }
 }

@@ -21,6 +21,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "1,3,4,5")]
         public async Task<IActionResult> GetAllSponsorship()
         {
             var result = await _sponsorshipService.GetAllSponsorship();
@@ -28,6 +29,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "1,3,4,5")]
         public async Task<IActionResult> GetSponsorshipById(int id)
         {
             var result = await _sponsorshipService.GetSponsorshipById(id);
@@ -47,6 +49,14 @@ namespace Events.API.Controllers
         public async Task<IActionResult> UpdateSponsorship(int id, [FromBody] CreateSponsorshipDTO createSponsorshipDTO)
         {
             var result = await _sponsorshipService.UpdateSponsorship(id, createSponsorshipDTO);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "3, 5")]
+        public async Task<IActionResult> DeleteSponsorship(int id)
+        {
+            var result = await _sponsorshipService.DeleteSponsorship(id);
             return StatusCode(result.StatusCode, result);
         }
     }

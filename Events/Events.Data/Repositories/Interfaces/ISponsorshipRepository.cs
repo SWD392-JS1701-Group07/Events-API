@@ -14,5 +14,6 @@ namespace Events.Data.Repositories.Interfaces
         Task<List<Sponsorship>> GetAllSponsorshipsByEventId(int id);
         Task<bool> CreateSponsorship(Sponsorship sponsorship);
         Task<bool> UpdateSponsorship(Sponsorship sponsorship);
+        Task<bool> DeleteSponsorship(int id);
     }
 }

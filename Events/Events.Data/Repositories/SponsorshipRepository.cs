@@ -43,5 +43,20 @@ namespace Events.Data.Repositories
         {
             return await _context.Sponsorships.Where(e => e.EventId == id).ToListAsync();
         }
+
+        public async Task<bool> DeleteSponsorship(int id)
+        {
+            var sponsorship = await _context.Sponsorships.FirstOrDefaultAsync(e => e.Id == id);
+            if(sponsorship != null)
+            {
+                _context.Sponsorships.Remove(sponsorship);
+                return await _context.SaveChangesAsync() > 0;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
     }
 }
