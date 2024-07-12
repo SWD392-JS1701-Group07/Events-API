@@ -18,10 +18,10 @@ namespace Events.Business.Services
 
         public string CreatePayment(string amount, string orderInfo, HttpContext context)
         {
-            var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
+            var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["Vnpay:TimeZoneId"]);
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
             var tick = DateTime.Now.Ticks.ToString();
-            var urlCallBack = _configuration["PaymentCallBack:ReturnUrl"];
+            var urlCallBack = _configuration["Vnpay:ReturnUrl"];
             _vpnPayLibrary.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
 			_vpnPayLibrary.AddRequestData("vnp_Command", _configuration["Vnpay:Command"]);
 			_vpnPayLibrary.AddRequestData("vnp_TmnCode", _configuration["Vnpay:TmnCode"]);
