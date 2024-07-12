@@ -50,5 +50,13 @@ namespace Events.API.Controllers
 			var response = await _ticketService.GetTicketById(id);
 			return StatusCode(response.StatusCode, response);
 		}
-	}
+
+        [HttpGet("event/{id}")]
+        [Authorize(Roles = "4,5")]
+        public async Task<IActionResult> GetTicketByEventId(int id)
+        {
+            var response = await _ticketService.GetTicketByEventId(id);
+            return StatusCode(response.StatusCode, response);
+        }
+    }
 }

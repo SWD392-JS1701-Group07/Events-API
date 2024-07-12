@@ -25,7 +25,22 @@ namespace Events.Business.Services
 			_mapper=mapper;
 		}
 
-		public async Task<BaseResponse> GetTicketById(string ticketId)
+        public async Task<BaseResponse> GetTicketByEventId(int eventId)
+        {
+			var ticketList = await _ticketRepository.GetTicketByEventId(eventId);
+
+			var ticketListDTO = _mapper.Map <List<TicketDTO>>(ticketList);
+
+            return new BaseResponse
+            {
+                StatusCode = 200,
+                IsSuccess = true,
+                Message = null,
+				Data = ticketListDTO
+            };
+        }
+
+        public async Task<BaseResponse> GetTicketById(string ticketId)
 		{
 			try
 			{
