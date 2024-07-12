@@ -828,8 +828,7 @@ namespace Events.Business.Services
                 };
             }
         }
-    }
-}
+    
         public static string GenerateRandomPassword(int length)
         {
             const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -839,3 +838,4 @@ namespace Events.Business.Services
         }
     }
 }
+
