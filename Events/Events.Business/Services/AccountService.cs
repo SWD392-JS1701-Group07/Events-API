@@ -621,30 +621,30 @@ namespace Events.Business.Services
                         }
                     }
                 }
-            
 
-            var result = await _accountRepository.UpdateAccount(account);
 
-            if (!result)
-            {
-                return new BaseResponse
+                var result = await _accountRepository.UpdateAccount(account);
+
+                if (!result)
                 {
-                    StatusCode = 500,
-                    Message = "Failed to update account",
-                    IsSuccess = false
-                };
-            }
-            else
-            {
-                return new BaseResponse
+                    return new BaseResponse
+                    {
+                        StatusCode = 500,
+                        Message = "Failed to update account",
+                        IsSuccess = false
+                    };
+                }
+                else
                 {
-                    StatusCode = 200,
-                    IsSuccess = true,
-                    Data = _mapper.Map<AccountDTO>(account)
-                };
+                    return new BaseResponse
+                    {
+                        StatusCode = 200,
+                        IsSuccess = true,
+                        Data = _mapper.Map<AccountDTO>(account)
+                    };
+                }
             }
         }
-    }
 
         public async Task<BaseResponse> UpdateProfile(int id, UpdateProfile updateProfile, IFormFile avatarFile)
         {
@@ -739,82 +739,63 @@ namespace Events.Business.Services
 
                 if (account.RoleId == 2)
                 {
-                    var sponsor = await _sponsorRepository.GetSponsorByAccountId(account.Id);
-                    sponsor.Name = account.Name;
-                    sponsor.PhoneNumber = account.PhoneNumber;
-                    sponsor.AvatarUrl = account.AvatarUrl;
-                    var sponsorResult = await _sponsorRepository.UpdateSponsorAsync(sponsor);
-
-                    if (!sponsorResult)
+                    var customer = await _customerRepository.GetCustomerByEmail(account.Email);
+                    if (customer != null)
                     {
-                        return new BaseResponse
+                        customer.Name = account.Name;
+                        customer.PhoneNumber = account.PhoneNumber;
+
+                        var customerResult = await _customerRepository.UpdateCustomerAsync(customer);
+
+                        if (!customerResult)
                         {
-                            StatusCode = 500,
-                            Message = "Failed to update account, error at sponsor",
-                            IsSuccess = false
-                        };
-                    }
-
-                    if (account.RoleId == 2)
-                    {
-                        var customer = await _customerRepository.GetCustomerByEmail(account.Email);
-                        if (customer != null)
+                            return new BaseResponse
+                            {
+                                StatusCode = 500,
+                                Message = "Failed to update account in customer entity",
+                                IsSuccess = false
+                            };
+                        }
+                        else
                         {
-                            customer.Name = account.Name;
-                            customer.PhoneNumber = account.PhoneNumber;
-
-                            var customerResult = await _customerRepository.UpdateCustomerAsync(customer);
-
-                            if (!customerResult)
+                            var order = await _orderRepository.GetOrderByCustomerId(customer.Id);
+                            if (!order.IsNullOrEmpty())
                             {
-                                return new BaseResponse
+                                foreach (var item in order)
                                 {
-                                    StatusCode = 500,
-                                    Message = "Failed to update account in customer entity",
-                                    IsSuccess = false
-                                };
-                            }
-                            else
-                            {
-                                var order = await _orderRepository.GetOrderByCustomerId(customer.Id);
-                                if (!order.IsNullOrEmpty())
-                                {
-                                    foreach (var item in order)
+                                    item.Email = account.Email;
+                                    item.PhoneNumber = account.PhoneNumber;
+
+                                    var resultOrder = await _orderRepository.UpdateOrderStatusAsync(item);
+                                    if (!resultOrder)
                                     {
-                                        item.Email = account.Email;
-                                        item.PhoneNumber = account.PhoneNumber;
-
-                                        var resultOrder = await _orderRepository.UpdateOrderStatusAsync(item);
-                                        if (!resultOrder)
+                                        return new BaseResponse
                                         {
-                                            return new BaseResponse
-                                            {
-                                                StatusCode = 500,
-                                                Message = "Failed to update account in order entity",
-                                                IsSuccess = false
-                                            };
-                                        }
-                                        else
-                                        {
-                                            var ticket = await _ticketRepository.GetTicketByOrderId(item.Id);
+                                            StatusCode = 500,
+                                            Message = "Failed to update account in order entity",
+                                            IsSuccess = false
+                                        };
+                                    }
+                                    else
+                                    {
+                                        var ticket = await _ticketRepository.GetTicketByOrderId(item.Id);
 
-                                            if (!ticket.IsNullOrEmpty())
+                                        if (!ticket.IsNullOrEmpty())
+                                        {
+                                            foreach (var ticketItem in ticket)
                                             {
-                                                foreach (var ticketItem in ticket)
+                                                ticketItem.Email = account.Email;
+                                                ticketItem.PhoneNumber = account.PhoneNumber;
+
+                                                var resultTicket = await _ticketRepository.UpdateTicket(ticketItem);
+                                                if (!resultTicket)
                                                 {
-                                                    ticketItem.Email = account.Email;
-                                                    ticketItem.PhoneNumber = account.PhoneNumber;
-
-                                                    var resultTicket = await _ticketRepository.UpdateTicket(ticketItem);
-                                                    if (!resultTicket)
+                                                    return new BaseResponse
                                                     {
-                                                        return new BaseResponse
-                                                        {
-                                                            StatusCode = 500,
-                                                            Message = "Failed to update account in ticket entity",
-                                                            IsSuccess = false
-                                                        };
-                                                    }
+                                                        StatusCode = 500,
+                                                        Message = "Failed to update account in ticket entity",
+                                                        IsSuccess = false
+                                                    };
                                                 }
                                             }
                                         }
@@ -824,30 +805,31 @@ namespace Events.Business.Services
                         }
                     }
                 }
+            }
 
-                var result = await _accountRepository.UpdateAccount(account);
+            var result = await _accountRepository.UpdateAccount(account);
 
-                if (!result)
+            if (!result)
+            {
+                return new BaseResponse
                 {
-                    return new BaseResponse
-                    {
-                        StatusCode = 500,
-                        Message = "Failed to update account",
-                        IsSuccess = false
-                    };
-                }
-                else
+                    StatusCode = 500,
+                    Message = "Failed to update account",
+                    IsSuccess = false
+                };
+            }
+            else
+            {
+                return new BaseResponse
                 {
-                    return new BaseResponse
-                    {
-                        StatusCode = 200,
-                        IsSuccess = true,
-                        Data = _mapper.Map<AccountDTO>(account)
-                    };
-                }
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Data = _mapper.Map<AccountDTO>(account)
+                };
             }
         }
-
+    }
+}
         public static string GenerateRandomPassword(int length)
         {
             const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
