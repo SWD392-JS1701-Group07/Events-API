@@ -73,7 +73,7 @@ namespace Events.Business.Services
 					};
 				}
 				int? customerId = null;
-				if (accountFromDb.RoleId != 1 && accountFromDb.RoleId != 4)
+				if (accountFromDb.RoleId != 1 && accountFromDb.RoleId != 3 && accountFromDb.RoleId != 4 && accountFromDb.RoleId != 5)
 				{
 					customerId = (await _customerRepository.GetCustomerByEmail(email)).Id;
 				}
