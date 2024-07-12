@@ -81,9 +81,9 @@ namespace Events.Business.Services
         {
             // Retrieve the event
             var eventEntity = await _eventRepository.GetEventById(createCollaboratorDto.EventId);
-            if (eventEntity == null || eventEntity.EventStatus != Enums.EventStatus.Ongoing)
+            if (eventEntity == null || (eventEntity.EventStatus != Enums.EventStatus.Ongoing && eventEntity.EventStatus != Enums.EventStatus.Pending))
             {
-                throw new Exception("The event is either not found or not in an ongoing status.");
+                throw new Exception("The event is either not found or not in an ongoing or pending status.");
             }
 
             // Check if the collaborator is already registered for the event
@@ -92,7 +92,6 @@ namespace Events.Business.Services
             {
                 throw new Exception("The collaborator is already registered for this event.");
             }
-
 
             // Check for overlapping event schedules
             var newEventSchedules = await _eventScheduleRepository.GetEventScheduleById(createCollaboratorDto.EventId);
@@ -132,7 +131,7 @@ namespace Events.Business.Services
                 CollabStatus = createdCollaborator.CollabStatus.ToString(),
                 IsCheckIn = createdCollaborator.IsCheckIn
             };
-        } 
+        }
         public async Task<CollaboratorDTO> ApproveCollaboratorAsync(int id)
         {
             var collaborator = await _collaboratorRepository.GetByIdAsync(id);
