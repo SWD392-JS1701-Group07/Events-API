@@ -24,6 +24,6 @@ namespace Events.Models.DTOs.Response
         public SubjectDTO Subject { get; set; }
         public AccountDTO EventOperator { get; set; }
         public List<EventScheduleDTO> ScheduleList { get; set; }
-        public List<SponsorshipDTO> Sponsorships { get; set; }
+        public List<SponsorshipsWithSponsorsDTO> Sponsorships { get; set; }
     }
 }

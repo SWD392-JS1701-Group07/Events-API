@@ -364,13 +364,31 @@ namespace Events.Business.Services
                 var scheduleDto = _mapper.Map<List<EventScheduleDTO>>(scheduleEntity);
 
                 var sponsorships = await _sponsorshipRepository.GetAllSponsorshipsByEventId(id);
-                var sponsorshipsDTO = _mapper.Map<List<SponsorshipDTO>>(sponsorships);
+                List<SponsorshipsWithSponsorsDTO> sponsorshipWithSponsors = new List<SponsorshipsWithSponsorsDTO>();
+                foreach(var e in sponsorships)
+                {
+                    var sponsors = await _sponsorRepository.GetSponsorByIdAsync(e.Id);
+                    SponsorshipsWithSponsorsDTO sponsorshipEntity = new SponsorshipsWithSponsorsDTO
+                    {
+                        Id = e.Id,
+                        Description = e.Description,
+                        Type = e.Type,
+                        Title = e.Title,
+                        Sum = e.Sum,
+                        SponsorId = e.SponsorId,
+                        EventId = e.EventId,
+                        Sponsor = _mapper.Map<SponsorDTO>(sponsors)
+                    };
+
+                    sponsorshipWithSponsors.Add(sponsorshipEntity);
+                }
 
                 var owner = await _accountRepository.GetAccountById(eventEntity.OwnerId);
                 var ownerDTO = _mapper.Map<AccountDTO>(owner);
 
                 var subject = await _subjectRepository.GetSubjectById((int)eventEntity.SubjectId);
                 var subjectDTO = _mapper.Map<SubjectDTO>(subject);
+
 
 
                 EventDetailsResponseDTO eventDetails = new EventDetailsResponseDTO
@@ -390,7 +408,7 @@ namespace Events.Business.Services
                     Subject = subjectDTO,
                     EventOperator = ownerDTO,
                     ScheduleList = scheduleDto,
-                    Sponsorships = sponsorshipsDTO,
+                    Sponsorships = sponsorshipWithSponsors
                 };
 
                 return new BaseResponse
