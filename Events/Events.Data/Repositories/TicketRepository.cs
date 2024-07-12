@@ -39,7 +39,12 @@ namespace Events.Data.Repositories
 			await _context.Tickets.AddAsync(ticket);
 		}
 
-		public async Task<Ticket> GetTicketById(string ticketId)
+        public async Task<IEnumerable<Ticket>> GetTicketByEventId(int id)
+        {
+            return await _context.Tickets.Where(t => t.EventId == id).ToListAsync();
+        }
+
+        public async Task<Ticket> GetTicketById(string ticketId)
 		{
 			return await _context.Tickets.Include(t => t.Event)
 											.ThenInclude(e => e.EventSchedules)
