@@ -22,9 +22,9 @@ namespace Events.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "1,3,4,5")]
-        public async Task<IActionResult> GetAllSponsorship()
+        public async Task<IActionResult> GetAllSponsorship([FromQuery] string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var result = await _sponsorshipService.GetAllSponsorship();
+            var result = await _sponsorshipService.GetAllSponsorship(searchTerm, sortColumn, sortOrder, page, pageSize);
             return StatusCode(result.StatusCode, result);
         }
 

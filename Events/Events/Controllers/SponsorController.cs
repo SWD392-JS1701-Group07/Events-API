@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Events.Business.Services.Interfaces;
 using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Events.API.Controllers
 {
@@ -23,9 +24,9 @@ namespace Events.API.Controllers
             _sponsorService = sponsorService;
         }
 		[HttpGet]
-		public async Task<IActionResult> GetAllCollaborators()
+		public async Task<IActionResult> GetAllCollaborators([FromQuery] string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
 		{
-			var response = await _sponsorService.GetAllSponsor();
+			var response = await _sponsorService.GetAllSponsor(searchTerm, sortColumn, sortOrder, page, pageSize);
 			return StatusCode(response.StatusCode, response);
 		}
 
@@ -37,7 +38,8 @@ namespace Events.API.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> AddSponsor([FromForm] CreateSponsorDTO sponsorDto)
+        [Authorize(Roles = "1, 4")]
+        public async Task<IActionResult> AddSponsor([FromForm] CreateSponsorDTO sponsorDto)
 		{
 			if(sponsorDto == null || !ModelState.IsValid) {
 				return BadRequest(new BaseResponse
@@ -59,7 +61,8 @@ namespace Events.API.Controllers
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateSponsor([FromRoute] int id, [FromForm] UpdateSponsorDTO sponsorDTO)
+        [Authorize(Roles = "1, 4")]
+        public async Task<IActionResult> UpdateSponsor([FromRoute] int id, [FromForm] UpdateSponsorDTO sponsorDTO)
 		{
 			if(sponsorDTO == null || !ModelState.IsValid)
 			{
@@ -75,7 +78,8 @@ namespace Events.API.Controllers
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteSponsor([FromRoute] int id)
+        [Authorize(Roles = "1, 4")]
+        public async Task<IActionResult> DeleteSponsor([FromRoute] int id)
 		{
 			var reponse = await _sponsorService.DeleteSponsorAsync(id);
 			return StatusCode(reponse.StatusCode, reponse);

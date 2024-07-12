@@ -1,4 +1,5 @@
 ﻿using Events.Models.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Events.Data.Repositories.Interfaces
 {
     public interface ISponsorRepository
     {
-        Task<IEnumerable<Sponsor>> GetAllSponsor();
+        Task<IEnumerable<Sponsor>> GetAllSponsor(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<Sponsor> GetSponsorByIdAsync(int id);
         Task<bool> UpdateSponsorAsync(Sponsor sponsor);
         Task<bool> AddSponsorAsync(Sponsor sponsor);
