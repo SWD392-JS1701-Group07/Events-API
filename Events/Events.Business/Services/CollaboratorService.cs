@@ -222,6 +222,7 @@ namespace Events.Business.Services
                     {
                         Id = e.Id,
                         IsCheckIn = e.IsCheckIn,
+                        AccountId = account.Id,
                         EventId = e.EventId,
                         CollabStatus = e.CollabStatus.ToString(),
                         Task = e.Task,
