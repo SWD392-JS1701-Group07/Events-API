@@ -30,7 +30,7 @@ namespace Events.Business.Mapping
             CreateMap<EventSchedule, EventScheduleDTO>().ReverseMap();
             CreateMap<CreateEventScheduleDTO, EventSchedule>();
 
-            CreateMap<Collaborator, CollaboratorDTO>().ReverseMap();  
+            CreateMap<Collaborator, CollaboratorDTO>().ReverseMap();
             CreateMap<CreateSponsorDTO, Sponsor>()
                 .ForMember(dest => dest.AvatarUrl, opt => opt.Ignore());
 
@@ -44,7 +44,7 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.AccountStatus, o => o.MapFrom(src => src.AccountStatus.ToString()))
                 .ForMember(dest => dest.Gender, o => o.MapFrom(src => src.Gender.ToString()))
                 .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => src.Dob.ToDateTime(TimeOnly.MinValue)));
-        
+
             CreateMap<AccountDTO, Account>()
                 .ForMember(dest => dest.AccountStatus, o => o.MapFrom(src => Enum.Parse<AccountStatus>(src.AccountStatus)))
                 .ForMember(dest => dest.Gender, o => o.MapFrom(src => Enum.Parse<Gender>(src.Gender)))
@@ -69,17 +69,17 @@ namespace Events.Business.Mapping
             CreateMap<Ticket, SimpleTicketDTO>()
                 .ForMember(dest => dest.IsCheckIn, opt => opt.MapFrom(src => src.IsCheckIn.ToString()));
 
-			CreateMap<Transaction, SimpleTransactionDTO>()
-			   .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus.ToString()));
+            CreateMap<Transaction, SimpleTransactionDTO>()
+               .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus.ToString()));
 
-			//.ReverseMap()
-			//   .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)));
+            //.ReverseMap()
+            //   .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)));
 
-			//CreateMap<OrderDTO, Order>()
-			//             .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)))
-			//             .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.OrderDate)));
+            //CreateMap<OrderDTO, Order>()
+            //             .ForMember(dest => dest.OrderStatus, o => o.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)))
+            //             .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.OrderDate)));
 
-			CreateMap<Customer, CustomerDTO>().ReverseMap();
+            CreateMap<Customer, CustomerDTO>().ReverseMap();
             CreateMap<Customer, SimpleCustomerDTO>();
             CreateMap<UpdateCustomerDTO, Customer>();
 
@@ -103,7 +103,7 @@ namespace Events.Business.Mapping
                 .ForMember(dest => dest.Email, opt => opt.Ignore())
                 .ForMember(dest => dest.PhoneNumber, opt => opt.Ignore());
 
-			CreateMap<TicketDetail, Ticket>();
+            CreateMap<TicketDetail, Ticket>();
 
             CreateMap<PaymentResponseModel, Transaction>()
                 .ForMember(dest => dest.Description, otp => otp.MapFrom(src => src.OrderDescription))
@@ -120,9 +120,9 @@ namespace Events.Business.Mapping
 
             CreateMap<Transaction, TransactionDTO>()
                 .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus.ToString()));
-                //.ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Order));
-		}
+            //.ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Order));	}
 
+        }
     }
 }
     
