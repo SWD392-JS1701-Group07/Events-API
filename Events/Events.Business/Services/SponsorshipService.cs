@@ -5,6 +5,7 @@ using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
 using Events.Models.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -128,9 +129,9 @@ namespace Events.Business.Services
             }
         }
 
-        public async Task<BaseResponse> GetAllSponsorship()
+        public async Task<BaseResponse> GetAllSponsorship(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var sponsorships = await _sponsorshipRepository.GetAllSponsorships();
+            var sponsorships = await _sponsorshipRepository.GetAllSponsorships(searchTerm, sortColumn, sortOrder, page, pageSize);
             var results = _mapper.Map<List<SponsorshipDTO>>(sponsorships);
             return results.Any() ? new BaseResponse
             {

@@ -97,7 +97,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPatch("events/{id}/complete")]
-        // [Authorize(Roles = "4")]
+        [Authorize(Roles = "4, 5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateEventStatusToCompleted(int id)
