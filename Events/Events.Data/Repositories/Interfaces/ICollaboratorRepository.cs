@@ -19,7 +19,7 @@ namespace Events.Data.Repositories.Interfaces
         Task UpdateAsync(Collaborator collaborator);
         Task<List<int>> GetAllEventIdByCollaboratorId(int id);
         Task<List<Collaborator>> GetAllCollaboratorsByEventId(int id, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
-
+        Task<List<Collaborator>> GetAllCollaboratorsByEventIdWithoutFilter(int id);
         Task<Collaborator> GetCollaboratorByEventAndAccount(int eventId, int accountId);
         Task<List<Event>> GetEventsByCollaboratorAccount(int accountId);
         Task<bool> UpdateCollaborators(Collaborator collaborator);

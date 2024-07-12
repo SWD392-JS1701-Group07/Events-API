@@ -16,7 +16,7 @@ namespace Events.Models.DTOs.Response
         public int AccountId { get; set; }
 
         public int EventId { get; set; }
-
+        public string EventName { get; set; }
         public string CollabStatus { get; set; }
 
         public string? Task { get; set; }

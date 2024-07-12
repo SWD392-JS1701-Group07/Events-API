@@ -109,7 +109,7 @@ namespace Events.Data.Repositories
 
         public async Task<List<Collaborator>> GetAllCollaboratorsByEventId(int id, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            IQueryable<Collaborator> query = _context.Collaborators.Where(e => e.EventId == id).AsQueryable();
+            IQueryable<Collaborator> query = _context.Collaborators.Where(e => e.EventId == id);
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 query = query.Where(p => p.Event.Name.Contains(searchTerm));
@@ -159,6 +159,11 @@ namespace Events.Data.Repositories
         {
            _context.Collaborators.Update(collaborator);
            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<List<Collaborator>> GetAllCollaboratorsByEventIdWithoutFilter(int id)
+        {
+            return await _context.Collaborators.Where(e => e.EventId == id).ToListAsync();
         }
     }
 }

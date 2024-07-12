@@ -222,6 +222,7 @@ namespace Events.Business.Services
                     {
                         Id = e.Id,
                         IsCheckIn = e.IsCheckIn,
+                        AccountId = account.Id,
                         EventId = e.EventId,
                         CollabStatus = e.CollabStatus.ToString(),
                         Task = e.Task,
@@ -299,7 +300,7 @@ namespace Events.Business.Services
             }
             else
             {
-                List<CollaboratorDTO> collaborators = new List<CollaboratorDTO>();
+                List<CollaboratorsResponseDTO> collaborators = new List<CollaboratorsResponseDTO>();
                 var eventId = await _eventRepository.GetEventByEventOperatorId(id);
                 if(eventId.IsNullOrEmpty())
                 {
@@ -315,12 +316,13 @@ namespace Events.Business.Services
                 {
                     foreach (var e in eventId)
                     {
-                        var collaborator = await _collaboratorRepository.GetAllCollaboratorsByEventId(e.Id, null, null, null, 10, 10);
+                        var collaborator = await _collaboratorRepository.GetAllCollaboratorsByEventIdWithoutFilter(e.Id);
                         if (collaborator != null)
                         {
                             foreach(var c in collaborator)
                             {
-                                collaborators.Add(new CollaboratorDTO
+                                var accountCollaborator = await _accountRepository.GetAccountById(c.AccountId);
+                                collaborators.Add(new CollaboratorsResponseDTO
                                 {
                                     Id = c.Id,
                                     IsCheckIn = c.IsCheckIn,
@@ -329,7 +331,8 @@ namespace Events.Business.Services
                                     EventName = e.Name,
                                     CollabStatus = c.CollabStatus.ToString(),
                                     Task = c.Task,
-                                    Description = c.Description
+                                    Description = c.Description,
+                                    Account = _mapper.Map<AccountDTO>(account)
                                 });
                             }                            
                         }
