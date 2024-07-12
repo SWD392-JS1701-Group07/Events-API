@@ -20,7 +20,6 @@ namespace Events.Models.DTOs.Request
 		[Required(ErrorMessage = "Phone Number is required")]
 		[RegularExpression(RegexBase.PhoneNumberRegex, ErrorMessage = "Invalid phone number")]
 		public string PhoneNumber { get; set; } = string.Empty;
-		public IFormFile? AvatarFile { get; set; } = null;
-        public int? AccountId { get; set; }
+		public bool CreateAccount { get; set; }
 	}
 }

@@ -146,6 +146,7 @@ builder.Services.AddScoped<CloudinaryHelper>();
 builder.Services.AddScoped<QrHelper>();
 
 
+
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder =>
 {
 	var frontendUrl = builder.Configuration.GetValue<string>("AppFrontend");

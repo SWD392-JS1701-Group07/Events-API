@@ -2,6 +2,7 @@
 ﻿using Events.Business.Services;
 using Events.Business.Services.Interfaces;
 using Events.Models.DTOs.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers
@@ -19,7 +20,8 @@ namespace Events.API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAllTicket([FromQuery] bool? isBought = null,
+        [Authorize]
+        public async Task<IActionResult> GetAllTicket([FromQuery] bool? isBought = null,
 													[FromQuery] string? searchTerm = null,
 													[FromQuery] string? orderId = null,
 													[FromQuery] string email = "john@example.com")
@@ -42,7 +44,8 @@ namespace Events.API.Controllers
 		}
 
 		[HttpGet("{id}", Name = nameof(GetTicketById))]
-		public async Task<IActionResult> GetTicketById([FromRoute] string id)
+        [Authorize]
+        public async Task<IActionResult> GetTicketById([FromRoute] string id)
 		{
 			var response = await _ticketService.GetTicketById(id);
 			return StatusCode(response.StatusCode, response);

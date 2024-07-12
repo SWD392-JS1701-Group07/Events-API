@@ -85,19 +85,12 @@ namespace Events.Utils.Helpers
 
         public async Task<bool> DeleteImageAsync(string publicId)
         {
-            if (await ImageExistsAsync(publicId))
-            {
-                var deletionParams = new DeletionParams(publicId);
-                var result = await _cloudinary.DestroyAsync(deletionParams);
+            var deletionParams = new DeletionParams(publicId);
+            var result = await _cloudinary.DestroyAsync(deletionParams);
 
-                if (result.StatusCode == System.Net.HttpStatusCode.OK && result.Result == "ok")
-                {
-                    return true;
-                }
-                else
-                {
-                    throw new Exception(result.Error.Message);
-                }
+            if (result.StatusCode == System.Net.HttpStatusCode.OK && result.Result == "ok")
+            {
+                return true;
             }
             else
             {

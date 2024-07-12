@@ -13,6 +13,6 @@ namespace Events.Data.DTOs.Request
 		public string Email { get; set; }
 		public string PhoneNumber { get; set; }
 		public IFormFile? AvatarFile { get; set; }
-		public int? AccountId { get; set; }
+		public bool CreateAccount { get; set; }
 	}
 }

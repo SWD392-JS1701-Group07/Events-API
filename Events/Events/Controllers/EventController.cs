@@ -97,7 +97,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPatch("events/{id}/complete")]
-        // [Authorize(Roles = "4")]
+        [Authorize(Roles = "4, 5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateEventStatusToCompleted(int id)
@@ -148,7 +148,7 @@ namespace Events.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateEventDetails(int id, [FromForm] CreateEventDTO updateEventDTO, IFormFile? avatarFile)
+        public async Task<IActionResult> UpdateEventDetails(int id, [FromBody] UpdateEventDTO updateEventDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -161,16 +161,13 @@ namespace Events.API.Controllers
                 return NotFound();
             }
 
-            try
+            var updateResult = await _eventService.UpdateEventDetails(id, updateEventDTO);
+            if (!updateResult.IsSuccess)
             {
-                await _eventService.UpdateEventDetails(id, updateEventDTO, avatarFile);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
+                return StatusCode(updateResult.StatusCode, updateResult.Message);
             }
 
-            return Ok(updateEventDTO);
+            return Ok(updateResult);
         }
         /// <summary>
         /// delete-event
@@ -256,7 +253,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("collaborators/{id}")]
-        [Authorize(Roles = "2,3,45")]
+        [Authorize(Roles = "2,3,4,5")]
         public async Task<IActionResult> GetEventByCollaboratorsId(int id)
         {
             var eventExist = await _eventService.GetEventByCollaboratorId(id);

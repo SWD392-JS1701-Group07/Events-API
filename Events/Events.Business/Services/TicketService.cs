@@ -73,9 +73,9 @@ namespace Events.Business.Services
 					};
 				}
 				int? customerId = null;
-				if (accountFromDb.RoleId != 1 && accountFromDb.RoleId != 4)
+				if (accountFromDb.RoleId == 2)
 				{
-					customerId = (await _customerRepository.GetCustomerByEmail(email)).Id;
+					customerId = (await _customerRepository.GetCustomerByEmail(email))?.Id;
 				}
 				var tickets = await _ticketRepository.GetTicketFilter(accountFromDb, customerId, isBought, orderId, searchTern, includeProps);
 				if(!tickets.Any())

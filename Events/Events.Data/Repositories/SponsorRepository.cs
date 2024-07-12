@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace Events.Data.Repositories
 {
@@ -17,7 +19,43 @@ namespace Events.Data.Repositories
             _context = context;
         }
 
-		public async Task<IEnumerable<Sponsor>> GetAllSponsor() => await _context.Sponsors.ToListAsync();
+		public async Task<IEnumerable<Sponsor>> GetAllSponsor(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
+        {
+            IQueryable<Sponsor> query = _context.Sponsors;
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(p => p.Name.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortColumn) && !string.IsNullOrWhiteSpace(sortOrder))
+            {
+                Expression<Func<Sponsor, object>> keySelector = sortColumn switch
+                {
+                    "name" => e => e.Name,
+                    "email" => e => e.Email,
+                    "phoneNumber" => e => e.PhoneNumber,
+                    _ => e => e.Id,
+                };
+
+                query = sortOrder.ToLower() switch
+                {
+                    "asc" => query.OrderBy(keySelector),
+                    "desc" => query.OrderByDescending(keySelector),
+                    _ => query.OrderBy(keySelector)
+                };
+            }
+            else
+            {
+                query = query.OrderBy(e => e.Id);
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var sponsor = await query.ToListAsync();
+            return sponsor;
+        }
+    
 
 		public async Task<Sponsor> GetSponsorByIdAsync(int id) => await _context.Sponsors.FindAsync(id) ?? throw new KeyNotFoundException("Sponsor not found!");
 
@@ -101,6 +139,11 @@ namespace Events.Data.Repositories
         public async Task<Sponsor> GetSponsorByAccountId(int id)
         {
             return await _context.Sponsors.FirstOrDefaultAsync(e => e.AccountId == id);
+        }
+
+        public async Task<Sponsor> GetSponsorByPhoneNumberAsync(string phoneNumber)
+        {
+            return await _context.Sponsors.FirstOrDefaultAsync(e => e.PhoneNumber == phoneNumber);
         }
     }
 }
