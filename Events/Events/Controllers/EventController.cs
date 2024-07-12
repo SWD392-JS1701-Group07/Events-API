@@ -144,7 +144,7 @@ namespace Events.API.Controllers
             return Ok(events);
         }
         [HttpPut("{id}/update-details")]
-        //[Authorize(Roles = "5")]
+        [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -253,7 +253,7 @@ namespace Events.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("collaborators/{id}")]
-        [Authorize(Roles = "2,3,45")]
+        [Authorize(Roles = "2,3,4,5")]
         public async Task<IActionResult> GetEventByCollaboratorsId(int id)
         {
             var eventExist = await _eventService.GetEventByCollaboratorId(id);

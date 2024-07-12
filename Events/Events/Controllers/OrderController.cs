@@ -8,6 +8,7 @@ using Events.Data.Repositories.Interfaces;
 using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Plugins;
 
@@ -84,7 +85,7 @@ namespace Events.API.Controllers
 		}
 
 		[HttpGet("/orders")]
-		public async Task<IActionResult> GetAllOrder([FromQuery] bool? isBought = null,
+        public async Task<IActionResult> GetAllOrder([FromQuery] bool? isBought = null,
 													[FromQuery] string? searchTerm = null,
 													[FromQuery] string email = "john@example.com")
 		{
