@@ -137,6 +137,7 @@ builder.Services.AddScoped<IVNPayPaymentService, VNPayPaymentService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
 
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 

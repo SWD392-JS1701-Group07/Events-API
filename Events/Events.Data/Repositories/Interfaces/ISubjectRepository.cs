@@ -10,5 +10,6 @@ namespace Events.Data.Repositories.Interfaces
     public interface ISubjectRepository
     {
         Task<Subject> GetSubjectById(int id);
+        Task<List<Subject>> GetAllSubjects();
     }
 }
