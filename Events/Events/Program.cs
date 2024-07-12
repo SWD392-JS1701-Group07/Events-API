@@ -147,7 +147,11 @@ builder.Services.AddScoped<QrHelper>();
 
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder =>
-        policyBuilder.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+    policyBuilder.WithOrigins("http://localhost:5173", "https://fuemm.netlify.app")
+                 .AllowAnyMethod()
+                 .AllowAnyHeader()
+                 .AllowCredentials()));
+
 
 // Register the background service
 //builder.Services.AddHostedService<EventStatusUpdateService>();
