@@ -155,12 +155,13 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder =>
 	{
 		throw new ArgumentNullException("AppFrontend", "Frontend URL cannot be null or empty.");
 	}
-	policyBuilder.WithOrigins(frontendUrl)
+	policyBuilder.WithOrigins(frontendUrl,"http://localhost:5173")
 					 .AllowAnyMethod()
 					 .AllowAnyHeader()
 					 .AllowCredentials();
 }));
 		
+
 
 // Register the background service
 //builder.Services.AddHostedService<EventStatusUpdateService>();
