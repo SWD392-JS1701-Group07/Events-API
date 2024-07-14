@@ -22,13 +22,19 @@ namespace Events.Business.Services
         private readonly ISponsorshipRepository _sponsorshipRepository;
         private readonly IMapper _mapper;
         private readonly ISponsorRepository _sponsorRepository;
+        private readonly IAccountRepository _accountRepository;
         private readonly IEventRepository _eventRepository;
 
-        public SponsorshipService(ISponsorshipRepository sponsorshipRepository, IMapper mapper, ISponsorRepository sponsorRepository, IEventRepository eventRepository)
+        public SponsorshipService(ISponsorshipRepository sponsorshipRepository, 
+            IMapper mapper, 
+            ISponsorRepository sponsorRepository, 
+            IAccountRepository accountRepository,
+            IEventRepository eventRepository)
         {
             _sponsorshipRepository = sponsorshipRepository;
             _mapper = mapper;
             _sponsorRepository = sponsorRepository;
+            _accountRepository = accountRepository;
             _eventRepository = eventRepository;
         }
 
@@ -236,27 +242,9 @@ namespace Events.Business.Services
 
         public async Task<BaseResponse> GetSponsorshipBySponsorId(int id, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
-            var sponsorship = await _sponsorshipRepository.GetSponsorshipBySponsorId(id, searchTerm, sortColumn, sortOrder, page, pageSize);
+            var sponsor = await _sponsorRepository.GetSponsorByAccountId(id);
 
-            List<SponsorshipsWithEventName> results = new List<SponsorshipsWithEventName>();
-            foreach(var e in sponsorship)
-            {
-                var eventNames = await _eventRepository.GetEventById(e.EventId);
-                SponsorshipsWithEventName sponsorshipsWithEvent = new SponsorshipsWithEventName
-                {
-                    Id = e.Id,
-                    Description = e.Description,
-                    Type = e.Type,
-                    Title = e.Title,
-                    Sum = e.Sum,
-                    SponsorId = e.SponsorId,
-                    EventId = e.EventId,
-                    EventName = eventNames.Name
-                };
-
-                results.Add(sponsorshipsWithEvent);
-            }
-            if (results == null)
+            if(sponsor == null)
             {
                 return new BaseResponse
                 {
@@ -268,15 +256,59 @@ namespace Events.Business.Services
             }
             else
             {
-                return new BaseResponse
-                {
-                    StatusCode = 200,
-                    Data = results,
-                    IsSuccess = true,
-                    Message = "Return successfully"
-                };
-            }
+                var accountId = sponsor.AccountId;
 
+                if (accountId == null)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 404,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "Unfound"
+                    };
+                }
+                var sponsorship = await _sponsorshipRepository.GetSponsorshipBySponsorId((int)accountId, searchTerm, sortColumn, sortOrder, page, pageSize);
+
+                List<SponsorshipsWithEventName> results = new List<SponsorshipsWithEventName>();
+                foreach (var e in sponsorship)
+                {
+                    var eventNames = await _eventRepository.GetEventById(e.EventId);
+                    SponsorshipsWithEventName sponsorshipsWithEvent = new SponsorshipsWithEventName
+                    {
+                        Id = e.Id,
+                        Description = e.Description,
+                        Type = e.Type,
+                        Title = e.Title,
+                        Sum = e.Sum,
+                        SponsorId = e.SponsorId,
+                        EventId = e.EventId,
+                        EventName = eventNames.Name
+                    };
+
+                    results.Add(sponsorshipsWithEvent);
+                }
+                if (results == null)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 404,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "Unfound"
+                    };
+                }
+                else
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 200,
+                        Data = results,
+                        IsSuccess = true,
+                        Message = "Return successfully"
+                    };
+                }
+            }
         }
 
         public async Task<BaseResponse> UpdateSponsorship(int id, CreateSponsorshipDTO createSponsorshipDTO)
