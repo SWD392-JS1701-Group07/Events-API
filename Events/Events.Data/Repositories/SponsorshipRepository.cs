@@ -93,5 +93,42 @@ namespace Events.Data.Repositories
             }
 
         }
+
+        public async Task<List<Sponsorship>> GetSponsorshipBySponsorId(int id, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
+        {
+            IQueryable<Sponsorship> query = _context.Sponsorships.Where(e => e.SponsorId == id);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(p => p.Title.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortColumn) && !string.IsNullOrWhiteSpace(sortOrder))
+            {
+                Expression<Func<Sponsorship, object>> keySelector = sortColumn switch
+                {
+                    "sum" => e => e.Sum,
+                    "sponsor" => e => e.Sponsor,
+                    "title" => e => e.Title,
+                    _ => e => e.Id,
+                };
+
+                query = sortOrder.ToLower() switch
+                {
+                    "asc" => query.OrderBy(keySelector),
+                    "desc" => query.OrderByDescending(keySelector),
+                    _ => query.OrderBy(keySelector)
+                };
+            }
+            else
+            {
+                query = query.OrderBy(e => e.Id);
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var sponsorships = await query.ToListAsync();
+            return sponsorships;
+        }
     }
 }

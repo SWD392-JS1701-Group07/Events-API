@@ -12,6 +12,7 @@ namespace Events.Data.Repositories.Interfaces
     {
         Task<List<Sponsorship>> GetAllSponsorships(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<Sponsorship> GetSponsorshipById(int id);
+        Task<List<Sponsorship>> GetSponsorshipBySponsorId(int id, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<List<Sponsorship>> GetAllSponsorshipsByEventId(int id);
         Task<bool> CreateSponsorship(Sponsorship sponsorship);
         Task<bool> UpdateSponsorship(Sponsorship sponsorship);

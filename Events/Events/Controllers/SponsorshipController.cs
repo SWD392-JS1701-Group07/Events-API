@@ -36,6 +36,14 @@ namespace Events.API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [HttpGet("sponsors/{id}")]
+        [Authorize(Roles = "1,3,4,5")]
+        public async Task<IActionResult> GetSponsorshipBySponsorId([FromQuery] int id, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
+        {
+            var result = await _sponsorshipService.GetSponsorshipBySponsorId(id, searchTerm, sortColumn, sortOrder, page, pageSize);
+            return StatusCode(result.StatusCode, result);
+        }
+
         [HttpPost]
         [Authorize(Roles = "3, 5")]
         public async Task<IActionResult> CreateSponsorship(CreateSponsorshipDTO createSponsorshipDTO)
