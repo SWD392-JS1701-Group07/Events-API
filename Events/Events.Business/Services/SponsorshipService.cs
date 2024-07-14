@@ -6,6 +6,7 @@ using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
 using Events.Models.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -33,59 +34,101 @@ namespace Events.Business.Services
 
         public async Task<BaseResponse> CreateSponsorship(CreateSponsorshipDTO createSponsorshipDTO)
         {
-            var sponsor = await _sponsorRepository.GetSponsorByIdAsync(createSponsorshipDTO.SponsorId);
-            var eventExist = await _eventRepository.GetEventById(createSponsorshipDTO.EventId);
-            if(sponsor == null)
+            if(createSponsorshipDTO.Sum <= 0)
             {
                 return new BaseResponse
                 {
-                    StatusCode = 404,
+                    StatusCode = 500,
                     Data = null,
                     IsSuccess = false,
-                    Message = "Can't found this sponsor"
+                    Message = "The sum value is not valid"
                 };
-            } else if(eventExist == null)
+            } else if (createSponsorshipDTO.Title.Trim().IsNullOrEmpty())
             {
                 return new BaseResponse
                 {
-                    StatusCode = 404,
+                    StatusCode = 500,
                     Data = null,
                     IsSuccess = false,
-                    Message = "Can't found this event"
+                    Message = "The title value is not valid"
                 };
             }
             else
             {
-                SponsorshipDTO sponsorship = new SponsorshipDTO
-                {
-                    Description = createSponsorshipDTO.Description,
-                    Type = createSponsorshipDTO.Type,
-                    Title = createSponsorshipDTO.Title,
-                    Sum = createSponsorshipDTO.Sum,
-                    SponsorId = createSponsorshipDTO.SponsorId,
-                    EventId = createSponsorshipDTO.EventId,
-                };
-
-                var result = await _sponsorshipRepository.CreateSponsorship(_mapper.Map<Sponsorship>(sponsorship));
-                if (result)
+                var sponsor = await _sponsorRepository.GetSponsorByIdAsync(createSponsorshipDTO.SponsorId);
+                var eventExist = await _eventRepository.GetEventById(createSponsorshipDTO.EventId);
+                if (sponsor == null)
                 {
                     return new BaseResponse
                     {
-                        StatusCode = 200,
-                        Data = sponsorship,
-                        IsSuccess = true,
-                        Message = "Craeted successfully"
+                        StatusCode = 404,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "Can't found this sponsor"
+                    };
+                }
+                else if (eventExist == null)
+                {
+                    return new BaseResponse
+                    {
+                        StatusCode = 404,
+                        Data = null,
+                        IsSuccess = false,
+                        Message = "Can't found this event"
                     };
                 }
                 else
                 {
-                    return new BaseResponse
+                    var sum = createSponsorshipDTO.Sum;
+                    string type;
+                    if (sum < 1000000)
                     {
-                        StatusCode = 500,
-                        Data = null,
-                        IsSuccess = false,
-                        Message = "Something went wrong"
+                        type = "Bronze";
+                    }
+                    else if (1000000 <= sum && sum <= 5000000)
+                    {
+                        type = "Silver";
+                    }
+                    else if (5000000 <= sum && sum <= 10000000)
+                    {
+                        type = "Gold";
+                    }
+                    else
+                    {
+                        type = "Platinum";
+                    }
+
+                    SponsorshipDTO sponsorship = new SponsorshipDTO
+                    {
+                        Description = createSponsorshipDTO.Description,
+                        Type = type,
+                        Title = createSponsorshipDTO.Title,
+                        Sum = createSponsorshipDTO.Sum,
+                        SponsorId = createSponsorshipDTO.SponsorId,
+                        EventId = createSponsorshipDTO.EventId,
                     };
+
+                    var result = await _sponsorshipRepository.CreateSponsorship(_mapper.Map<Sponsorship>(sponsorship));
+                    if (result)
+                    {
+                        return new BaseResponse
+                        {
+                            StatusCode = 200,
+                            Data = sponsorship,
+                            IsSuccess = true,
+                            Message = "Craeted successfully"
+                        };
+                    }
+                    else
+                    {
+                        return new BaseResponse
+                        {
+                            StatusCode = 500,
+                            Data = null,
+                            IsSuccess = false,
+                            Message = "Something went wrong"
+                        };
+                    }
                 }
             }
         }
@@ -132,7 +175,24 @@ namespace Events.Business.Services
         public async Task<BaseResponse> GetAllSponsorship(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
         {
             var sponsorships = await _sponsorshipRepository.GetAllSponsorships(searchTerm, sortColumn, sortOrder, page, pageSize);
-            var results = _mapper.Map<List<SponsorshipDTO>>(sponsorships);
+            List<SponsorshipsWithEventName> results = new List<SponsorshipsWithEventName>();
+            foreach (var e in sponsorships)
+            {
+                var eventNames = await _eventRepository.GetEventById(e.EventId);
+                SponsorshipsWithEventName sponsorshipsWithEvent = new SponsorshipsWithEventName
+                {
+                    Id = e.Id,
+                    Description = e.Description,
+                    Type = e.Type,
+                    Title = e.Title,
+                    Sum = e.Sum,
+                    SponsorId = e.SponsorId,
+                    EventId = e.EventId,
+                    EventName = eventNames.Name
+                };
+
+                results.Add(sponsorshipsWithEvent);
+            }
             return results.Any() ? new BaseResponse
             {
                 StatusCode = 200,
@@ -174,25 +234,71 @@ namespace Events.Business.Services
             }  
         }
 
+        public async Task<BaseResponse> GetSponsorshipBySponsorId(int id, string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
+        {
+            var sponsorship = await _sponsorshipRepository.GetSponsorshipBySponsorId(id, searchTerm, sortColumn, sortOrder, page, pageSize);
+
+            List<SponsorshipsWithEventName> results = new List<SponsorshipsWithEventName>();
+            foreach(var e in sponsorship)
+            {
+                var eventNames = await _eventRepository.GetEventById(e.EventId);
+                SponsorshipsWithEventName sponsorshipsWithEvent = new SponsorshipsWithEventName
+                {
+                    Id = e.Id,
+                    Description = e.Description,
+                    Type = e.Type,
+                    Title = e.Title,
+                    Sum = e.Sum,
+                    SponsorId = e.SponsorId,
+                    EventId = e.EventId,
+                    EventName = eventNames.Name
+                };
+
+                results.Add(sponsorshipsWithEvent);
+            }
+            if (results == null)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 404,
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "Unfound"
+                };
+            }
+            else
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 200,
+                    Data = results,
+                    IsSuccess = true,
+                    Message = "Return successfully"
+                };
+            }
+
+        }
+
         public async Task<BaseResponse> UpdateSponsorship(int id, CreateSponsorshipDTO createSponsorshipDTO)
         {
-            if (createSponsorshipDTO.Title.Trim().IsNullOrEmpty())
+            if (createSponsorshipDTO.Sum <= 0)
             {
                 return new BaseResponse
                 {
-                    StatusCode = 404,
+                    StatusCode = 500,
                     Data = null,
                     IsSuccess = false,
-                    Message = "The title can't be empty"
+                    Message = "The sum value is not valid"
                 };
-            } else if (createSponsorshipDTO.Type.Trim().IsNullOrEmpty())
+            }
+            else if (createSponsorshipDTO.Title.Trim().IsNullOrEmpty())
             {
                 return new BaseResponse
                 {
-                    StatusCode = 404,
+                    StatusCode = 500,
                     Data = null,
                     IsSuccess = false,
-                    Message = "The type can't be empty"
+                    Message = "The title value is not valid"
                 };
             }
             else
@@ -213,7 +319,27 @@ namespace Events.Business.Services
                     sponsorshipExist.Title = createSponsorshipDTO.Title;
                     sponsorshipExist.Sum = createSponsorshipDTO.Sum;
                     sponsorshipExist.Description = createSponsorshipDTO.Description;
-                    sponsorshipExist.Type = createSponsorshipDTO.Type;
+
+                    var sum = createSponsorshipDTO.Sum;
+                    string type;
+                    if (sum < 1000000)
+                    {
+                        type = "Bronze";
+                    }
+                    else if (1000000 <= sum && sum <= 5000000)
+                    {
+                        type = "Silver";
+                    }
+                    else if (5000000 <= sum && sum <= 10000000)
+                    {
+                        type = "Gold";
+                    }
+                    else
+                    {
+                        type = "Platinum";
+                    }
+
+                    sponsorshipExist.Type = type;
 
                     var result = await _sponsorshipRepository.UpdateSponsorship(sponsorshipExist);
 

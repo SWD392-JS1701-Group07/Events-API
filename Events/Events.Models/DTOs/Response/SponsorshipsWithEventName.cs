@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Events.Models.DTOs.Request
+namespace Events.Models.DTOs.Response
 {
-    public class CreateSponsorshipDTO
+    public class SponsorshipsWithEventName
     {
+        public int Id { get; set; }
+
         public string? Description { get; set; }
+
+        public string Type { get; set; } = null!;
 
         public string Title { get; set; } = null!;
 
@@ -17,5 +21,6 @@ namespace Events.Models.DTOs.Request
         public int SponsorId { get; set; }
 
         public int EventId { get; set; }
+        public string EventName { get; set; }
     }
 }
