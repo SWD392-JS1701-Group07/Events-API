@@ -79,7 +79,7 @@ namespace Events.API.Controllers
 			return Redirect(url);
         }
 
-		[HttpGet("orders/{id}", Name = nameof(GetOrderById))]
+		[HttpGet("/orders/{id}", Name = nameof(GetOrderById))]
 		public async Task<IActionResult> GetOrderById([FromRoute] string id) 
 		{
 			var response = await _orderService.GetOrderByOrderId(id);
@@ -89,7 +89,7 @@ namespace Events.API.Controllers
 		[HttpGet("/orders")]
         public async Task<IActionResult> GetAllOrder([FromQuery] bool? isBought = null,
 													[FromQuery] string? searchTerm = null,
-													[FromQuery] string email = "john@example.com")
+													[FromQuery] string email = "johnDoe1@gmail.com")
 		{
 			var response = await _orderService.GetOrderFilter(email, isBought, searchTerm, includeProps: "Customer,Tickets,Transactions");
 			return StatusCode(response.StatusCode, response);

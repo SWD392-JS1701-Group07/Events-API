@@ -12,6 +12,7 @@ using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,7 @@ namespace Events.Business.Services
 		private readonly IEventService _eventService;
 		private readonly IVNPayPaymentService _vnPayPaymentService;
 		private readonly IMapper _mapper;
+		private readonly IEventRepository _eventRepository;
 		private readonly EventsDbContext _dbContext;
 		private readonly ICustomerRepository _customerRepository;
 		private readonly ITransactionRepository _transactionRepository;
@@ -39,7 +41,7 @@ namespace Events.Business.Services
 		private readonly EmailHelper _emailHelper;
 		private readonly QrHelper _qrHelper;
 
-		public OrderService(IOrderRepository orderRepository, ITicketRepository ticketRepository, ITicketService ticketService, IEventService eventService, IVNPayPaymentService vnPayPaymentService, IMapper mapper, EventsDbContext dbContext, ICustomerRepository customerRepository, ITransactionRepository transactionRepository, IAccountRepository accountRepository, EmailHelper emailHelper, QrHelper qrHelper)
+		public OrderService(IOrderRepository orderRepository, ITicketRepository ticketRepository, ITicketService ticketService, IEventService eventService, IVNPayPaymentService vnPayPaymentService, IMapper mapper, IEventRepository eventRepository, EventsDbContext dbContext, ICustomerRepository customerRepository, ITransactionRepository transactionRepository, IAccountRepository accountRepository, EmailHelper emailHelper, QrHelper qrHelper)
 		{
 			_orderRepository=orderRepository;
 			_ticketRepository=ticketRepository;
@@ -47,6 +49,7 @@ namespace Events.Business.Services
 			_eventService=eventService;
 			_vnPayPaymentService=vnPayPaymentService;
 			_mapper=mapper;
+			_eventRepository=eventRepository;
 			_dbContext=dbContext;
 			_customerRepository=customerRepository;
 			_transactionRepository=transactionRepository;
@@ -83,7 +86,7 @@ namespace Events.Business.Services
 						// Check if customer already exists
 						var customerExist = await _customerRepository.CheckCustomerExist(request.Email, request.PhoneNumber);
 						Customer customer;
-						if(customerExist)
+						if (customerExist)
 						{
 							customer = await _customerRepository.GetCustomerByEmail(request.Email);
 						}
@@ -140,7 +143,13 @@ namespace Events.Business.Services
 						if (request.TotalAmount > 0)
 						{
 							var payUrl = _vnPayPaymentService.CreatePayment(request.TotalAmount.ToString(), $"Payment for order #{orderEntity.Id}", context);
-							return new BaseResponse { IsSuccess = true, Message = "Order created. Proceed to payment.", Data = payUrl };
+							return new BaseResponse
+							{
+								StatusCode = StatusCodes.Status200OK,
+								IsSuccess = true,
+								Message = "Order created. Proceed to payment.",
+								Data = payUrl
+							};
 						}
 
 						var orderFromDb = await _orderRepository.GetOrderByIdAsync(orderEntity.Id);
@@ -207,7 +216,7 @@ namespace Events.Business.Services
 			}
 		}
 
-		public async Task<BaseResponse> GetOrderFilter(string email = "john@example.com", bool? isBought = null, string? searchTern = null, string? includeProps = null)
+		public async Task<BaseResponse> GetOrderFilter(string email = "johnDoe1@gmail.com", bool? isBought = null, string? searchTern = null, string? includeProps = null)
 		{
 			try
 			{
@@ -229,7 +238,7 @@ namespace Events.Business.Services
 				}
 
 				var orderDto = await _orderRepository.GetAllOrdersFitlter(accountFromDb, customerId, isBought, searchTern, includeProps);
-				if(!orderDto.Any())
+				if (!orderDto.Any())
 				{
 					return new BaseResponse
 					{
@@ -304,10 +313,10 @@ namespace Events.Business.Services
 										await _orderRepository.UpdateOrderStatusAsync(orderFromDb);
 
 										var responseTicketBought = await _ticketService.GetTicketFilter(isBought: true, orderId: orderFromDb.Id, includeProps: "Orders");
-										if(responseTicketBought.IsSuccess)
+										if (responseTicketBought.IsSuccess)
 										{
 											var ticketBought = responseTicketBought.Data as IEnumerable<SimpleTicketDTO>;
-											if(ticketBought!.Any())
+											if (ticketBought!.Any())
 											{
 												var eventTicketQuantities = ticketBought!
 													.GroupBy(ticket => ticket.EventId)
@@ -413,26 +422,49 @@ namespace Events.Business.Services
 
 		private async Task<BaseResponse> ValidateRequest(CreateOrderRequest request)
 		{
-			var errors = new Dictionary<string, string>();
+			var errors = new Dictionary<string, List<string>>();
 			foreach (var ticketDetail in request.Tickets)
 			{
-				var ticketExists = await _ticketRepository.CheckTicketExist(ticketDetail.Email, ticketDetail.PhoneNumber, ticketDetail.EventId);
-				if (ticketExists)
+				var eventEntity = await _eventRepository.GetEventById(ticketDetail.EventId);
+				string eventName;
+				double eventPrice = 0;  
+				if(eventEntity != null)
 				{
-					var key = $"{ticketDetail.Email}-{ticketDetail.PhoneNumber}";
-					if (!errors.ContainsKey(key))
+					eventName = eventEntity.Name;
+					eventPrice = eventEntity!.Price;
+					// check ticket exist
+					var ticketExists = await _ticketRepository.CheckTicketExist(ticketDetail.Email, ticketDetail.PhoneNumber, ticketDetail.EventId);
+					if (ticketExists)
 					{
-						errors.Add(key, $"A ticket with either phone number '{ticketDetail.PhoneNumber}' or email '{ticketDetail.Email}' already exists for event '{ticketDetail.EventId}'");
+						var key = $"{ticketDetail.Email}-{ticketDetail.PhoneNumber}";
+						if (!errors.ContainsKey(key))
+						{
+							errors.Add(key, new List<string>());
+						}
+						errors[key].Add($"A ticket with either email '{ticketDetail.Email}' or phone number '{ticketDetail.PhoneNumber}' already exists for event '{eventName}'");
+					}
+
+					//check event price
+					var keyTicketPrice = $"{ticketDetail.Email}-{ticketDetail.PhoneNumber}";
+					if (ticketDetail.Price != eventPrice)
+					{
+						if (!errors.ContainsKey(keyTicketPrice))
+						{
+							errors.Add(keyTicketPrice, new List<string>());
+						}
+						errors[keyTicketPrice].Add($"A ticket with email '{ticketDetail.Email}' and phone number '{ticketDetail.PhoneNumber}' not correct price");
 					}
 				}
-				var eventResponse = await _eventService.GetEventById(ticketDetail.EventId);
-				if (!eventResponse.IsSuccess)
+
+				//check event exist
+				if (eventEntity == null)
 				{
 					var key = $"{ticketDetail.EventId}";
 					if (!errors.ContainsKey(key))
 					{
-						errors.Add(key, $"Not found Event with event id '{ticketDetail.EventId}'");
+						errors.Add(key, new List<string>());
 					}
+					errors[key].Add($"Not found Event with event id '{ticketDetail.EventId}'");
 				}
 			}
 			if (errors.Count!=0)
@@ -442,7 +474,7 @@ namespace Events.Business.Services
 					StatusCode = StatusCodes.Status400BadRequest,
 					Message = "There are some errors in the request!!",
 					IsSuccess = false,
-					Errors = errors
+					Errors = errors.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray())
 				};
 			}
 			return new BaseResponse { IsSuccess = true };

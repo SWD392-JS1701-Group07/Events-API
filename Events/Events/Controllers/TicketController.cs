@@ -24,7 +24,7 @@ namespace Events.API.Controllers
         public async Task<IActionResult> GetAllTicket([FromQuery] bool? isBought = null,
 													[FromQuery] string? searchTerm = null,
 													[FromQuery] string? orderId = null,
-													[FromQuery] string email = "john@example.com")
+													[FromQuery] string email = "johnDoe1@gmail.com")
 		{
 			var response = await _ticketService.GetTicketFilter(email, isBought, orderId: orderId, searchTerm, includeProps: "Orders,Event");
 			return StatusCode(response.StatusCode, response);

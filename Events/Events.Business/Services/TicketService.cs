@@ -73,7 +73,7 @@ namespace Events.Business.Services
 			}
 		}
 
-		public async Task<BaseResponse> GetTicketFilter(string email = "john@example.com", bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null)
+		public async Task<BaseResponse> GetTicketFilter(string email = "johnDoe1@gmail.com", bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null)
 		{
 			try
 			{
