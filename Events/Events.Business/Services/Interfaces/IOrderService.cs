@@ -16,6 +16,6 @@ namespace Events.Business.Services.Interfaces
 		Task<BaseResponse> CreateOrderAndPayment(CreateOrderRequest request, HttpContext context);
 		Task<BaseResponse> HandlePaymentCallback(IQueryCollection query);
 		Task<BaseResponse> GetOrderByOrderId(string id);
-		Task<BaseResponse> GetOrderFilter(string email = "john@example.com", bool? isBought = null, string? searchTern = null, string? includeProps = null);
+		Task<BaseResponse> GetOrderFilter(string email = "johnDoe1@gmail.com", bool? isBought = null, string? searchTern = null, string? includeProps = null);
 	}
 }

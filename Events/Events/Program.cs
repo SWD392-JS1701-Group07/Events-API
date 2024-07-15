@@ -80,6 +80,10 @@ builder.Services.AddSwaggerGen(c =>
 
 //CLoudinary
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+
+//Bind Vnpay into VnpaySettings
+builder.Services.Configure<VnpaySettings>(builder.Configuration.GetSection("Vnpay"));
+
 //Authentication
 builder.Services.AddAuthentication(options =>
 	options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).
@@ -109,6 +113,7 @@ builder.Services.AddAuthentication(options =>
 			}
 		};
 	});
+
 
 builder.Services.AddAutoMapper(typeof(Events.Business.Mapping.MappingProfiles));
 
