@@ -12,6 +12,7 @@ namespace Events.Data.Repositories.Interfaces
     {
         Task<IEnumerable<Sponsor>> GetAllSponsor(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
         Task<Sponsor> GetSponsorByIdAsync(int id);
+        Task<Sponsor> GetSponsorById(int id);
         Task<bool> UpdateSponsorAsync(Sponsor sponsor);
         Task<bool> AddSponsorAsync(Sponsor sponsor);
         Task<bool> DeleteSponsorAsync(Sponsor sponsor);
