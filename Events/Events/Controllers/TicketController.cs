@@ -53,9 +53,9 @@ namespace Events.API.Controllers
 
         [HttpGet("event/{id}")]
         [Authorize(Roles = "4,5")]
-        public async Task<IActionResult> GetTicketByEventId(int id)
+        public async Task<IActionResult> GetTicketByEventId(int id, string? searchTerm)
         {
-            var response = await _ticketService.GetTicketByEventId(id);
+            var response = await _ticketService.GetTicketByEventId(id, searchTerm);
             return StatusCode(response.StatusCode, response);
         }
 

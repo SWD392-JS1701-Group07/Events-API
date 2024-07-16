@@ -16,7 +16,7 @@ namespace Events.Business.Services.Interfaces
 		Task<BaseResponse> GetTicketFilter(string? email = "johnDoe1@gmail.com", bool? isBought = null, string? orderId = null, string? searchTern = null, string? includeProps = null);
         Task<BaseResponse> GetTicketById(string ticketId);
 
-        Task<BaseResponse> GetTicketByEventId(int eventId);
+        Task<BaseResponse> GetTicketByEventId(int eventId, string? searchTerm);
         Task<BaseResponse> UpdateTicketStatus(string ticketId, string status);
     }
 }

@@ -31,7 +31,7 @@ namespace Events.Business.Services
                     new Claim(ClaimTypes.Role, account.RoleId.ToString()),
                     new Claim("status", account.AccountStatus.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddHours(10),
+                Expires = DateTime.UtcNow.AddHours(100),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             };
 

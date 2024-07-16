@@ -39,9 +39,16 @@ namespace Events.Data.Repositories
 			await _context.Tickets.AddAsync(ticket);
 		}
 
-        public async Task<IEnumerable<Ticket>> GetTicketByEventId(int id)
+        public async Task<IEnumerable<Ticket>> GetTicketByEventId(int id, string? searchTerm)
         {
-            return await _context.Tickets.Where(t => t.EventId == id).ToListAsync();
+			if(string.IsNullOrWhiteSpace(searchTerm))
+			{
+                return await _context.Tickets.Where(t => t.EventId == id).ToListAsync();
+			}
+			else
+			{
+                return await _context.Tickets.Where(t => t.EventId == id && t.PhoneNumber.Contains(searchTerm)).ToListAsync();
+            }
         }
 
         public async Task<Ticket> GetTicketById(string ticketId)
