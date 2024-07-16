@@ -5,8 +5,10 @@ using Events.Models.DTOs;
 using Events.Models.DTOs.Request;
 using Events.Models.DTOs.Response;
 using Events.Models.Models;
+using Events.Utils;
 using MailKit.Search;
 using Microsoft.AspNetCore.Http;
+using static Events.Utils.Enums;
 
 namespace Events.Business.Services
 {
@@ -120,5 +122,44 @@ namespace Events.Business.Services
 				};
 			}
 		}
-	}
+
+        public async Task<BaseResponse> UpdateTicketStatus(string ticketId, string status)
+        {
+			var ticket = await _ticketRepository.GetTicketById(ticketId);
+			if (ticket == null)
+			{
+                return new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    IsSuccess = false,
+                    Message = "Ticket unfound!"
+                };
+			}
+			else
+			{
+				ticket.IsCheckIn = Enum.Parse<IsCheckin>(status);
+
+				var result = await _ticketRepository.UpdateTicket(ticket);
+				if (result)
+				{
+                    return new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status200OK,
+                        IsSuccess = true,
+                        Message = "Update successfully"
+                    };
+				}
+				else
+				{
+                    return new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        IsSuccess = false,
+                        Message = "Update unsuccessfully"
+                    };
+                }
+			}
+
+        }
+    }
 }

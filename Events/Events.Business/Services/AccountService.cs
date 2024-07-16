@@ -412,6 +412,7 @@ namespace Events.Business.Services
 
                     if (result)
                     {
+                        _emailHelper.SendEmailToNewAccount(account.Email, account.Username, account.Password);
                         return new BaseResponse
                         {
                             StatusCode = 200,

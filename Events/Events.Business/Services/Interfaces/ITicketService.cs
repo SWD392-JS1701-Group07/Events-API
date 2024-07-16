@@ -17,5 +17,6 @@ namespace Events.Business.Services.Interfaces
         Task<BaseResponse> GetTicketById(string ticketId);
 
         Task<BaseResponse> GetTicketByEventId(int eventId);
-  }
+        Task<BaseResponse> UpdateTicketStatus(string ticketId, string status);
+    }
 }
