@@ -192,7 +192,7 @@ namespace Events.Business.Services
             foreach (var scheduleDTO in createEventDTO.ScheduleList)
             {
                 // Validation: EndSellDate < StartTime
-                if (createEventDTO.EndSellDate >= scheduleDTO.StartTime)
+                if (createEventDTO.EndSellDate > scheduleDTO.StartTime)
                 {
                     return new BaseResponse
                     {
