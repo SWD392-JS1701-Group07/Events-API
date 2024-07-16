@@ -41,14 +41,16 @@ namespace Events.Data.Repositories
 
         public async Task<IEnumerable<Ticket>> GetTicketByEventId(int id, string? searchTerm)
         {
-			if(string.IsNullOrWhiteSpace(searchTerm))
-			{
-                return await _context.Tickets.Where(t => t.EventId == id).ToListAsync();
-			}
-			else
-			{
-                return await _context.Tickets.Where(t => t.EventId == id && t.PhoneNumber.Contains(searchTerm)).ToListAsync();
+            IQueryable<Ticket> query = _context.Tickets
+                .Where(t => t.EventId == id && t.Orders.OrderStatus == Enums.OrderStatus.Success)
+                .Include(e => e.Orders);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(e => e.PhoneNumber.Contains(searchTerm));
             }
+
+            return await query.ToListAsync();
         }
 
         public async Task<Ticket> GetTicketById(string ticketId)

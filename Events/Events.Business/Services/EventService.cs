@@ -129,7 +129,7 @@ namespace Events.Business.Services
                     Message = "StartSellDate must be after the current time",
                     IsSuccess = false
                 };
-            }            
+            }
 
             if (createEventDTO.EndSellDate <= DateTime.Now)
             {
@@ -148,6 +148,16 @@ namespace Events.Business.Services
                 {
                     StatusCode = 400,
                     Message = "StartSellDate must be before EndSellDate",
+                    IsSuccess = false
+                };
+            }
+
+            if(createEventDTO.SubjectId == 0)
+            {
+                return new BaseResponse
+                {
+                    StatusCode = 400,
+                    Message = "SubjectId can not be null",
                     IsSuccess = false
                 };
             }
@@ -231,6 +241,108 @@ namespace Events.Business.Services
                 }
             }
 
+            //if(createEventDTO.Sponsorships != null)
+            //{
+            //    foreach (var sponsorshipDTO in createEventDTO.Sponsorships)
+            //    {
+            //        var sponsorDTO = sponsorshipDTO.Sponsor;
+            //        if (sponsorDTO != null)
+            //        {
+            //            // Validate email format
+            //            if (!ValidationUtils.IsValidEmail(sponsorDTO.Email))
+            //            {
+            //                return new BaseResponse
+            //                {
+            //                    StatusCode = 400,
+            //                    Message = "Invalid email format",
+            //                    IsSuccess = false
+            //                };
+            //            }
+
+            //            // Validate phone number format
+            //            if (!ValidationUtils.IsPhoneNumber(sponsorDTO.PhoneNumber))
+            //            {
+            //                return new BaseResponse
+            //                {
+            //                    StatusCode = 400,
+            //                    Message = "Phone number should contain only digits",
+            //                    IsSuccess = false
+            //                };
+            //            }
+
+            //            var existEmailSponsors = await _sponsorRepository.GetSponsorByEmailAsync(sponsorDTO.Email);
+            //            var existPhoneSponsors = await _sponsorRepository.GetSponsorByPhoneNumberAsync(sponsorDTO.PhoneNumber);
+
+            //            if (existPhoneSponsors == null && existEmailSponsors == null)
+            //            {
+            //                var existingAccountsByEmail = await _accountRepository.GetAccountsByEmailList(sponsorDTO.Email);
+            //                var existingAccountsByPhone = await _accountRepository.GetAccountsByPhoneNumberList(sponsorDTO.PhoneNumber);
+
+            //                int accountId = 0;
+            //                var matchedAccount = existingAccountsByEmail.FirstOrDefault(e => existingAccountsByPhone.Any(p => p.Id == e.Id));
+
+            //                // Check if account exists by both email and phone
+            //                if (matchedAccount != null)
+            //                {
+            //                    accountId = matchedAccount.Id;
+            //                }
+            //                else
+            //                {
+            //                    var accountDTO = new AccountDTO
+            //                    {
+            //                        Name = sponsorDTO.Name,
+            //                        Email = sponsorDTO.Email,
+            //                        Username = sponsorDTO.Email,
+            //                        Password = "1", // Default password
+            //                        StudentId = "", // Or any default/required value
+            //                        PhoneNumber = sponsorDTO.PhoneNumber,
+            //                        Dob = DateTime.Now,
+            //                        Gender = "Others", // Or set appropriately
+            //                        AvatarUrl = null,
+            //                        AccountStatus = "Active",
+            //                        RoleId = 3, // Sponsor role
+            //                        SubjectId = null
+            //                    };
+
+            //                    _emailHelper.SendEmailToNewAccount(accountDTO.Email, accountDTO.Username, accountDTO.Password);
+
+            //                    var accountCreate = _mapper.Map<Account>(accountDTO);
+            //                    var createdAccount = await _accountRepository.CreateAccount(accountCreate);
+
+            //                    if (createdAccount != null)
+            //                    {
+            //                        accountId = createdAccount.Id;
+            //                    }
+            //                    else
+            //                    {
+            //                        return new BaseResponse
+            //                        {
+            //                            StatusCode = 500,
+            //                            Message = "Account creation failed",
+            //                            IsSuccess = false
+            //                        };
+            //                    }
+            //                }
+
+            //                var newSponsor = _mapper.Map<Sponsor>(sponsorDTO);
+            //                newSponsor.AccountId = accountId;
+            //                newSponsor.AvatarUrl = null; // Manually set AvatarUrl to null
+            //                var sponsorResult = await _sponsorRepository.AddSponsorAsync(newSponsor);
+
+            //                if (!sponsorResult)
+            //                {
+            //                    return new BaseResponse
+            //                    {
+            //                        StatusCode = 500,
+            //                        Message = "Sponsor creation failed",
+            //                        IsSuccess = false
+            //                    };
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+
             // Map the DTO to the Event entity
 
             Event eventCreate = new Event
@@ -254,189 +366,230 @@ namespace Events.Business.Services
             // Set the EventStatus to Pending
             //newEvent.EventStatus = EventStatus.Pending;
 
-            // Add the event to the repository and save changes to generate EventId
-            await _eventRepository.Add(eventCreate);
+            var eventResult = await _eventRepository.Add(eventCreate);
 
-            foreach (var scheduleDTO in createEventDTO.ScheduleList)
+            if (!eventResult)
             {
-                var newEventSchedule = _mapper.Map<EventSchedule>(scheduleDTO);
-                newEventSchedule.EventId = eventCreate.Id;
-                await _eventScheduleRepository.AddEventScheduleAsync(newEventSchedule);
-            }
-
-     //      await _sponsorRepository.DeleteDuplicateSponsorsAsync();
-     //       await _sponsorRepository.DeleteSponsorsWithNullAccountIdAsync();
-
-            if (createEventDTO.Sponsorships != null)
-            {
-                foreach (var sponsorshipDTO in createEventDTO.Sponsorships)
+                return new BaseResponse
                 {
-                    var sponsorDTO = sponsorshipDTO.Sponsor;
-                    if (sponsorDTO != null)
+                    StatusCode = 500,
+                    Message = "Event create failed",
+                    IsSuccess = false
+                };
+            }
+            else
+            {
+                foreach (var scheduleDTO in createEventDTO.ScheduleList)
+                {
+                    var newEventSchedule = _mapper.Map<EventSchedule>(scheduleDTO);
+                    newEventSchedule.EventId = eventCreate.Id;
+                    await _eventScheduleRepository.AddEventScheduleAsync(newEventSchedule);
+                }
+
+                // Add the event to the repository and save changes to generate EventId
+
+                //      await _sponsorRepository.DeleteDuplicateSponsorsAsync();
+                //       await _sponsorRepository.DeleteSponsorsWithNullAccountIdAsync();
+
+                if (createEventDTO.Sponsorships != null)
+                {
+                    foreach (var sponsorshipDTO in createEventDTO.Sponsorships)
                     {
-                        // Validate email format
-                        if (!ValidationUtils.IsValidEmail(sponsorDTO.Email))
+                        var sponsorDTO = sponsorshipDTO.Sponsor;
+                        if (sponsorDTO != null)
                         {
-                            return new BaseResponse
+                            // Validate email format
+                            if (!ValidationUtils.IsValidEmail(sponsorDTO.Email))
                             {
-                                StatusCode = 400,
-                                Message = "Invalid email format",
-                                IsSuccess = false
-                            };
-                        }
-
-                        // Validate phone number format
-                        if (!ValidationUtils.IsPhoneNumber(sponsorDTO.PhoneNumber))
-                        {
-                            return new BaseResponse
-                            {
-                                StatusCode = 400,
-                                Message = "Phone number should contain only digits",
-                                IsSuccess = false
-                            };
-                        }
-
-                        var existEmailSponsors = await _sponsorRepository.GetSponsorByEmailAsync(sponsorDTO.Email);
-                        var existPhoneSponsors = await _sponsorRepository.GetSponsorByPhoneNumberAsync(sponsorDTO.PhoneNumber);
-
-                        if(existPhoneSponsors == null && existEmailSponsors == null)
-                        {
-                            var existingAccountsByEmail = await _accountRepository.GetAccountsByEmailList(sponsorDTO.Email);
-                            var existingAccountsByPhone = await _accountRepository.GetAccountsByPhoneNumberList(sponsorDTO.PhoneNumber);
-
-                            int accountId = 0;
-                            var matchedAccount = existingAccountsByEmail.FirstOrDefault(e => existingAccountsByPhone.Any(p => p.Id == e.Id));
-
-                            // Check if account exists by both email and phone
-                            if (matchedAccount != null)
-                            {
-                                accountId = matchedAccount.Id;
-                            }
-                            else
-                            {
-                                var accountDTO = new AccountDTO
+                                return new BaseResponse
                                 {
-                                    Name = sponsorDTO.Name,
-                                    Email = sponsorDTO.Email,
-                                    Username = sponsorDTO.Email,
-                                    Password = "1", // Default password
-                                    StudentId = "", // Or any default/required value
-                                    PhoneNumber = sponsorDTO.PhoneNumber,
-                                    Dob = DateTime.Now,
-                                    Gender = "Others", // Or set appropriately
-                                    AvatarUrl = null,
-                                    AccountStatus = "Active",
-                                    RoleId = 3, // Sponsor role
-                                    SubjectId = null
+                                    StatusCode = 200,
+                                    Message = "Create event successfully but sponsor failed because of invalid email format",
+                                    IsSuccess = true
                                 };
+                            }
 
-                                _emailHelper.SendEmailToNewAccount(accountDTO.Email, accountDTO.Username, accountDTO.Password);
-
-                                var accountCreate = _mapper.Map<Account>(accountDTO);
-                                var createdAccount = await _accountRepository.CreateAccount(accountCreate);
-
-                                if (createdAccount != null)
+                            // Validate phone number format
+                            if (!ValidationUtils.IsPhoneNumber(sponsorDTO.PhoneNumber))
+                            {
+                                return new BaseResponse
                                 {
-                                    accountId = createdAccount.Id;
+                                    StatusCode = 200,
+                                    Message = "Create event successfully but sponsor failed because of invalid phone number format",
+                                    IsSuccess = true
+                                };
+                            }
+
+                            var existEmailSponsors = await _sponsorRepository.GetSponsorByEmailAsync(sponsorDTO.Email);
+                            var existPhoneSponsors = await _sponsorRepository.GetSponsorByPhoneNumberAsync(sponsorDTO.PhoneNumber);
+
+                            if (existPhoneSponsors == null && existEmailSponsors == null)
+                            {
+                                var existingAccountsByEmail = await _accountRepository.GetAccountsByEmailList(sponsorDTO.Email);
+                                var existingAccountsByPhone = await _accountRepository.GetAccountsByPhoneNumberList(sponsorDTO.PhoneNumber);
+
+                                int accountId = 0;
+                                var matchedAccount = existingAccountsByEmail.FirstOrDefault(e => existingAccountsByPhone.Any(p => p.Id == e.Id));
+
+                                // Check if account exists by both email and phone
+                                if (matchedAccount != null)
+                                {
+                                    accountId = matchedAccount.Id;
                                 }
                                 else
                                 {
+                                    var accountDTO = new AccountDTO
+                                    {
+                                        Name = sponsorDTO.Name,
+                                        Email = sponsorDTO.Email,
+                                        Username = sponsorDTO.Email,
+                                        Password = "123456", // Default password
+                                        StudentId = "", // Or any default/required value
+                                        PhoneNumber = sponsorDTO.PhoneNumber,
+                                        Dob = DateTime.Now,
+                                        Gender = "Others", // Or set appropriately
+                                        AvatarUrl = null,
+                                        AccountStatus = "Active",
+                                        RoleId = 3, // Sponsor role
+                                        SubjectId = null
+                                    };
+
+                                    var accountCreate = _mapper.Map<Account>(accountDTO);
+                                    var createdAccount = await _accountRepository.CreateAccount(accountCreate);
+
+                                    if (createdAccount != null)
+                                    {
+                                        accountId = createdAccount.Id;
+                                        _emailHelper.SendEmailToNewAccount(accountDTO.Email, accountDTO.Username, accountDTO.Password);
+                                    }
+                                    else
+                                    {
+                                        return new BaseResponse
+                                        {
+                                            StatusCode = 200,
+                                            Message = "Create event successfully but sponsor failed",
+                                            IsSuccess = true
+                                        };
+                                    }
+                                }
+
+                                var newSponsor = _mapper.Map<Sponsor>(sponsorDTO);
+                                newSponsor.AccountId = accountId;
+                                newSponsor.AvatarUrl = null; // Manually set AvatarUrl to null
+                                var sponsorResult = await _sponsorRepository.AddSponsorAsync(newSponsor);
+
+                                if (!sponsorResult)
+                                {
                                     return new BaseResponse
                                     {
-                                        StatusCode = 500,
-                                        Message = "Account creation failed",
-                                        IsSuccess = false
+                                        StatusCode = 200,
+                                        Message = "Create event successfully but sponsor failed",
+                                        IsSuccess = true
+                                    };
+                                }
+                                else
+                                {
+                                    var sum = sponsorshipDTO.Sum;
+                                    string type;
+                                    if (sum < 1000000)
+                                    {
+                                        type = "Bronze";
+                                    }
+                                    else if (1000000 <= sum && sum <= 5000000)
+                                    {
+                                        type = "Silver";
+                                    }
+                                    else if (5000000 <= sum && sum <= 10000000)
+                                    {
+                                        type = "Gold";
+                                    }
+                                    else
+                                    {
+                                        type = "Platinum";
+                                    }
+
+                                    var sponsorship = new Sponsorship
+                                    {
+                                        EventId = eventCreate.Id,
+                                        SponsorId = newSponsor.Id,
+                                        Description = string.Empty,
+                                        Type = type,
+                                        Title = sponsorshipDTO.Title,
+                                        Sum = sponsorshipDTO.Sum
+                                    };
+
+                                    // Add the sponsorship to the repository
+                                    var sponsorshipResult = await _sponsorshipRepository.CreateSponsorship(sponsorship);
+
+                                    if (!sponsorshipResult)
+                                    {
+                                        return new BaseResponse
+                                        {
+                                            StatusCode = 200,
+                                            Message = "Create event successfully but sponsorship failed",
+                                            IsSuccess = true
+                                        };
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var sum = sponsorshipDTO.Sum;
+                                string type;
+                                if (sum < 1000000)
+                                {
+                                    type = "Bronze";
+                                }
+                                else if (1000000 <= sum && sum <= 5000000)
+                                {
+                                    type = "Silver";
+                                }
+                                else if (5000000 <= sum && sum <= 10000000)
+                                {
+                                    type = "Gold";
+                                }
+                                else
+                                {
+                                    type = "Platinum";
+                                }
+                                var sponsorship = new Sponsorship
+                                {
+                                    EventId = eventCreate.Id,
+                                    SponsorId = existEmailSponsors.Id,
+                                    Description = string.Empty,
+                                    Type = type,
+                                    Title = sponsorshipDTO.Title,
+                                    Sum = sponsorshipDTO.Sum
+                                };
+
+                                // Add the sponsorship to the repository
+                                var sponsorshipResult = await _sponsorshipRepository.CreateSponsorship(sponsorship);
+
+                                if (!sponsorshipResult)
+                                {
+                                    return new BaseResponse
+                                    {
+                                        StatusCode = 200,
+                                        Message = "Create event successfully but sponsorship failed",
+                                        IsSuccess = true
                                     };
                                 }
                             }
 
-                            var newSponsor = _mapper.Map<Sponsor>(sponsorDTO);
-                            newSponsor.AccountId = accountId;
-                            newSponsor.AvatarUrl = null; // Manually set AvatarUrl to null
-                            await _sponsorRepository.AddSponsorAsync(newSponsor);
-
-                            var sum = sponsorshipDTO.Sum;
-                            string type;
-                            if (sum < 1000000)
-                            {
-                                type = "Bronze";
-                            }
-                            else if (1000000 <= sum && sum <= 5000000)
-                            {
-                                type = "Silver";
-                            }
-                            else if (5000000 <= sum && sum <= 10000000)
-                            {
-                                type = "Gold";
-                            }
-                            else
-                            {
-                                type = "Platinum";
-                            }
-
-                            var sponsorship = new Sponsorship
-                            {
-                                EventId = eventCreate.Id,
-                                SponsorId = newSponsor.Id,
-                                Description = string.Empty,
-                                Type = type,
-                                Title = sponsorshipDTO.Title,
-                                Sum = sponsorshipDTO.Sum
-                            };
-
-                            // Add the sponsorship to the repository
-                            await _sponsorshipRepository.CreateSponsorship(sponsorship);
                         }
-                        else
-                        {
-                            var sum = sponsorshipDTO.Sum;
-                            string type;
-                            if (sum < 1000000)
-                            {
-                                type = "Bronze";
-                            }
-                            else if (1000000 <= sum && sum <= 5000000)
-                            {
-                                type = "Silver";
-                            }
-                            else if (5000000 <= sum && sum <= 10000000)
-                            {
-                                type = "Gold";
-                            }
-                            else
-                            {
-                                type = "Platinum";
-                            }
-                            var sponsorship = new Sponsorship
-                            {
-                                EventId = eventCreate.Id,
-                                SponsorId = existEmailSponsors.Id,
-                                Description = string.Empty,
-                                Type = type,
-                                Title = sponsorshipDTO.Title,
-                                Sum = sponsorshipDTO.Sum
-                            };
-
-                            // Add the sponsorship to the repository
-                            await _sponsorshipRepository.CreateSponsorship(sponsorship);
-                        }
-
                     }
                 }
+
+                var eventDTO = _mapper.Map<EventDTO>(eventCreate);
+
+                return new BaseResponse
+                {
+                    StatusCode = 201,
+                    IsSuccess = true,
+                    Data = eventDTO
+                };
             }
-
-            var eventDTO = _mapper.Map<EventDTO>(eventCreate);
-
-            return new BaseResponse
-            {
-                StatusCode = 201,
-                IsSuccess = true,
-                Data = eventDTO
-            };
         }
-
-
-
 
         public async Task<BaseResponse> GetEventById(int id)
         {
