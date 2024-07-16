@@ -1,4 +1,5 @@
-﻿using Events.Models.DTOs.Response;
+﻿using Events.Models.DTOs.Request;
+using Events.Models.DTOs.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace Events.Business.Services.Interfaces
     {
         Task<BaseResponse> GetAllSubjects();
         Task<BaseResponse> GetSubjectById(int id);
+        Task<BaseResponse> CreateSubject(CreateSubjectDTO createSubject);
+        Task<BaseResponse> UpdateSubject(int id, CreateSubjectDTO createSubject);
     }
 }
