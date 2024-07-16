@@ -58,8 +58,9 @@ namespace Events.Data.Repositories
     
 
 		public async Task<Sponsor> GetSponsorByIdAsync(int id) => await _context.Sponsors.FindAsync(id) ?? throw new KeyNotFoundException("Sponsor not found!");
+        public async Task<Sponsor> GetSponsorById(int id) => await _context.Sponsors.FirstOrDefaultAsync(e => e.Id == id) ?? throw new KeyNotFoundException("Sponsor not found!");
 
-		public async Task<bool> AddSponsorAsync(Sponsor sponsor)
+        public async Task<bool> AddSponsorAsync(Sponsor sponsor)
 		{
 			_context.Sponsors.Add(sponsor);
 			return await _context.SaveChangesAsync() > 0;

@@ -8,9 +8,9 @@ namespace Events.Models.DTOs.Request
 {
     public class CreateSponsorshipEventDTO
     {
-        public string? Description { get; set; }
+//        public string? Description { get; set; }
 
-        public string Type { get; set; } = null!;
+//        public string Type { get; set; } = null!;
 
         public string Title { get; set; } = null!;
 
