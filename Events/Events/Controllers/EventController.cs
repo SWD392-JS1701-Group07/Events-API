@@ -52,14 +52,7 @@ namespace Events.API.Controllers
             // Create the event
             var response = await _eventService.CreateEvent(createEventDTO);
 
-            if (!response.IsSuccess)
-            {
-                return StatusCode(response.StatusCode, response.Message);
-            }
-
-            var createdEvent = response.Data as EventDTO;
-
-            return CreatedAtAction(nameof(CreateEvent), new { id = createdEvent.Id }, createdEvent);
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPatch("image")]
