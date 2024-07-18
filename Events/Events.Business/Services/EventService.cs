@@ -405,6 +405,7 @@ namespace Events.Business.Services
                                 {
                                     StatusCode = 200,
                                     Message = "Create event successfully but sponsor failed because of invalid email format",
+                                    Data = _mapper.Map<Event>(eventCreate),
                                     IsSuccess = true
                                 };
                             }
@@ -416,6 +417,7 @@ namespace Events.Business.Services
                                 {
                                     StatusCode = 200,
                                     Message = "Create event successfully but sponsor failed because of invalid phone number format",
+                                    Data = _mapper.Map<Event>(eventCreate),
                                     IsSuccess = true
                                 };
                             }
@@ -468,6 +470,7 @@ namespace Events.Business.Services
                                         {
                                             StatusCode = 200,
                                             Message = "Create event successfully but sponsor failed",
+                                            Data = _mapper.Map<Event>(eventCreate),
                                             IsSuccess = true
                                         };
                                     }
@@ -484,6 +487,7 @@ namespace Events.Business.Services
                                     {
                                         StatusCode = 200,
                                         Message = "Create event successfully but sponsor failed",
+                                        Data = _mapper.Map<Event>(eventCreate),
                                         IsSuccess = true
                                     };
                                 }
@@ -527,6 +531,7 @@ namespace Events.Business.Services
                                         {
                                             StatusCode = 200,
                                             Message = "Create event successfully but sponsorship failed",
+                                            Data = _mapper.Map<Event>(eventCreate),
                                             IsSuccess = true
                                         };
                                     }
@@ -571,6 +576,7 @@ namespace Events.Business.Services
                                     {
                                         StatusCode = 200,
                                         Message = "Create event successfully but sponsorship failed",
+                                        Data = _mapper.Map<Event>(eventCreate),
                                         IsSuccess = true
                                     };
                                 }
@@ -586,6 +592,7 @@ namespace Events.Business.Services
                 {
                     StatusCode = 201,
                     IsSuccess = true,
+                    Message = "Create succesfully",
                     Data = eventDTO
                 };
             }
