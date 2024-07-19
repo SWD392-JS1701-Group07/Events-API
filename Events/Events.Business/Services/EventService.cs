@@ -121,7 +121,7 @@ namespace Events.Business.Services
                     IsSuccess = false
                 };
             }
-            if (createEventDTO.StartSellDate < DateTime.Now)
+            if (createEventDTO.StartSellDate < DateTime.UtcNow.AddHours(7))
             {
                 return new BaseResponse
                 {
@@ -131,7 +131,7 @@ namespace Events.Business.Services
                 };
             }
 
-            if (createEventDTO.EndSellDate <= DateTime.Now)
+            if (createEventDTO.EndSellDate <= DateTime.UtcNow.AddHours(7))
             {
                 return new BaseResponse
                 {
