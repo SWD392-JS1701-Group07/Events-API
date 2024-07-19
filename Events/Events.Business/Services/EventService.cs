@@ -1026,5 +1026,38 @@ namespace Events.Business.Services
                 };
             }
         }
+
+        public async Task<List<EventDTO>> GetAllOngoingEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
+        {
+            var events = await _eventRepository.GetAllOngoingEvents(searchTerm, sortColumn, sortOrder, page, pageSize);
+
+            List<EventDTO> result = new List<EventDTO>();
+
+            foreach (var c in events)
+            {
+                var example = await _eventScheduleRepository.GetEventScheduleById(c.Id);
+                var schedule = _mapper.Map<List<EventScheduleDTO>>(example);
+
+                EventDTO element = new EventDTO
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    StartSellDate = c.StartSellDate,
+                    EndSellDate = c.EndSellDate,
+                    Price = c.Price,
+                    Quantity = c.Quantity,
+                    AvatarUrl = c.AvatarUrl,
+                    Description = c.Description,
+                    EventStatus = c.EventStatus.ToString(),
+                    OwnerId = c.OwnerId,
+                    SubjectId = c.SubjectId,
+                    ScheduleList = schedule
+                };
+
+                result.Add(element);
+            }
+
+            return result;
+        }
     }
 }

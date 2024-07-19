@@ -38,6 +38,21 @@ namespace Events.API.Controllers
                 return Ok(events);
             }
         }
+
+        [HttpGet("ongoing")]
+        public async Task<IActionResult> ViewAllOngoingEvents([FromQuery] string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
+        {
+            var events = await _eventService.GetAllOngoingEvents(searchTerm, sortColumn, sortOrder, page, pageSize);
+            if (events == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(events);
+            }
+        }
+
         [HttpPost]
         [Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status201Created)]
