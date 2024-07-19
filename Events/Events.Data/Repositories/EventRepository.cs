@@ -123,17 +123,17 @@ namespace Events.Data.Repositories
 
 		public async Task<bool> UpdateTicketQuantity(Event eventEntity, int quantity)
 		{
-            var local = _context.Set<Event>().Local.FirstOrDefault(entity => entity.Id == eventEntity.Id);
-            if (local != null)
-            {
-                _context.Entry(local).State = EntityState.Detached;
-            }
-            if(quantity < eventEntity.Remaining)
-            {
+			var local = _context.Set<Event>().Local.FirstOrDefault(entity => entity.Id == eventEntity.Id);
+			if (local != null)
+			{
+				_context.Entry(local).State = EntityState.Detached;
+			}
+			if (quantity <= eventEntity.Remaining)
+			{
 				eventEntity.Remaining -= quantity;
 			}
 			_context.Events.Update(eventEntity);
-            return await _context.SaveChangesAsync() > 0;
+			return await _context.SaveChangesAsync() > 0;
 		}
     
             public async Task<List<Event>> GetEventsByStatus(EventStatus status)

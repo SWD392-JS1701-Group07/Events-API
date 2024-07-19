@@ -327,7 +327,7 @@ namespace Events.Business.Services
 													return new BaseResponse
 													{
 														StatusCode = StatusCodes.Status500InternalServerError,
-														Message = "There was an error when updating ticket quantities!!",
+														Message = "Not enough ticket !!",
 														IsSuccess = false
 													};
 												}
@@ -423,12 +423,16 @@ namespace Events.Business.Services
 		private async Task<BaseResponse> ValidateRequest(CreateOrderRequest request)
 		{
 			var errors = new Dictionary<string, List<string>>();
+			// Group tickets by EventId and count the number of tickets for each event
+			var eventTicketCounts = request.Tickets
+				.GroupBy(ticket => ticket.EventId)
+				.ToDictionary(group => group.Key, group => group.Count());
 			foreach (var ticketDetail in request.Tickets)
 			{
 				var eventEntity = await _eventRepository.GetEventById(ticketDetail.EventId);
 				string eventName;
-				double eventPrice = 0;  
-				if(eventEntity != null)
+				double eventPrice = 0;
+				if (eventEntity != null)
 				{
 					eventName = eventEntity.Name;
 					eventPrice = eventEntity!.Price;
@@ -457,7 +461,7 @@ namespace Events.Business.Services
 				}
 
 				//check event exist
-				if (eventEntity == null)
+				else
 				{
 					var key = $"{ticketDetail.EventId}";
 					if (!errors.ContainsKey(key))
@@ -467,6 +471,22 @@ namespace Events.Business.Services
 					errors[key].Add($"Not found Event with event id '{ticketDetail.EventId}'");
 				}
 			}
+
+			// Check if the number of requested tickets exceeds available tickets
+			foreach (var eventId in eventTicketCounts.Keys)
+			{
+				var eventEntity = await _eventRepository.GetEventById(eventId);
+				if (eventEntity != null && eventEntity.Remaining < eventTicketCounts[eventId])
+				{
+					var keyTicketAvailability = $"{eventId}-availability";
+					if (!errors.ContainsKey(keyTicketAvailability))
+					{
+						errors.Add(keyTicketAvailability, new List<string>());
+					}
+					errors[keyTicketAvailability].Add($"Not enough tickets available for event '{eventEntity.Name}'. Available: {eventEntity.Remaining}, Requested: {eventTicketCounts[eventId]}");
+				}
+			}
+
 			if (errors.Count!=0)
 			{
 				return new BaseResponse

@@ -913,6 +913,11 @@ namespace Events.Business.Services
 					throw new KeyNotFoundException("Event not found");
 				}
 
+				if (eventEntity.Remaining < ticketCount)
+				{
+					return false;
+				}
+
 				bool isSuccess = await _eventRepository.UpdateTicketQuantity(eventEntity, ticketCount);
                 if (!isSuccess)
                 {
