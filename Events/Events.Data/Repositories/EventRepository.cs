@@ -157,6 +157,45 @@ namespace Events.Data.Repositories
         {
             return await _context.Events.Where(e => e.OwnerId == id).ToListAsync();
         }
+
+        public async Task<List<Event>> GetAllOngoingEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize)
+        {
+            IQueryable<Event> eventQuery = _context.Events.Where(e => e.EventStatus == EventStatus.Ongoing);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                eventQuery = eventQuery.Where(p => p.Name.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortColumn) && !string.IsNullOrWhiteSpace(sortOrder))
+            {
+                Expression<Func<Event, object>> keySelector = sortColumn switch
+                {
+                    "name" => e => e.Name,
+                    "price" => e => e.Price,
+                    "quantity" => e => e.Quantity,
+                    "startselldate" => e => e.StartSellDate,
+                    "endselldate" => e => e.EndSellDate,
+                    _ => e => e.Id,
+                };
+
+                eventQuery = sortOrder.ToLower() switch
+                {
+                    "asc" => eventQuery.OrderBy(keySelector),
+                    "desc" => eventQuery.OrderByDescending(keySelector),
+                    _ => eventQuery.OrderBy(keySelector)
+                };
+            }
+            else
+            {
+                eventQuery = eventQuery.OrderBy(e => e.Id);
+            }
+
+            eventQuery = eventQuery.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var events = await eventQuery.ToListAsync();
+            return events;
+        }
     }
 	}
 

@@ -12,6 +12,8 @@ namespace Events.Data.Repositories.Interfaces
     public interface IEventRepository
     {
         Task<List<Event>> GetAllEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
+        Task<List<Event>> GetAllOngoingEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
+    //    Task<List<Event>> GetAllPedningEvents(string? searchTerm, string? sortColumn, string? sortOrder, int page, int pageSize);
 
         Task<bool> Add(Event newEvent);
         Task SaveChangesAsync();
